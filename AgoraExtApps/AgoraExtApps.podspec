@@ -18,7 +18,7 @@ Pod::Spec.new do |spec|
   spec.dependency "AgoraUIBaseViews", ">=2.1.0"
   spec.dependency "SwifterSwift"
   spec.dependency "AgoraExtApp", ">=2.1.0"
-  spec.dependency "AgoraLog"
+  spec.dependency "AgoraLog", "1.0.2"
   spec.dependency "Masonry"
   spec.dependency "Armin"
   
