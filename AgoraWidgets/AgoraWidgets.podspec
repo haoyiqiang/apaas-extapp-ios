@@ -12,7 +12,7 @@ Pod::Spec.new do |spec|
   spec.swift_versions        = ["5.0", "5.1", "5.2", "5.3", "5.4"]
 
   spec.source       = { :git => "git@github.com:AgoraIO-Community/apaas-extapp-ios.git", :tag => "AgoraWidgets_v" + "#{spec.version.to_s}" }
-  spec.source_files = "AgoraWidgets/AgoraWidgets/Common/*.{h,m,swift}", "AgoraWidgets/RenderSpread/*.{h,m,swift}", "AgoraWidgets/Cloud/**/*.{h,m,swift}", "AgoraWidgets/Whiteboard/**/*.{h,m,swift}", "AgoraWidgets/ChatWidget/**/*.{h,m,swift}", "AgoraWidgets/RtmIM/**/*.{h,m,swift}"
+  spec.source_files = "AgoraWidgets/Common/*.{h,m,swift}", "AgoraWidgets/RenderSpread/**/*.{h,m,swift}", "AgoraWidgets/Cloud/**/*.{h,m,swift}", "AgoraWidgets/Whiteboard/**/*.{h,m,swift}", "AgoraWidgets/ChatWidget/**/*.{h,m,swift}", "AgoraWidgets/RtmIM/**/*.{h,m,swift}"
   
   spec.dependency "AgoraUIBaseViews", ">=2.1.0"
   spec.dependency "AgoraWidget", ">=2.1.0"
@@ -39,7 +39,7 @@ Pod::Spec.new do |spec|
   
   spec.subspec "Resources" do |ss|
       ss.resource_bundles = {
-        "AgoraWidgets" => ["AgoraResources/**/*.{xcassets,strings,gif,mp3}"]
+        "AgoraWidgets" => ["AgoraWidgets/AgoraResources/**/*.{xcassets,strings,gif,mp3}"]
       }
   end
 end
