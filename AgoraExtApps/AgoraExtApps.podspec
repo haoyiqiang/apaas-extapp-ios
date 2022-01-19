@@ -30,7 +30,7 @@ Pod::Spec.new do |spec|
   
   spec.subspec "Resources" do |ss|
       ss.resource_bundles = {
-        "AgoraExtApps" => ["Assets/**/*.{xcassets,strings,gif,mp3}"]
+        "AgoraExtApps" => ["AgoraExtApps/Assets/**/*.{xcassets,strings,gif,mp3}"]
       }
   end
 end
