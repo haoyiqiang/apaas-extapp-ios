@@ -7,6 +7,6 @@ if [ ${#SDK_Version} -le 0 ]; then
 fi
 
 SDK_Name="AgoraExtApps"
-SDK_Path="../../../ExtApps"
+SDK_Path="../../.."
 
 ./publish_cocoapods.sh ${SDK_Name} ${SDK_Path} ${SDK_Version}
