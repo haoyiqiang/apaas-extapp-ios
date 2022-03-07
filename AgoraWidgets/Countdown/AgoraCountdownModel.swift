@@ -6,23 +6,13 @@
 //
 
 enum AgoraCountdownState: Int, Convertable {
-    case none = -1, initial = 0, during = 1
+    case initial = 0, during = 1
 }
 
-struct AgoraCountdownExtraModel: Convertable, Equatable {
-    var startTime: Int64 = 0
-    var state: AgoraCountdownState = .none
-    var duration: Int64 = 0
-    
-    static func == (lhs: Self,
-                    rhs: Self) -> Bool {
-        guard lhs.startTime == rhs.startTime,
-              lhs.state == rhs.state,
-              lhs.duration == rhs.duration else {
-            return false
-        }
-        return true
-    }
+struct AgoraCountdownExtraModel: Convertable {
+    var startTime: Int64
+    var state: AgoraCountdownState
+    var duration: Int64
 }
 
 enum AgoraCountdownInteractionSignal: Convertable {
@@ -38,7 +28,7 @@ enum AgoraCountdownInteractionSignal: Convertable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         if let ts = try? container.decode(Int64.self,
-                                                 forKey: .sendTimestamp) {
+                                          forKey: .sendTimestamp) {
             self = .sendTimestamp(ts)
         } else if let _ = try? container.decodeNil(forKey: .getTimestamp) {
             self = .getTimestamp

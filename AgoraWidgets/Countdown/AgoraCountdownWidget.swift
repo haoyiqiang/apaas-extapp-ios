@@ -15,22 +15,11 @@ import AgoraWidget
     private var logger: AgoraLogger
     
     /**View**/
-    private lazy var countdownView: AgoraCountdownView = {
-        return AgoraCountdownView(delegate: self)
-    }()
-    
-    private var curFrame: CGRect = .zero {
+    private var countdownView: AgoraCountdownView!
+
+    private var curExtra: AgoraCountdownExtraModel? {
         didSet {
-            if curFrame != oldValue {
-                handleRoomProperties()
-            }
-        }
-    }
-    private var curExtra = AgoraCountdownExtraModel() {
-        didSet {
-            if curExtra != oldValue {
-                handleRoomProperties()
-            }
+            handleRoomProperties()
         }
     }
     
@@ -56,14 +45,7 @@ import AgoraWidget
     
     // MARK: widget callback
     public override func onWidgetDidLoad() {
-        if let roomProps = info.roomProperties,
-           let countdownExtraModel = roomProps.toObj(AgoraCountdownExtraModel.self) {
-            curExtra = countdownExtraModel
-        }
-        
-        if info.syncFrame != .zero {
-            curFrame = info.syncFrame
-        }
+        countdownView = AgoraCountdownView(frame: .zero)
         
         if isTeacher {
             
@@ -81,7 +63,10 @@ import AgoraWidget
             }
         }
         
-        handleRoomProperties()
+        if let roomProps = info.roomProperties,
+           let countdownExtraModel = roomProps.toObj(AgoraCountdownExtraModel.self) {
+            curExtra = countdownExtraModel
+        }
     }
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
@@ -91,13 +76,15 @@ import AgoraWidget
             curExtra = countdownExtraModel
         }
     }
-
-    public override func onSyncFrameUpdated(_ syncFrame: CGRect) {
-        curFrame = syncFrame
-    }
     
     public override func onMessageReceived(_ message: String) {
         logInfo("onMessageReceived:\(message)")
+        
+        
+        if let tsDic = message.toDic() ,
+           let syncTimestamp = tsDic["syncTimestamp"] as? Int64 {
+            countdownView.invokeCountDown(duration: calculateCountdown(curTs: syncTimestamp))
+        }
         
         if let signal = message.toCountdownSignal() {
             // TODO: 教师更新frame，需要updateRoomProps
@@ -115,26 +102,16 @@ import AgoraWidget
     }
 }
 
-// MARK: - AgoraCountdownViewDelegate
-extension AgoraCountdownWidget: AgoraCountdownViewDelegate {
-    func countDownDidStop() {
-        
-    }
-    func countDownUpTo(currrentSeconds: Int64) {
-        
-    }
-}
-
 // MARK: - private
 private extension AgoraCountdownWidget {
     func handleRoomProperties() {
-        guard curExtra != AgoraCountdownExtraModel() else {
-                  return
-              }
+        guard let extra = curExtra else {
+            return
+        }
         if isTeacher {
             
         } else {
-            switch curExtra.state {
+            switch extra.state {
             case .during:
                 sendMessage(.getTimestamp)
                 break
@@ -148,9 +125,12 @@ private extension AgoraCountdownWidget {
     
     // 根据服务端ts，extra的startTime及duration，计算出UI开始的倒计时
     func calculateCountdown(curTs: Int64) -> Int64 {
-        let timeGap = (curTs - curExtra.startTime) / 1000
+        guard let extra = curExtra else {
+            return 0
+        }
+        let timeGap = (curTs - extra.startTime) / 1000
         let gap = (timeGap < 0) ? 0 : timeGap
-        let duration = curExtra.duration - gap
+        let duration = extra.duration - gap
         return (duration < 0) ? 0 : duration
     }
     

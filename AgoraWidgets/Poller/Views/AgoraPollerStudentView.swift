@@ -33,11 +33,11 @@ protocol AgoraPollerStudentViewDelegate: NSObjectProtocol {
 class AgoraPollerStudentView: UIView {
     /**Data**/
     private weak var delegate: AgoraPollerStudentViewDelegate?
-    private var title: String
-    private var items: [String]
-    private var isSingle: Bool
-    private var presentedResult: Bool
-    private var pollingDetails: Dictionary<Int,AgoraPollerDetails>
+    private var title: String = ""
+    private var items = [String]()
+    private var isSingle: Bool = false
+    private var presentedResult: Bool = false
+    private var pollingDetails = Dictionary<Int,AgoraPollerDetails>()
     private var curChosesIndexs = [Int]() {
         didSet {
             submitEnable = (curChosesIndexs.count > 0)
@@ -121,18 +121,8 @@ class AgoraPollerStudentView: UIView {
         return button
     }()
     
-    init(isSingle: Bool,
-         isEnd: Bool,
-         title: String,
-         items: [String],
-         pollingDetails: Dictionary<Int,AgoraPollerDetails>,
-         delegate: AgoraPollerStudentViewDelegate?) {
-        self.presentedResult = isEnd
-        self.isSingle = isSingle
+    init(delegate: AgoraPollerStudentViewDelegate?) {
         self.delegate = delegate
-        self.items = items
-        self.pollingDetails = pollingDetails
-        self.title = title
         
         super.init(frame: .zero)
         
@@ -140,7 +130,8 @@ class AgoraPollerStudentView: UIView {
         createConstrains()
     }
     
-    func update(isEnd: Bool,
+    func update(isSingle: Bool,
+                isEnd: Bool,
                 title: String,
                 items: [String],
                 pollingDetails: Dictionary<Int,AgoraPollerDetails>) {
@@ -165,7 +156,7 @@ class AgoraPollerStudentView: UIView {
 }
 
 // MARK: - Table
-extension AgoraPollerStudentView: UITableViewDelegate,UITableViewDataSource {
+extension AgoraPollerStudentView: UITableViewDelegate, UITableViewDataSource {
     // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView,
                    numberOfRowsInSection section: Int) -> Int {
@@ -174,7 +165,7 @@ extension AgoraPollerStudentView: UITableViewDelegate,UITableViewDataSource {
     
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let reuseId = "PollingCell\(indexPath.row)"
+        let reuseId = "PollingCell"
         var cell = tableView.dequeueReusableCell(withIdentifier: reuseId) as? AgoraPollerSelectCell
         if cell == nil {
             cell = AgoraPollerSelectCell(style: .default,

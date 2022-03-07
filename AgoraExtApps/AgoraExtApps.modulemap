@@ -1,6 +1,0 @@
-framework module AgoraExtApps {
-  umbrella header "AgoraExtApps.h"
-
-  export *
-  module * { export * }
-}

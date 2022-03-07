@@ -44,37 +44,25 @@ enum AgoraPollerInteractionSignal: Convertable {
 }
 
 // MARK: - struct
-struct AgoraPollerExtraModel: Convertable, Equatable {
+struct AgoraPollerExtraModel: Convertable {
     /**投票状态**/
-    var pollingState: AgoraPollerState = .end
+    var pollingState: AgoraPollerState
     /**投票器id**/
-    var pollingId: String = ""
+    var pollingId: String
     /**投票模式**/
-    var mode: AgoraPollerMode = .single
+    var mode: AgoraPollerMode
     /**投票题目**/
-    var pollingTitle: String = ""
+    var pollingTitle: String
     /**选项内容**/
-    var pollingItems = [String]()
+    var pollingItems: [String]
     /**投票详情**/
-    var pollingDetails = Dictionary<Int,AgoraPollerDetails>()
-    
-    static func == (lhs: Self,
-                    rhs: Self) -> Bool {
-        guard lhs.pollingState == rhs.pollingState,
-              lhs.pollingId == rhs.pollingId,
-              lhs.mode == rhs.mode,
-              lhs.pollingTitle == rhs.pollingTitle,
-              lhs.pollingItems == rhs.pollingItems,
-              lhs.pollingDetails == rhs.pollingDetails else {
-            return false
-        }
-        return true
-    }
+    var pollingDetails: Dictionary<Int,AgoraPollerDetails>
+
 }
 
 struct AgoraPollerUserPropModel: Convertable {
-    var pollingId = ""
-    var selectIndex = [Int]()
+    var pollingId: String
+    var selectIndex: [Int]
 }
 
 struct AgoraPollerDetails: Convertable, Equatable {

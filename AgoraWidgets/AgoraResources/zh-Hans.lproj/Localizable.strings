@@ -70,3 +70,6 @@ PollerMulti = "多选";
 PollerSingle = "单选";
 PollerStart = "开始投票";
 PollerInputPlaceHolder = "请输入选项内容";
+
+// Countdown
+Countdown_title = "倒计时";

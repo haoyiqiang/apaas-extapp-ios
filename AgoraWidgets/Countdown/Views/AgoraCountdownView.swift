@@ -6,20 +6,13 @@
 //  Copyright © 2021 Agora. All rights reserved.
 //
 
-protocol AgoraCountdownViewDelegate: NSObjectProtocol {
-    func countDownDidStop()
-    func countDownUpTo(currrentSeconds: Int64)
-}
-
 public class AgoraCountdownView: UIView {
     private let isPad: Bool = UIDevice.current.isPad
     
     private var timer: DispatchSourceTimer?
     
     private var isSuspend: Bool = true
-    
-    fileprivate var delegate: AgoraCountdownViewDelegate?
-    
+        
     private var timeArr: Array<SingleTimeGroup> = []
     
     private var totalTime: Int64 = 0 {
@@ -44,7 +37,8 @@ public class AgoraCountdownView: UIView {
         view.clipsToBounds = true
 
         let titleLabel = UILabel()
-        titleLabel.text = "Countdown_title".ag_localizedIn("AgoraExtApps")
+        titleLabel.text = GetWidgetLocalizableString(object: self,
+                                                     key: "Countdown_title")
         titleLabel.textColor = .black
         titleLabel.font = UIFont.systemFont(ofSize: 14)
         
@@ -77,9 +71,9 @@ public class AgoraCountdownView: UIView {
         return colon
     }()
     
-    init(delegate: AgoraCountdownViewDelegate) {
+    public override init(frame: CGRect) {
         super.init(frame: .zero)
-        self.delegate = delegate
+
         initView()
         initLayout()
     }
@@ -102,9 +96,7 @@ public class AgoraCountdownView: UIView {
             if let `self` = self {
                 if self.totalTime > 0 {
                     self.totalTime -= 1
-                    self.delegate?.countDownUpTo(currrentSeconds: self.totalTime)
                 } else {
-                    self.delegate?.countDownDidStop()
                     self.timer?.cancel()
                     self.timer = nil
                 }
@@ -118,67 +110,47 @@ public class AgoraCountdownView: UIView {
         
         startTimer()
     }
-    
-    public func pauseCountDown() {
-        stopTimer()
-    }
-    
+
     public func cancelCountDown() {
         stopTimer()
-    }
-    
-    private func startTimer() {
-        if isSuspend {
-            timer?.resume()
-        }
-        isSuspend = false
-    }
-    
-    private func stopTimer() {
-        if isSuspend {
-            timer?.resume()
-        }
-        isSuspend = false
-        timer?.cancel()
-        timer = nil
     }
 }
 
 // MARK: UI
-extension AgoraCountdownView {
-    private func initView() {
-        isUserInteractionEnabled = true
-        backgroundColor = .white
-        addSubview(titleView)
-        addSubview(colonView)
-        if timeArr.count == 0 {
-            for _ in 0...3 {
-                let timeView = SingleTimeGroup(frame: .zero)
-                timeArr.append(timeView)
-                addSubview(timeView)
-            }
+private extension AgoraCountdownView {
+    func initView() {
+    isUserInteractionEnabled = true
+    backgroundColor = .white
+    addSubview(titleView)
+    addSubview(colonView)
+    if timeArr.count == 0 {
+        for _ in 0...3 {
+            let timeView = SingleTimeGroup(frame: .zero)
+            timeArr.append(timeView)
+            addSubview(timeView)
         }
-        
-        layer.shadowColor = UIColor(red: 0.18,
-                                    green: 0.25,
-                                    blue: 0.57,
-                                    alpha: 0.15).cgColor
-        layer.shadowOffset = CGSize(width: 0, height: 2)
-        layer.shadowOpacity = 1
-        layer.shadowRadius = 6
-        layer.shadowPath    = UIBezierPath(rect: frame).cgPath
-        
-        layer.borderWidth = 1
-        layer.borderColor = UIColor(red: 0.89,
-                                    green: 0.89,
-                                    blue: 0.93,
-                                    alpha: 1).cgColor
-        clipsToBounds = true
-        layer.cornerRadius = 6
-        
     }
+        
+    layer.shadowColor = UIColor(red: 0.18,
+                                green: 0.25,
+                                blue: 0.57,
+                                alpha: 0.15).cgColor
+    layer.shadowOffset = CGSize(width: 0, height: 2)
+    layer.shadowOpacity = 1
+    layer.shadowRadius = 6
+    layer.shadowPath    = UIBezierPath(rect: frame).cgPath
     
-    private func initLayout() {
+    layer.borderWidth = 1
+    layer.borderColor = UIColor(red: 0.89,
+                                green: 0.89,
+                                blue: 0.93,
+                                alpha: 1).cgColor
+    clipsToBounds = true
+    layer.cornerRadius = 6
+    
+}
+    
+    func initLayout() {
         
         let singleWidth: CGFloat = isPad ? 50 : 36
         let gap_small: CGFloat = isPad ? 6 : 4
@@ -207,6 +179,22 @@ extension AgoraCountdownView {
                 make?.centerY.equalTo()(isPad ? 20 : 16)
             }
         }
+    }
+    
+    func startTimer() {
+        if isSuspend {
+            timer?.resume()
+        }
+        isSuspend = false
+    }
+    
+    func stopTimer() {
+        if isSuspend {
+            timer?.resume()
+        }
+        isSuspend = false
+        timer?.cancel()
+        timer = nil
     }
 }
 

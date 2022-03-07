@@ -15,12 +15,7 @@ import AgoraWidget
     private var serverApi: AgoraPollerServerApi?
     
     private lazy var studentView: AgoraPollerStudentView = {
-        return AgoraPollerStudentView(isSingle: curExtra.mode == .single,
-                                      isEnd: curExtra.pollingState == .end,
-                                      title: curExtra.pollingTitle,
-                                      items: curExtra.pollingItems,
-                                      pollingDetails: curExtra.pollingDetails,
-                                      delegate: self)
+        return AgoraPollerStudentView(delegate: self)
     }()
     
     private lazy var teacherView: AgoraPollerTeacherView = {
@@ -28,14 +23,7 @@ import AgoraWidget
         return AgoraPollerTeacherView(delegate: self)
     }()
     
-    private var curFrame: CGRect = .zero {
-        didSet {
-            if curFrame != oldValue {
-                handleProperties()
-            }
-        }
-    }
-    private var curExtra = AgoraPollerExtraModel() {
+    private var curExtra: AgoraPollerExtraModel? {
         didSet {
             handleProperties()
         }
@@ -74,13 +62,10 @@ import AgoraWidget
             curExtra = pollerExtraModel
         }
         
-        if info.syncFrame != .zero {
-            curFrame = info.syncFrame
-        }
-        
         if let userProps = info.localUserProperties,
            let pollerUserModel = userProps.toObj(AgoraPollerUserPropModel.self),
-           pollerUserModel.pollingId == curExtra.pollingId {
+           let extra = curExtra,
+           pollerUserModel.pollingId == extra.pollingId {
             curUserProps = pollerUserModel
         }
         
@@ -120,15 +105,12 @@ import AgoraWidget
                                                        cause: [String : Any]?,
                                                        keyPaths: [String]) {
         if let pollerUserModel = properties.toObj(AgoraPollerUserPropModel.self),
-           pollerUserModel.pollingId == curExtra.pollingId {
+           let extra = curExtra,
+           pollerUserModel.pollingId == extra.pollingId {
             curUserProps = pollerUserModel
         }
     }
-    
-    public override func onSyncFrameUpdated(_ syncFrame: CGRect) {
-        curFrame = syncFrame
-    }
-    
+
     public override func onMessageReceived(_ message: String) {
         logInfo("onMessageReceived:\(message)")
         
@@ -159,10 +141,11 @@ extension AgoraPollerWidget: AgoraPollerTeacherViewDelegate {
 // MARK: - AgoraPollerStudentViewDelegate
 extension AgoraPollerWidget: AgoraPollerStudentViewDelegate {
     func didSubmitIndexs(_ indexs: [Int]) {
-        guard let server = serverApi else {
+        guard let server = serverApi,
+        let extra = curExtra else {
             return
         }
-        server.submit(pollingId: curExtra.pollingId,
+        server.submit(pollingId: extra.pollingId,
                       selectIndex: indexs) {[weak self] in
             self?.logInfo("submit success:\(indexs)")
         } fail: {[weak self] error in
@@ -210,23 +193,18 @@ extension AgoraPollerWidget: ArLogTube {
 // MARK: - private
 private extension AgoraPollerWidget {
     func handleProperties() {
-        // TODO: temp set curFrame
-        curFrame = CGRect(x: 1,
-                          y: 1,
-                          width: 1,
-                          height: 1)
-        guard curExtra != AgoraPollerExtraModel(),
-              curFrame != .zero else {
-                  return
-              }
+        guard let extra = curExtra else {
+            return
+        }
         if isTeacher {
             
         } else {
-            let isEnd = (curExtra.pollingState == .end || curUserProps != nil)
-            studentView.update(isEnd: isEnd,
-                               title: curExtra.pollingTitle,
-                               items: curExtra.pollingItems,
-                               pollingDetails: curExtra.pollingDetails)
+            let isEnd = (extra.pollingState == .end || curUserProps != nil)
+            studentView.update(isSingle: extra.mode == .single,
+                               isEnd: isEnd,
+                               title: extra.pollingTitle,
+                               items: extra.pollingItems,
+                               pollingDetails: extra.pollingDetails)
         }
     }
     

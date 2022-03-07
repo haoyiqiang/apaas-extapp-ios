@@ -70,3 +70,6 @@ PollerMulti = "Multi-select";
 PollerSingle = "Single";
 PollerStart = "Start";
 PollerInputPlaceHolder = "Please input content";
+
+// countdown
+Countdown_title = "Countdown";

@@ -79,7 +79,6 @@ private extension SingleTimeGroup {
         topView.label.text = self.timeStr
         downPageView.isHidden = true
         
-        self.layoutIfNeeded()
         UIView.animate(withDuration: 0.25, delay: 0, options: .curveLinear) {
             self.upPageView.layer.transform = CATransform3DMakeRotation(CGFloat(Double.pi * -0.5),
                                                                         1,
@@ -100,7 +99,6 @@ private extension SingleTimeGroup {
         downPageView.label.text = timeStr
         downPageView.isHidden = false
         
-        self.layoutIfNeeded()
         UIView.animate(withDuration: 0.25, delay: 0, options: .curveLinear) {
             self.downPageView.layer.transform = CATransform3DMakeRotation(CGFloat(Double.pi * -1.9),
                                                                           1,
