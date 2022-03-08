@@ -9,7 +9,7 @@ import Foundation
 
 /// 对应AgoraBoardWidgetModel
 // MARK: - Config
-enum AgoraBoardInteractionSignal {
+enum AgoraBoardInteractionSignal: Convertable {
     case JoinBoard
     case BoardPhaseChanged(AgoraBoardRoomPhase)
     case MemberStateChanged(AgoraBoardMemberState)
@@ -22,87 +22,105 @@ enum AgoraBoardInteractionSignal {
     case OpenCourseware(AgoraBoardCoursewareInfo)
     case WindowStateChanged(AgoraBoardWindowState)
     
-    var rawValue: Int {
-        switch self {
-        case .JoinBoard:                             return 0
-        case .BoardPhaseChanged(_):                  return 1
-        case .MemberStateChanged(_):                 return 2
-        case .BoardGrantDataChanged(_):              return 3
-        case .AudioMixingStateChanged(_):            return 4
-        case .BoardAudioMixingRequest(_):            return 5
-        case .BoardPageChanged:                      return 6
-        case .BoardStepChanged:                      return 7
-        case .ClearBoard:                            return 8
-        case .OpenCourseware:                        return 9
-        case .WindowStateChanged(_):                 return 10
-        default:
-            return -1
+    private enum CodingKeys: CodingKey {
+        case JoinBoard
+        case BoardPhaseChanged
+        case MemberStateChanged
+        case BoardGrantDataChanged
+        case AudioMixingStateChanged
+        case BoardAudioMixingRequest
+        case BoardPageChanged
+        case BoardStepChanged
+        case ClearBoard
+        case OpenCourseware
+        case WindowStateChanged
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        if let _ = try? container.decodeNil(forKey: .JoinBoard) {
+            self = .JoinBoard
+        } else if let value = try? container.decode(AgoraBoardRoomPhase.self,
+                                                    forKey: .BoardPhaseChanged) {
+            self = .BoardPhaseChanged(value)
+        } else if let value = try? container.decode(AgoraBoardMemberState.self,
+                                                    forKey: .MemberStateChanged) {
+            self = .MemberStateChanged(value)
+        } else if let value = try? container.decode(AgoraBoardAudioMixingData.self,
+                                                    forKey: .AudioMixingStateChanged) {
+            self = .AudioMixingStateChanged(value)
+        } else if let value = try? container.decode(Array<String>?.self,
+                                                    forKey: .BoardGrantDataChanged) {
+            self = .BoardGrantDataChanged(value)
+        } else if let value = try? container.decode(AgoraBoardPageChangeType.self,
+                                                    forKey: .BoardPageChanged) {
+            self = .BoardPageChanged(value)
+        } else if let value = try? container.decode(AgoraBoardStepChangeType.self,
+                                                    forKey: .BoardStepChanged) {
+            self = .BoardStepChanged(value)
+        } else if let value = try? container.decodeNil(forKey: .ClearBoard) {
+            self = .ClearBoard
+        } else if let value = try? container.decode(AgoraBoardCoursewareInfo.self,
+                                                    forKey: .OpenCourseware) {
+            self = .OpenCourseware(value)
+        } else if let value = try? container.decode(AgoraBoardWindowState.self,
+                                                    forKey: .WindowStateChanged) {
+            self = .WindowStateChanged(value)
+        } else {
+            throw DecodingError.dataCorrupted(
+                .init(
+                    codingPath: container.codingPath,
+                    debugDescription: "invalid data"
+                )
+            )
         }
     }
     
-    static func getType(rawValue: Int) -> Convertable.Type? {
-        switch rawValue {
-        case 1: return AgoraBoardRoomPhase.self
-        case 2: return AgoraBoardMemberState.self
-        case 3: return Array<String>.self
-        case 4: return AgoraBoardAudioMixingData.self
-        case 5: return AgoraBoardAudioMixingRequestData.self
-        case 6: return AgoraBoardPageChangeType.self
-        case 7: return AgoraBoardStepChangeType.self
-        case 9: return AgoraBoardCoursewareInfo.self
-        case 10: return AgoraBoardWindowState.self
-        default:
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        switch self {
+        case .JoinBoard:
+            try container.encodeNil(forKey: .JoinBoard)
+        case .BoardPhaseChanged(let x):
+            try container.encode(x,
+                                 forKey: .BoardPhaseChanged)
+        case .MemberStateChanged(let x):
+            try container.encode(x,
+                                 forKey: .MemberStateChanged)
+        case .BoardGrantDataChanged(let x):
+            try container.encode(x,
+                                 forKey: .BoardGrantDataChanged)
+        case .AudioMixingStateChanged(let x):
+            try container.encode(x,
+                                 forKey: .AudioMixingStateChanged)
+        case .BoardAudioMixingRequest(let x):
+            try container.encode(x,
+                                 forKey: .BoardAudioMixingRequest)
+        case .BoardPageChanged(let x):
+            try container.encode(x,
+                                 forKey: .BoardPageChanged)
+        case .BoardStepChanged(let x):
+            try container.encode(x,
+                                 forKey: .BoardStepChanged)
+        case .ClearBoard:
+            try container.encodeNil(forKey: .ClearBoard)
+        case .OpenCourseware(let x):
+            try container.encode(x,
+                                 forKey: .OpenCourseware)
+        case .WindowStateChanged(let x):
+            try container.encode(x,
+                                 forKey: .WindowStateChanged)
+    }
+    }
+    
+    func toMessageString() -> String? {
+        guard let dic = self.toDictionary(),
+           let str = dic.jsonString() else {
             return nil
         }
-    }
-    
-    static func makeSignal(rawValue: Int,
-                           body: Convertable?) -> AgoraBoardInteractionSignal? {
-        switch rawValue {
-        case 0:
-            return .JoinBoard
-        case 1:
-            if let x = body as? AgoraBoardRoomPhase {
-                return .BoardPhaseChanged(x)
-            }
-        case 2:
-            if let x = body as? AgoraBoardMemberState {
-                return .MemberStateChanged(x)
-            }
-        case 3:
-            if let x = body as? Array<String> {
-                return .BoardGrantDataChanged(x)
-            }
-        case 4:
-            if let x = body as? AgoraBoardAudioMixingData {
-                return .AudioMixingStateChanged(x)
-            }
-        case 5:
-            if let x = body as? AgoraBoardAudioMixingRequestData {
-                return .BoardAudioMixingRequest(x)
-            }
-        case 6:
-            if let x = body as? AgoraBoardPageChangeType {
-                return .BoardPageChanged(x)
-            }
-        case 7:
-            if let x = body as? AgoraBoardStepChangeType {
-                return .BoardStepChanged(x)
-            }
-        case 8:
-            return .ClearBoard
-        case 9:
-            if let x = body as? AgoraBoardCoursewareInfo {
-                return .OpenCourseware(x)
-            }
-        case 10:
-            if let x = body as? AgoraBoardWindowState {
-                return .WindowStateChanged(x)
-            }
-        default:
-            break
-        }
-        return nil
+        return str
     }
 }
 

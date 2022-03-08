@@ -7,49 +7,51 @@
 
 import Foundation
 // MARK: - Message
-enum AgoraCloudInteractionSignal {
+enum AgoraCloudInteractionSignal: Convertable {
     case OpenCoursewares(AgoraCloudWhiteScenesInfo)
     case CloseCloud
     
-    var rawValue: Int {
+    private enum CodingKeys: CodingKey {
+        case OpenCoursewares
+        case CloseCloud
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        if let _ = try? container.decodeNil(forKey: .CloseCloud) {
+            self = .CloseCloud
+        } else if let value = try? container.decode(AgoraCloudWhiteScenesInfo.self,
+                                                    forKey: .OpenCoursewares) {
+            self = .OpenCoursewares(value)
+        } else {
+            throw DecodingError.dataCorrupted(
+                .init(
+                    codingPath: container.codingPath,
+                    debugDescription: "invalid data"
+                )
+            )
+        }
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
         switch self {
-        case .OpenCoursewares(let _):   return 0
-        case .CloseCloud:   return 1
+        case .CloseCloud:
+            try container.encodeNil(forKey: .CloseCloud)
+        case .OpenCoursewares(let x):
+            try container.encode(x,
+                                 forKey: .OpenCoursewares)
         }
-    }
-    
-    static func getType(rawValue: Int) -> Convertable.Type? {
-        switch rawValue {
-        case 0:   return AgoraCloudWhiteScenesInfo.self
-        default:  return nil
-        }
-    }
-    
-    static func makeSignal(rawValue: Int,
-                           body: Convertable?) -> AgoraCloudInteractionSignal? {
-        switch rawValue {
-        case 0:
-            if let x = body as? AgoraCloudWhiteScenesInfo {
-                return .OpenCoursewares(x)
-            }
-        case 1:
-            return .CloseCloud
-        default:
-            break
-        }
-        return nil
     }
     
     func toMessageString() -> String? {
-        var dic = [String: Any]()
-        dic["signal"] = self.rawValue
-        switch self {
-        case .OpenCoursewares(let coursewareInfo) :
-            dic["body"] = coursewareInfo.toDictionary()
-        default:
-            break
+        guard let dic = self.toDictionary(),
+           let str = dic.jsonString() else {
+            return nil
         }
-    return dic.jsonString()
+        return str
     }
 }
 
@@ -219,18 +221,11 @@ extension Array where Element == AgoraCloudCourseware {
 extension String {
     func toCloudSignal() -> AgoraCloudInteractionSignal? {
         guard let dic = self.toDic(),
-              let signalRaw = dic["signal"] as? Int else {
+              let signal = dic.toObj(AgoraCloudInteractionSignal.self) else {
                   return nil
               }
         
-        if let bodyDic = dic["body"] as? [String:Any],
-           let type = AgoraCloudInteractionSignal.getType(rawValue: signalRaw),
-           let obj = try type.decode(bodyDic) {
-            return AgoraCloudInteractionSignal.makeSignal(rawValue: signalRaw,
-                                                          body: obj)
-        }
-        
-        return nil
+        return signal
     }
 }
 

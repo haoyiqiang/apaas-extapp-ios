@@ -185,37 +185,6 @@ extension AgoraBoardMemberState {
     }
 }
 
-extension AgoraBoardInteractionSignal {
-    func toMessageString() -> String? {
-        var dic = [String: Any]()
-        dic["signal"] = self.rawValue
-        switch self {
-        case .JoinBoard: break
-        case .BoardPhaseChanged(let boardRoomPhase) :
-            dic["body"] = boardRoomPhase.rawValue
-        case .MemberStateChanged(let boardMemberState) :
-            dic["body"] = boardMemberState.toDictionary()
-        case .AudioMixingStateChanged(let boardAudioMixingChangeData) :
-            dic["body"] = boardAudioMixingChangeData.toDictionary()
-        case .BoardGrantDataChanged(let boardGrantData) :
-            dic["body"] = boardGrantData
-        case .BoardAudioMixingRequest(let agoraBoardAudioMixingRequestData):
-            dic["body"] = agoraBoardAudioMixingRequestData.toDictionary()
-        case .BoardPageChanged(let page):
-            dic["body"] = page.toDictionary()
-        case .BoardStepChanged(let changeType):
-            dic["body"] = changeType.toDictionary()
-        case .OpenCourseware(let coursewareInfo):
-            dic["body"] = coursewareInfo.toDictionary()
-        case .WindowStateChanged(let state):
-            dic["body"] = state.rawValue
-        default:
-            break
-        }
-        return dic.jsonString()
-    }
-}
-
 // MARK: - Base
 extension String {
     func translatePath() -> String {
@@ -228,41 +197,12 @@ extension String {
     
     func toBoardSignal() -> AgoraBoardInteractionSignal? {
         guard let dic = self.toDic(),
-              let signalRaw = dic["signal"] as? Int else {
-            return nil
-        }
-        if signalRaw == AgoraBoardInteractionSignal.JoinBoard.rawValue {
-            return .JoinBoard
-        }
+              let signal = dic.toObj(AgoraBoardInteractionSignal.self) else {
+                  return nil
+              }
         
-        if signalRaw == AgoraBoardInteractionSignal.ClearBoard.rawValue {
-            return .ClearBoard
-        }
-        
-        if let bodyArr = dic["body"] as? [String] {
-            return .BoardGrantDataChanged(bodyArr)
-        }
-        
-        if let bodyInt = dic["body"] as? Int,
-           let type = AgoraBoardInteractionSignal.getType(rawValue: signalRaw) {
-            if type == AgoraBoardWindowState.self,
-            let changeType = AgoraBoardWindowState(rawValue: bodyInt) {
-                return .WindowStateChanged(changeType)
-            }
-        }
-        
-        guard let bodyDic = dic["body"] as? [String:Any],
-              let type = AgoraBoardInteractionSignal.getType(rawValue: signalRaw),
-              let obj = try type.decode(bodyDic) else {
-            return nil
-        }
-        return AgoraBoardInteractionSignal.makeSignal(rawValue: signalRaw,
-                                                      body: obj)
+        return signal
     }
-}
-
-extension Array : Convertable where Element == String {
-    
 }
 
 extension UIColor {
