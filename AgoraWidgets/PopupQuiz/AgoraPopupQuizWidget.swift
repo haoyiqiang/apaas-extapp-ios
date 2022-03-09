@@ -226,7 +226,7 @@ private extension AgoraPopupQuizWidget {
         if selectedItems.count == 0,
            let selectedId = info.localUserProperties?["selectorId"] as? String,
            let items = info.localUserProperties?["selectedItems"] as? [String],
-           selectedId == extra.selectorId {
+           selectedId == extra.popupQuizId {
             for item in items {
                 selectedItems.append(item)
             }
@@ -283,7 +283,7 @@ private extension AgoraPopupQuizWidget {
         }
         
         api.submitAnswer(findMyAnswer(),
-                         selectorId: extra.selectorId) { [weak self] in
+                         selectorId: extra.popupQuizId) { [weak self] in
             guard let `self` = self else {
                 return
             }

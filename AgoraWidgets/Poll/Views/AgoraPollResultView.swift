@@ -1,5 +1,5 @@
 //
-//  AgoraPollerResultView.swift
+//  AgoraPollResultView.swift
 //  AgoraWidgets
 //
 //  Created by LYY on 2022/3/3.
@@ -7,10 +7,10 @@
 
 import Foundation
 
-class AgoraPollerResultView: UIView {
+class AgoraPollResultView: UIView {
     /**Data**/
     private var title = ""
-    private var pollingDetails = Dictionary<Int,AgoraPollerDetails>()
+    private var pollingDetails = Dictionary<Int,AgoraPollDetails>()
     private var items = [String]()
     
     /**Views**/
@@ -24,7 +24,7 @@ class AgoraPollerResultView: UIView {
         let tab = UITableView()
         tab.delegate = self
         tab.dataSource = self
-        tab.register(cellWithClass: AgoraPollerResultCell.self)
+        tab.register(cellWithClass: AgoraPollResultCell.self)
         tab.separatorStyle = .none
         tab.isScrollEnabled = (pollingDetails.count > 4)
         return tab
@@ -32,7 +32,7 @@ class AgoraPollerResultView: UIView {
     
     init(title: String,
          items: [String],
-         pollingDetails: Dictionary<Int,AgoraPollerDetails>) {
+         pollingDetails: Dictionary<Int,AgoraPollDetails>) {
         self.title = title
         self.items = items
         self.pollingDetails = pollingDetails
@@ -59,7 +59,7 @@ class AgoraPollerResultView: UIView {
     
     func update(title: String,
                 items: [String],
-                pollingDetails: Dictionary<Int,AgoraPollerDetails>) {
+                pollingDetails: Dictionary<Int,AgoraPollDetails>) {
         self.pollingDetails = pollingDetails
         self.items = items
         
@@ -73,7 +73,7 @@ class AgoraPollerResultView: UIView {
 }
 
 // MARK: - UITableViewDataSource
-extension AgoraPollerResultView: UITableViewDelegate, UITableViewDataSource {
+extension AgoraPollResultView: UITableViewDelegate, UITableViewDataSource {
     // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView,
                    numberOfRowsInSection section: Int) -> Int {
@@ -83,9 +83,9 @@ extension AgoraPollerResultView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let reuseId = "PollingCell\(indexPath.row)"
-        var cell = tableView.dequeueReusableCell(withIdentifier: reuseId) as? AgoraPollerResultCell
+        var cell = tableView.dequeueReusableCell(withIdentifier: reuseId) as? AgoraPollResultCell
         if cell == nil {
-            cell = AgoraPollerResultCell(style: .default,
+            cell = AgoraPollResultCell(style: .default,
                                          reuseIdentifier: reuseId)
         }
         
@@ -93,7 +93,7 @@ extension AgoraPollerResultView: UITableViewDelegate, UITableViewDataSource {
               let detail = pollingDetails[indexPath.row] else {
             return cell!
         }
-        cell?.updateInfo(AgoraPollerCellResultInfo(index: indexPath.row,
+        cell?.updateInfo(AgoraPollCellResultInfo(index: indexPath.row,
                                                    itemText: items[indexPath.row],
                                                    count: detail.num,
                                                    percent: detail.percentage))

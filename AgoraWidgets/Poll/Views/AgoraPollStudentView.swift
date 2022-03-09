@@ -1,5 +1,5 @@
 //
-//  AgoraPollerStudentView.swift
+//  AgoraPollStudentView.swift
 //  AgoraWidgets
 //
 //  Created by LYY on 2022/3/1.
@@ -9,35 +9,35 @@ import Foundation
 import Masonry
 import UIKit
 
-struct AgoraPollerSelectInfo {
+struct AgoraPollSelectInfo {
     var isSingle: Bool
     var title: String
     var items: [String]
 }
 
-struct AgoraPollerResultInfo {
+struct AgoraPollResultInfo {
     var title: String
-    var details: Dictionary<Int,AgoraPollerDetails>
+    var details: Dictionary<Int,AgoraPollDetails>
 }
 
-enum AgoraPollerStudentViewType {
-    case select(AgoraPollerSelectInfo)
-    case result(AgoraPollerResultInfo)
+enum AgoraPollStudentViewType {
+    case select(AgoraPollSelectInfo)
+    case result(AgoraPollResultInfo)
 }
 
-protocol AgoraPollerStudentViewDelegate: NSObjectProtocol {
+protocol AgoraPollStudentViewDelegate: NSObjectProtocol {
     /**学生 提交**/
     func didSubmitIndexs(_ indexs: [Int])
 }
 
-class AgoraPollerStudentView: UIView {
+class AgoraPollStudentView: UIView {
     /**Data**/
-    private weak var delegate: AgoraPollerStudentViewDelegate?
+    private weak var delegate: AgoraPollStudentViewDelegate?
     private var title: String = ""
     private var items = [String]()
     private var isSingle: Bool = false
     private var presentedResult: Bool = false
-    private var pollingDetails = Dictionary<Int,AgoraPollerDetails>()
+    private var pollingDetails = Dictionary<Int,AgoraPollDetails>()
     private var curChosesIndexs = [Int]() {
         didSet {
             submitEnable = (curChosesIndexs.count > 0)
@@ -63,7 +63,7 @@ class AgoraPollerStudentView: UIView {
     private lazy var headerTitle: UILabel = {
         let label = UILabel()
         label.text = GetWidgetLocalizableString(object: self,
-                                                key: "PollerTitle")
+                                                key: "FCR_Poll_Title")
         label.textColor = UIColor(hex: 0x191919)
         label.font = .systemFont(ofSize: 13)
         label.sizeToFit()
@@ -79,7 +79,7 @@ class AgoraPollerStudentView: UIView {
         label.font = .systemFont(ofSize: 11)
         label.sizeToFit()
         label.text = GetWidgetLocalizableString(object: self,
-                                                key: isSingle ? "PollerSingle" : "PollerMulti")
+                                                key: isSingle ? "FCR_Poll_Single" : "FCR_Poll_Multi")
         label.backgroundColor = UIColor(hex: 0xEEEEF7)
         return label
     }()
@@ -96,14 +96,14 @@ class AgoraPollerStudentView: UIView {
         let tab = UITableView()
         tab.delegate = self
         tab.dataSource = self
-        tab.register(cellWithClass: AgoraPollerSelectCell.self)
+        tab.register(cellWithClass: AgoraPollSelectCell.self)
         tab.separatorStyle = .none
         tab.isScrollEnabled = (items.count > 4)
         return tab
     }()
     
-    private lazy var resultView: AgoraPollerResultView = {
-        return AgoraPollerResultView(title: title,
+    private lazy var resultView: AgoraPollResultView = {
+        return AgoraPollResultView(title: title,
                                      items: items,
                                      pollingDetails: pollingDetails)
     }()
@@ -113,7 +113,7 @@ class AgoraPollerStudentView: UIView {
         button.layer.cornerRadius = 15
         button.titleLabel?.font = .systemFont(ofSize: 18)
         button.setTitle(GetWidgetLocalizableString(object: self,
-                                                   key: "PollerSubmit"),
+                                                   key: "FCR_Poll_Submit"),
                         for: .normal)
         button.addTarget(self,
                          action: #selector(didSubmitClick),
@@ -121,7 +121,7 @@ class AgoraPollerStudentView: UIView {
         return button
     }()
     
-    init(delegate: AgoraPollerStudentViewDelegate?) {
+    init(delegate: AgoraPollStudentViewDelegate?) {
         self.delegate = delegate
         
         super.init(frame: .zero)
@@ -134,7 +134,7 @@ class AgoraPollerStudentView: UIView {
                 isEnd: Bool,
                 title: String,
                 items: [String],
-                pollingDetails: Dictionary<Int,AgoraPollerDetails>) {
+                pollingDetails: Dictionary<Int,AgoraPollDetails>) {
         self.items = items
         self.pollingDetails = pollingDetails
         
@@ -156,7 +156,7 @@ class AgoraPollerStudentView: UIView {
 }
 
 // MARK: - Table
-extension AgoraPollerStudentView: UITableViewDelegate, UITableViewDataSource {
+extension AgoraPollStudentView: UITableViewDelegate, UITableViewDataSource {
     // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView,
                    numberOfRowsInSection section: Int) -> Int {
@@ -166,16 +166,16 @@ extension AgoraPollerStudentView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let reuseId = "PollingCell"
-        var cell = tableView.dequeueReusableCell(withIdentifier: reuseId) as? AgoraPollerSelectCell
+        var cell = tableView.dequeueReusableCell(withIdentifier: reuseId) as? AgoraPollSelectCell
         if cell == nil {
-            cell = AgoraPollerSelectCell(style: .default,
+            cell = AgoraPollSelectCell(style: .default,
                                          reuseIdentifier: reuseId)
         }
         
         guard items.count > indexPath.row else {
             return cell!
         }
-        cell?.updateInfo(AgoraPollerCellPollingInfo(isSingle: isSingle,
+        cell?.updateInfo(AgoraPollCellPollingInfo(isSingle: isSingle,
                                                     isSelected: curChosesIndexs.contains(indexPath.row),
                                                     itemText: items[indexPath.row]))
         
@@ -202,7 +202,7 @@ extension AgoraPollerStudentView: UITableViewDelegate, UITableViewDataSource {
 }
 
 // MARK: - private
-private extension AgoraPollerStudentView {
+private extension AgoraPollStudentView {
     @objc func didSubmitClick() {
         delegate?.didSubmitIndexs(curChosesIndexs)
     }

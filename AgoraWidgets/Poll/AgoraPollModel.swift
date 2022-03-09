@@ -1,5 +1,5 @@
 //
-//  AgoraPollerModel.swift
+//  AgoraPollModel.swift
 //  AgoraClassroomSDK_iOS
 //
 //  Created by LYY on 2022/3/1.
@@ -7,7 +7,7 @@
 
 import Foundation
 // MARK: - Message
-enum AgoraPollerInteractionSignal: Convertable {
+enum AgoraPollInteractionSignal: Convertable {
     case frameChange(CGRect)
     
     private enum CodingKeys: CodingKey {
@@ -44,28 +44,27 @@ enum AgoraPollerInteractionSignal: Convertable {
 }
 
 // MARK: - struct
-struct AgoraPollerExtraModel: Convertable {
+struct AgoraPollExtraModel: Convertable {
     /**投票状态**/
-    var pollingState: AgoraPollerState
+    var pollState: AgoraPollState
     /**投票器id**/
-    var pollingId: String
+    var pollId: String
     /**投票模式**/
-    var mode: AgoraPollerMode
+    var mode: AgoraPollMode
     /**投票题目**/
-    var pollingTitle: String
+    var pollTitle: String
     /**选项内容**/
-    var pollingItems: [String]
+    var pollItems: [String]
     /**投票详情**/
-    var pollingDetails: Dictionary<Int,AgoraPollerDetails>
-
+    var pollDetails: Dictionary<Int,AgoraPollDetails>
 }
 
-struct AgoraPollerUserPropModel: Convertable {
-    var pollingId: String
+struct AgoraPollUserPropModel: Convertable {
+    var pollId: String
     var selectIndex: [Int]
 }
 
-struct AgoraPollerDetails: Convertable, Equatable {
+struct AgoraPollDetails: Convertable, Equatable {
     /**投票数量**/
     var num: Int = 0
     /**选项占比（选择此选项人数/已经投票人数）**/
@@ -80,32 +79,32 @@ struct AgoraPollerDetails: Convertable, Equatable {
     }
 }
 
-struct AgoraPollerStartInfo: Convertable {
-    var mode: AgoraPollerMode
-    var pollingItems: [String]
+struct AgoraPollStartInfo: Convertable {
+    var mode: AgoraPollMode
+    var pollItems: [String]
 }
 
-struct AgoraPollerSubmitInfo: Convertable {
-    var pollingId: String
+struct AgoraPollSubmitInfo: Convertable {
+    var pollId: String
     var indexs: [Int]
 }
 
 // MARK: - enum
-enum AgoraPollerState: Int, Convertable {
-    case end = 0,during
+enum AgoraPollState: Int, Convertable {
+    case end = 0, during
 }
 
-enum AgoraPollerMode: Int, Convertable {
-    case single = 1,multi
+enum AgoraPollMode: Int, Convertable {
+    case single = 1, multi
 }
 
 // MARK: - HTTP
-struct AgoraPollerSubmitResponse: Convertable {
-    var pollingId: String
+struct AgoraPollSubmitResponse: Convertable {
+    var pollId: String
     /**投票模式**/
-    var mode: AgoraPollerMode
+    var mode: AgoraPollMode
     /**选项内容**/
-    var pollingItems: [String]
+    var pollItems: [String]
     /**投票详情**/
-    var pollingDetails: Dictionary<Int,AgoraPollerDetails>
+    var pollDetails: Dictionary<Int, AgoraPollDetails>
 }

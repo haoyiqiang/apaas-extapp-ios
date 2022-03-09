@@ -26,7 +26,7 @@ enum AgoraPopupQuizState {
 
 // Origin Data
 struct AgoraPopupQuizExtraData: Decodable {
-    var selectorId: String          // 本题id
+    var popupQuizId: String         // 本题id
     var correctItems: [String]      // 本题正确答案
     var items: [String]             // 所有选项
     var correctCount: Int           // 本题答对人数

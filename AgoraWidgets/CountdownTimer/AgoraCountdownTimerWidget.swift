@@ -10,7 +10,7 @@ import Masonry
 import AgoraLog
 import AgoraWidget
 
-@objcMembers public class AgoraCountdownWidget: AgoraBaseWidget {
+@objcMembers public class AgoraCountdownTimerWidget: AgoraBaseWidget {
     /**Data**/
     private var logger: AgoraLogger
     
@@ -103,7 +103,7 @@ import AgoraWidget
 }
 
 // MARK: - private
-private extension AgoraCountdownWidget {
+private extension AgoraCountdownTimerWidget {
     func handleRoomProperties() {
         guard let extra = curExtra else {
             return
@@ -143,12 +143,12 @@ private extension AgoraCountdownWidget {
     }
     
     func logInfo(_ log: String) {
-        logger.log("[Poller Widget \(info.widgetId)] \(log)",
+        logger.log("[CountdownTimer Widget \(info.widgetId)] \(log)",
                    type: .info)
     }
     
     func logError(_ log: String) {
-        logger.log("[Poller Widget \(info.widgetId)] \(log)",
+        logger.log("[CountdownTimer Widget \(info.widgetId)] \(log)",
                    type: .error)
     }
 }

@@ -119,36 +119,36 @@ public class AgoraCountdownView: UIView {
 // MARK: UI
 private extension AgoraCountdownView {
     func initView() {
-    isUserInteractionEnabled = true
-    backgroundColor = .white
-    addSubview(titleView)
-    addSubview(colonView)
-    if timeArr.count == 0 {
-        for _ in 0...3 {
-            let timeView = SingleTimeGroup(frame: .zero)
-            timeArr.append(timeView)
-            addSubview(timeView)
+        isUserInteractionEnabled = true
+        backgroundColor = .white
+        addSubview(titleView)
+        addSubview(colonView)
+        if timeArr.count == 0 {
+            for _ in 0...3 {
+                let timeView = SingleTimeGroup(frame: .zero)
+                timeArr.append(timeView)
+                addSubview(timeView)
+            }
         }
-    }
         
-    layer.shadowColor = UIColor(red: 0.18,
-                                green: 0.25,
-                                blue: 0.57,
-                                alpha: 0.15).cgColor
-    layer.shadowOffset = CGSize(width: 0, height: 2)
-    layer.shadowOpacity = 1
-    layer.shadowRadius = 6
-    layer.shadowPath    = UIBezierPath(rect: frame).cgPath
-    
-    layer.borderWidth = 1
-    layer.borderColor = UIColor(red: 0.89,
-                                green: 0.89,
-                                blue: 0.93,
-                                alpha: 1).cgColor
-    clipsToBounds = true
-    layer.cornerRadius = 6
-    
-}
+        layer.shadowColor = UIColor(red: 0.18,
+                                    green: 0.25,
+                                    blue: 0.57,
+                                    alpha: 0.15).cgColor
+        layer.shadowOffset = CGSize(width: 0, height: 2)
+        layer.shadowOpacity = 1
+        layer.shadowRadius = 6
+        layer.shadowPath    = UIBezierPath(rect: frame).cgPath
+        
+        layer.borderWidth = 1
+        layer.borderColor = UIColor(red: 0.89,
+                                    green: 0.89,
+                                    blue: 0.93,
+                                    alpha: 1).cgColor
+        clipsToBounds = true
+        layer.cornerRadius = 6
+        
+    }
     
     func initLayout() {
         
@@ -217,6 +217,9 @@ extension Int64 {
             sec1Str = remainder > 9 ? String(remainder % 10) : String(remainder)
         }
         
-        return [min0Str,min1Str,sec0Str,sec1Str]
+        return [min0Str,
+                min1Str,
+                sec0Str,
+                sec1Str]
     }
 }

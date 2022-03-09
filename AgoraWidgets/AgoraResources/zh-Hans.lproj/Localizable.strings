@@ -63,13 +63,13 @@ FCR_PopupQuiz_Accuracy = "正确率";
 FCR_PopupQuiz_Correct = "正确答案";
 FCR_PopupQuiz_MyAnswer = "我的答案";
 
-// Poller
-PollerTitle = "投票";
-PollerSubmit = "投票";
-PollerMulti = "多选";
-PollerSingle = "单选";
-PollerStart = "开始投票";
-PollerInputPlaceHolder = "请输入选项内容";
+// poll
+FCR_Poll_Title = "投票";
+FCR_Poll_Submit = "投票";
+FCR_Poll_Multi = "多选";
+FCR_Poll_Single = "单选";
+FCR_Poll_Start = "开始投票";
+FCR_Poll_Input_Place_Holder = "请输入选项内容";
 
 // Countdown
 Countdown_title = "倒计时";

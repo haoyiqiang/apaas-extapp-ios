@@ -36,9 +36,8 @@ class AgoraPopupQuizServerAPI: NSObject {
                       selectorId: String,
                       success: (() -> Void)?,
                       failure: ((Error) -> Void)? = nil) {
-        
         let event = ArRequestEvent(name: "pop-up-quiz-submit")
-        let url = host + "/edu/apps/\(appId)/v2/rooms/\(roomId)/widgets/selector/\(selectorId)/users/\(userId)"
+        let url = host + "/edu/apps/\(appId)/v2/rooms/\(roomId)/widgets/popupQuizs/\(selectorId)/users/\(userId)"
         let parameters = ["selectedItems": answerList]
         
         let task = ArRequestTask(event: event,

@@ -63,13 +63,13 @@ FCR_PopupQuiz_Accuracy = "Accuracy";
 FCR_PopupQuiz_Correct = "The Correct Answer";
 FCR_PopupQuiz_MyAnswer = "My Answer";
 
-// Poller
-PollerTitle = "Vote";
-PollerSubmit = "Submit";
-PollerMulti = "Multi-select";
-PollerSingle = "Single";
-PollerStart = "Start";
-PollerInputPlaceHolder = "Please input content";
+// poll
+FCR_Poll_Title = "Vote";
+FCR_Poll_Submit = "Submit";
+FCR_Poll_Multi = "Multi-select";
+FCR_Poll_Single = "Single";
+FCR_Poll_Start = "Start";
+FCR_Poll_Input_Place_Holder = "Please input content";
 
 // countdown
 Countdown_title = "Countdown";

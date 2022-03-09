@@ -19,9 +19,9 @@ Pod::Spec.new do |spec|
                       "Whiteboard/**/*.{h,m,swift}",
                       "RtmIM/**/*.{h,m,swift}",
                       "ChatWidget/**/*.{h,m,swift}",
-                      "Poller/**/*.{h,m,swift}", 
+                      "Poll/**/*.{h,m,swift}", 
                       "PopupQuiz/**/*.{h,m,swift}",
-                      "Countdown/**/*.{h,m,swift}"
+                      "CountdownTimer/**/*.{h,m,swift}"
   
   spec.dependency "AgoraUIBaseViews"
   spec.dependency "AgoraWidget"

@@ -1,5 +1,5 @@
 //
-//  AgoraPollerCell.swift
+//  AgoraPollCell.swift
 //  AgoraWidgets
 //
 //  Created by LYY on 2022/3/1.
@@ -7,26 +7,26 @@
 
 import Foundation
 
-struct AgoraPollerCellPollingInfo {
+struct AgoraPollCellPollingInfo {
     var isSingle: Bool
     var isSelected: Bool
     var itemText: String
 }
 
-struct AgoraPollerCellResultInfo {
+struct AgoraPollCellResultInfo {
     var index: Int
     var itemText: String
     var count: Int
     var percent: Float
 }
 
-protocol AgoraPollerInputCellDelegate: NSObjectProtocol {
+protocol AgoraPollInputCellDelegate: NSObjectProtocol {
     func onItemInput(index: Int,
                      text: String)
 }
 
-class AgoraPollerInputCell: UITableViewCell {
-    private weak var delegate: AgoraPollerInputCellDelegate?
+class AgoraPollInputCell: UITableViewCell {
+    private weak var delegate: AgoraPollInputCellDelegate?
     private var index: Int?
     
     private let serialLabel = UILabel()
@@ -41,7 +41,7 @@ class AgoraPollerInputCell: UITableViewCell {
         serialLabel.font = .systemFont(ofSize: 14)
         optionField.font = .systemFont(ofSize: 13)
         optionField.placeholder = GetWidgetLocalizableString(object: self,
-                                                             key: "PollerInputPlaceHolder")
+                                                             key: "FCR_Poll_Input_Place_Holder")
         optionField.delegate = self
         sepLine.backgroundColor = UIColor(hex: 0xEEEEF7)
         
@@ -50,7 +50,7 @@ class AgoraPollerInputCell: UITableViewCell {
     }
     
     func updateInfo(index: Int,
-                    delegate: AgoraPollerInputCellDelegate) {
+                    delegate: AgoraPollInputCellDelegate) {
         self.delegate = delegate
         self.index = index
         serialLabel.text = "\(index)."
@@ -76,7 +76,7 @@ class AgoraPollerInputCell: UITableViewCell {
     }
 }
 
-extension AgoraPollerInputCell: UITextFieldDelegate {
+extension AgoraPollInputCell: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
         guard let text = textField.text,
         let `index` = index else {
@@ -87,7 +87,7 @@ extension AgoraPollerInputCell: UITextFieldDelegate {
     }
 }
 
-class AgoraPollerSelectCell: UITableViewCell {
+class AgoraPollSelectCell: UITableViewCell {
     private let optionImage = UIImageView()
     private let optionLabel = UILabel()
     private let sepLine = UIView()
@@ -105,7 +105,7 @@ class AgoraPollerSelectCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func updateInfo(_ pollingInfo: AgoraPollerCellPollingInfo) {
+    func updateInfo(_ pollingInfo: AgoraPollCellPollingInfo) {
         optionImage.image = itemImage(isSingle: pollingInfo.isSingle,
                                       isSelected: pollingInfo.isSelected)
         optionLabel.text = pollingInfo.itemText
@@ -118,9 +118,9 @@ class AgoraPollerSelectCell: UITableViewCell {
                            isSelected: Bool) -> UIImage? {
         var imageName = ""
         if isSingle {
-            imageName = isSelected ? "poller_sin_checked" : "poller_sin_unchecked"
+            imageName = isSelected ? "poll_sin_checked" : "poll_sin_unchecked"
         } else {
-            imageName = isSelected ? "poller_mul_checked" : "poller_mul_unchecked"
+            imageName = isSelected ? "poll_mul_checked" : "poll_mul_unchecked"
         }
         
         return GetWidgetImage(object: self,
@@ -149,7 +149,7 @@ class AgoraPollerSelectCell: UITableViewCell {
     }
 }
 
-class AgoraPollerResultCell: UITableViewCell {
+class AgoraPollResultCell: UITableViewCell {
     /**Views**/
     let optionLabel = UILabel()
     let resultSerial = UILabel()
@@ -171,7 +171,7 @@ class AgoraPollerResultCell: UITableViewCell {
         addSubviews([optionLabel, resultSerial, resultProgress, resultPercentage])
     }
     
-    func updateInfo(_ resultInfo: AgoraPollerCellResultInfo) {
+    func updateInfo(_ resultInfo: AgoraPollCellResultInfo) {
         resultSerial.text = "\(resultInfo.index)."
         optionLabel.text = resultInfo.itemText
         resultPercentage.text = "(\(resultInfo.count)) \(resultInfo.percent * 100)%"

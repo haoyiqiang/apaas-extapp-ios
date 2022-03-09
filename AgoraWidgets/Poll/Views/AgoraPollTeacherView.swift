@@ -1,5 +1,5 @@
 //
-//  AgoraPollerTeacherView.swift
+//  AgoraPollTeacherView.swift
 //  AgoraEduUI
 //
 //  Created by LYY on 2022/3/3.
@@ -9,26 +9,26 @@ import Foundation
 import Masonry
 import UIKit
 
-protocol AgoraPollerTeacherViewDelegate: NSObjectProtocol {
+protocol AgoraPollTeacherViewDelegate: NSObjectProtocol {
     /**教师 开启投票**/
-    func didStartPoller(isSingle: Bool,
+    func didStartpoll(isSingle: Bool,
                         pollingItems: [String])
     /**教师 结束投票**/
-    func didStopPoller(pollerId: String)
+    func didStoppoll(pollId: String)
 }
 
-class AgoraPollerTeacherView: UIView {
+class AgoraPollTeacherView: UIView {
     /**Data**/
-    private weak var delegate: AgoraPollerTeacherViewDelegate?
+    private weak var delegate: AgoraPollTeacherViewDelegate?
     private var title: String = ""
     private var items = [String]()
     private var isSingle: Bool = true {
         didSet {
             singleBtn.setImage(GetWidgetImage(object: self,
-                                              isSingle ? "poller_sin_checked" : "poller_sin_unchecked"), for: .selected)
+                                              isSingle ? "poll_sin_checked" : "poll_sin_unchecked"), for: .selected)
             
             multiBtn.setImage(GetWidgetImage(object: self,
-                                              isSingle ? "poller_sin_unchecked" : "poller_sin_checked"), for: .selected)
+                                              isSingle ? "poll_sin_unchecked" : "poll_sin_checked"), for: .selected)
         }
     }
 
@@ -61,7 +61,7 @@ class AgoraPollerTeacherView: UIView {
     private var deleteButton = UIButton()
     private var startButton = UIButton()
     
-    init(delegate: AgoraPollerTeacherViewDelegate?) {
+    init(delegate: AgoraPollTeacherViewDelegate?) {
         self.delegate = delegate
         
         super.init(frame: .zero)
@@ -74,7 +74,7 @@ class AgoraPollerTeacherView: UIView {
                 isEnd: Bool,
                 title: String,
                 items: [String],
-                pollingDetails: Dictionary<Int,AgoraPollerDetails>) {
+                pollingDetails: Dictionary<Int,AgoraPollDetails>) {
         self.items = items
         
         pollingTable.reloadData()
@@ -86,7 +86,7 @@ class AgoraPollerTeacherView: UIView {
 }
 
 // MARK: - Table
-extension AgoraPollerTeacherView: UITableViewDelegate,UITableViewDataSource {
+extension AgoraPollTeacherView: UITableViewDelegate,UITableViewDataSource {
     // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView,
                    numberOfRowsInSection section: Int) -> Int {
@@ -95,10 +95,10 @@ extension AgoraPollerTeacherView: UITableViewDelegate,UITableViewDataSource {
     
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let reuseId = "AgoraPollerInputCell\(indexPath.row)"
-        var cell = tableView.dequeueReusableCell(withIdentifier: reuseId) as? AgoraPollerInputCell
+        let reuseId = "AgoraPollInputCell\(indexPath.row)"
+        var cell = tableView.dequeueReusableCell(withIdentifier: reuseId) as? AgoraPollInputCell
         if cell == nil {
-            cell = AgoraPollerInputCell(style: .default,
+            cell = AgoraPollInputCell(style: .default,
                                    reuseIdentifier: reuseId)
         }
         cell?.updateInfo(index: indexPath.row,
@@ -126,7 +126,7 @@ extension AgoraPollerTeacherView: UITableViewDelegate,UITableViewDataSource {
     }
 }
 
-extension AgoraPollerTeacherView: UITextFieldDelegate {
+extension AgoraPollTeacherView: UITextFieldDelegate {
     func textField(_ textField: UITextField,
                    shouldChangeCharactersIn range: NSRange,
                    replacementString string: String) -> Bool {
@@ -138,7 +138,7 @@ extension AgoraPollerTeacherView: UITextFieldDelegate {
     }
 }
 
-extension AgoraPollerTeacherView: AgoraPollerInputCellDelegate {
+extension AgoraPollTeacherView: AgoraPollInputCellDelegate {
     func onItemInput(index: Int,
                      text: String) {
         items[index] = text
@@ -146,9 +146,9 @@ extension AgoraPollerTeacherView: AgoraPollerInputCellDelegate {
 }
 
 // MARK: - private
-private extension AgoraPollerTeacherView {
+private extension AgoraPollTeacherView {
     @objc func onClickStart() {
-        delegate?.didStartPoller(isSingle: isSingle,
+        delegate?.didStartpoll(isSingle: isSingle,
                                  pollingItems: items)
     }
     
@@ -179,7 +179,7 @@ private extension AgoraPollerTeacherView {
         // header view
         headerView.backgroundColor = UIColor(hex: 0xF9F9FC)
         headerTitle.text = GetWidgetLocalizableString(object: self,
-                                                      key: "PollerTitle")
+                                                      key: "FCR_Poll_Title")
         headerTitle.textColor = UIColor(hex: 0x191919)
         headerTitle.font = .systemFont(ofSize: 13)
         headerTitle.sizeToFit()
@@ -199,9 +199,9 @@ private extension AgoraPollerTeacherView {
         
         isSingle = true // default
         singleBtn.setTitleForAllStates(GetWidgetLocalizableString(object: self,
-                                                                  key: "PollerSingle"))
+                                                                  key: "FCR_Poll_Single"))
         multiBtn.setTitleForAllStates(GetWidgetLocalizableString(object: self,
-                                                                  key: "PollerMulti"))
+                                                                  key: "FCR_Poll_Multi"))
         singleBtn.titleLabel?.font = .systemFont(ofSize: 12)
         multiBtn.titleLabel?.font = .systemFont(ofSize: 12)
         addSubview(singleBtn)
@@ -209,7 +209,7 @@ private extension AgoraPollerTeacherView {
         
         pollingTable.delegate = self
         pollingTable.dataSource = self
-        pollingTable.register(cellWithClass: AgoraPollerResultCell.self)
+        pollingTable.register(cellWithClass: AgoraPollResultCell.self)
         pollingTable.separatorStyle = .none
         pollingTable.isScrollEnabled = (items.count > 4)
         addSubview(pollingTable)
@@ -233,7 +233,7 @@ private extension AgoraPollerTeacherView {
         startButton.layer.cornerRadius = 15
         startButton.titleLabel?.font = .systemFont(ofSize: 18)
         startButton.setTitle(GetWidgetLocalizableString(object: self,
-                                                        key: "PollerStart"),
+                                                        key: "FCR_Poll_Start"),
                              for: .normal)
         startButton.addTarget(self,
                               action: #selector(onClickStart),

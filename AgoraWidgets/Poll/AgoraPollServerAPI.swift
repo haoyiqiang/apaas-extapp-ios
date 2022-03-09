@@ -1,5 +1,5 @@
 //
-//  AgoraPollerServerApi.swift
+//  AgoraPollServerAPI.swift
 //  AgoraWidgets
 //
 //  Created by LYY on 2022/3/5.
@@ -8,7 +8,7 @@
 
 import Armin
 
-class AgoraPollerServerApi: NSObject {
+class AgoraPollServerAPI: NSObject {
     typealias FailBlock = (Error) -> ()
     typealias SuccessBlock = () -> ()
     
@@ -49,14 +49,14 @@ class AgoraPollerServerApi: NSObject {
         
     }
     
-    func submit(pollingId: String,
+    func submit(pollId: String,
                 selectIndex: [Int],
                 success: @escaping SuccessBlock,
                 fail: @escaping FailBlock) {
-        let path = "/edu/apps/\(baseInfo.agoraAppId)/v2/rooms/\(roomId)/widgets/pollings/\(pollingId)/users/\(uid)"
+        let path = "/edu/apps/\(baseInfo.agoraAppId)/v2/rooms/\(roomId)/widgets/polls/\(pollId)/users/\(uid)"
         let urlString = baseInfo.host + path
         
-        let event = ArRequestEvent(name: "widget-poller-submit")
+        let event = ArRequestEvent(name: "widget-poll-submit")
         let type = ArRequestType.http(.post,
                                       url: urlString)
         let header = ["x-agora-token" : baseInfo.token,
@@ -82,7 +82,7 @@ class AgoraPollerServerApi: NSObject {
     }
 }
 
-extension AgoraPollerServerApi: ArminDelegate {
+extension AgoraPollServerAPI: ArminDelegate {
     func armin(_ client: Armin,
                requestSuccess event: ArRequestEvent,
                startTime: TimeInterval,
@@ -98,24 +98,24 @@ extension AgoraPollerServerApi: ArminDelegate {
     }
 }
 
-extension AgoraPollerServerApi: ArLogTube {
+extension AgoraPollServerAPI: ArLogTube {
     func log(info: String,
              extra: String?) {
-        print("[AgoraPollerServerApi] \(extra) - \(info)")
+        print("[AgoraPollServerAPI] \(extra) - \(info)")
     }
     
     func log(warning: String,
              extra: String?) {
-        print("[AgoraPollerServerApi] \(extra) - \(warning)")
+        print("[AgoraPollServerAPI] \(extra) - \(warning)")
     }
     
     func log(error: ArError,
              extra: String?) {
-        print("[AgoraPollerServerApi] \(extra) - \(error.localizedDescription)")
+        print("[AgoraPollServerAPI] \(extra) - \(error.localizedDescription)")
     }
 }
 
-extension AgoraPollerServerApi {
+extension AgoraPollServerAPI {
     struct Resp<T: Decodable>: Decodable {
         let msg: String
         let code: Int
