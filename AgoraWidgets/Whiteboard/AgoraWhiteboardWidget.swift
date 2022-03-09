@@ -241,7 +241,8 @@ extension AgoraWhiteboardWidget {
     // MARK: - message handle
     func handleOpenCourseware(info: AgoraBoardCoursewareInfo) {
         var appParam: WhiteAppParam?
-        if info.convert {
+        if let convert = info.convert,
+           convert {
             appParam = WhiteAppParam.createSlideApp("/\(info.resourceUuid)",
                                                     scenes: info.scenes.toNetless(),
                                                     title: info.resourceName)
@@ -292,8 +293,14 @@ extension AgoraWhiteboardWidget {
         }
         switch changeType {
         case .index(let index):
-            room.setSceneIndex(UInt(index < 0 ? 0 : index),
-                               completionHandler: nil)
+            room.setSceneIndex(UInt(index < 0 ? 0 : index)) {[weak self] success, error in
+                if !success {
+                    self?.log(.error,
+                              log: error.debugDescription)
+                }
+            }
+//            room.setSceneIndex(UInt(index < 0 ? 0 : index),
+//                               completionHandler: nil)
         case .count(let count):
             if count > dt.page.count {
                 let newIndex = UInt(dt.page.index + 1)

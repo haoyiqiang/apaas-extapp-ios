@@ -316,7 +316,7 @@ struct AgoraBoardCoursewareInfo: Convertable {
     var resourceUuid: String
     var resourceName: String
     var scenes: [AgoraBoardWhiteScene]
-    var convert: Bool
+    var convert: Bool?
 }
 
 struct AgoraBoardWhiteScene: Convertable {
