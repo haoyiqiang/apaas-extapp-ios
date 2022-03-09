@@ -55,13 +55,13 @@ CloudSum = "共";
 CloudItem = "项";
 
 // AnswerSelector
-fcr_AnswerSelector = "答题器";
-fcr_AnswerSelector_Post = "提交答案";
-fcr_AnswerSelector_Change = "修改答案";
-fcr_AnswerSelector_Submission = "已答题人数";
-fcr_AnswerSelector_Accuracy = "正确率";
-fcr_AnswerSelector_Correct = "正确答案";
-fcr_AnswerSelector_MyAnswer = "我的答案";
+FCR_PopupQuiz = "答题器";
+FCR_PopupQuiz_Post = "提交答案";
+FCR_PopupQuiz_Change = "修改答案";
+FCR_PopupQuiz_Submission = "已答题人数";
+FCR_PopupQuiz_Accuracy = "正确率";
+FCR_PopupQuiz_Correct = "正确答案";
+FCR_PopupQuiz_MyAnswer = "我的答案";
 
 // Poller
 PollerTitle = "投票";

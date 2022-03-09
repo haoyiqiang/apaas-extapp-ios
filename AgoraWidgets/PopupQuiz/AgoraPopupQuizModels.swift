@@ -1,5 +1,5 @@
 //
-//  AgoraAnswerSelectorModels.swift
+//  AgoraPopupQuizModels.swift
 //  AgoraWidgets
 //
 //  Created by Cavan on 2022/3/6.
@@ -8,24 +8,24 @@
 import UIKit
 
 // View Model
-struct AgoraAnswerSelectorOption {
+struct AgoraPopupQuizOption {
     var title: String
     var isSelected: Bool
 }
 
-struct AgoraAnswerSelectorResult {
+struct AgoraPopupQuizResult {
     var title: String
     var result: String
     var titleSize: CGSize
     var resultColor: UIColor? = nil
 }
 
-enum AgoraAnswerSelectorState {
+enum AgoraPopupQuizState {
     case unselected, post, change, end
 }
 
 // Origin Data
-struct AgoraAnswerSelectorExtraData: Decodable {
+struct AgoraPopupQuizExtraData: Decodable {
     var selectorId: String          // 本题id
     var correctItems: [String]      // 本题正确答案
     var items: [String]             // 所有选项
@@ -36,7 +36,7 @@ struct AgoraAnswerSelectorExtraData: Decodable {
     var selectedCount: Int?         // 已经答题人数
     var totalCount: Int             // 应该答题的人数
     
-    func toViewSelectorState() -> AgoraAnswerSelectorState? {
+    func toViewSelectorState() -> AgoraPopupQuizState? {
         if answerState == 0 {
             return .end
         } else {
@@ -44,11 +44,11 @@ struct AgoraAnswerSelectorExtraData: Decodable {
         }
     }
     
-    func toViewSelectorOptionList() -> [AgoraAnswerSelectorOption] {
-        var list = [AgoraAnswerSelectorOption]()
+    func toViewSelectorOptionList() -> [AgoraPopupQuizOption] {
+        var list = [AgoraPopupQuizOption]()
         
         for item in items {
-            let option = AgoraAnswerSelectorOption(title: item,
+            let option = AgoraPopupQuizOption(title: item,
                                                    isSelected: false)
             list.append(option)
         }
@@ -58,34 +58,34 @@ struct AgoraAnswerSelectorExtraData: Decodable {
     
     func toViewSelectorResultList(font: UIFont,
                                   fontHeight: CGFloat,
-                                  myAnswer: [String]) -> [AgoraAnswerSelectorResult] {
-        var list = [AgoraAnswerSelectorResult]()
+                                  myAnswer: [String]) -> [AgoraPopupQuizResult] {
+        var list = [AgoraPopupQuizResult]()
         
         let postfix = ":   "
         
         // Submission
-        let submissionTitle = "fcr_AnswerSelector_Submission".ag_widget_localized() + postfix
+        let submissionTitle = "FCR_PopupQuiz_Submission".ag_widget_localized() + postfix
         let submissionSize = submissionTitle.agora_size(font: font,
                                                         height: fontHeight)
         var tSelectedCount = selectedCount ?? 0
         let submissionResult = "\(tSelectedCount)/\(totalCount)"
-        let submissionItem = AgoraAnswerSelectorResult(title: submissionTitle,
+        let submissionItem = AgoraPopupQuizResult(title: submissionTitle,
                                                        result: submissionResult,
                                                        titleSize: submissionSize)
         list.append(submissionItem)
         
         // Accuracy
-        let accuracyTitle = "fcr_AnswerSelector_Accuracy".ag_widget_localized() + postfix
+        let accuracyTitle = "FCR_PopupQuiz_Accuracy".ag_widget_localized() + postfix
         let accuracySize = accuracyTitle.agora_size(font: font,
                                                     height: fontHeight)
         let accuracyResult = "\(averageAccuracy * 100)%"
-        let accuracyItem = AgoraAnswerSelectorResult(title: accuracyTitle,
+        let accuracyItem = AgoraPopupQuizResult(title: accuracyTitle,
                                                      result: accuracyResult,
                                                      titleSize: accuracySize)
         list.append(accuracyItem)
         
         // Correct
-        let correctTitle = "fcr_AnswerSelector_Correct".ag_widget_localized() + postfix
+        let correctTitle = "FCR_PopupQuiz_Correct".ag_widget_localized() + postfix
         let correctSize = correctTitle.agora_size(font: font,
                                                   height: fontHeight)
         var correctResult = ""
@@ -94,13 +94,13 @@ struct AgoraAnswerSelectorExtraData: Decodable {
             correctResult += item
         }
         
-        let correctItem = AgoraAnswerSelectorResult(title: correctTitle,
+        let correctItem = AgoraPopupQuizResult(title: correctTitle,
                                                     result: correctResult,
                                                     titleSize: correctSize)
         list.append(correctItem)
         
         // My Answer
-        let myAnswerTitle = "fcr_AnswerSelector_MyAnswer".ag_widget_localized() + postfix
+        let myAnswerTitle = "FCR_PopupQuiz_MyAnswer".ag_widget_localized() + postfix
         let myAnswerSize = myAnswerTitle.agora_size(font: font,
                                                     height: fontHeight)
         
@@ -118,7 +118,7 @@ struct AgoraAnswerSelectorExtraData: Decodable {
             resultColor = UIColor(hexString: "#F04C36")
         }
         
-        let myAnswerItem = AgoraAnswerSelectorResult(title: myAnswerTitle,
+        let myAnswerItem = AgoraPopupQuizResult(title: myAnswerTitle,
                                                      result: myAnswerResult,
                                                      titleSize: myAnswerSize,
                                                      resultColor: resultColor)

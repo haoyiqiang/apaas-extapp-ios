@@ -55,13 +55,13 @@ CloudSum = "";
 CloudItem = "items";
 
 // AnswerSelector
-fcr_AnswerSelector = "Selector";
-fcr_AnswerSelector_Post = "Post";
-fcr_AnswerSelector_Change = "Change My Answer";
-fcr_AnswerSelector_Submission = "Submission List";
-fcr_AnswerSelector_Accuracy = "Accuracy";
-fcr_AnswerSelector_Correct = "The Correct Answer";
-fcr_AnswerSelector_MyAnswer = "My Answer";
+FCR_PopupQuiz = "Selector";
+FCR_PopupQuiz_Post = "Post";
+FCR_PopupQuiz_Change = "Change My Answer";
+FCR_PopupQuiz_Submission = "Submission List";
+FCR_PopupQuiz_Accuracy = "Accuracy";
+FCR_PopupQuiz_Correct = "The Correct Answer";
+FCR_PopupQuiz_MyAnswer = "My Answer";
 
 // Poller
 PollerTitle = "Vote";

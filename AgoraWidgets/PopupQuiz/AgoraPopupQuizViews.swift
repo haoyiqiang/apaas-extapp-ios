@@ -1,5 +1,5 @@
 //
-//  AgoraAnswerSelectorViews.swift
+//  AgoraPopupQuizViews.swift
 //  AgoraClassroomSDK_iOS
 //
 //  Created by Cavan on 2022/3/5.
@@ -11,7 +11,7 @@ import Masonry
 import UIKit
 
 // MAKR: - Top View
-class AgoraAnswerSelectorTopView: UIView {
+class AgoraPopupQuizTopView: UIView {
     private let titleLabel = UILabel()
     private let timeLabel = UILabel()
     private let lineLayer = CALayer()
@@ -21,7 +21,7 @@ class AgoraAnswerSelectorTopView: UIView {
     
     let defaultHeight: CGFloat = 30
     
-    var selectorState: AgoraAnswerSelectorState = .unselected {
+    var selectorState: AgoraPopupQuizState = .unselected {
         didSet {
             timeLabel.textColor = (selectorState == .unselected) ? backColor : grayColor 
         }
@@ -38,7 +38,7 @@ class AgoraAnswerSelectorTopView: UIView {
     
     private func createViews() {
         let selector = GetWidgetLocalizableString(object: self,
-                                                  key: "fcr_AnswerSelector")
+                                                  key: "FCR_PopupQuiz")
         
         let font = UIFont.systemFont(ofSize: 13)
         
@@ -66,7 +66,7 @@ class AgoraAnswerSelectorTopView: UIView {
         titleLabel.mas_makeConstraints { (make) in
             make?.left.equalTo()(10)
             make?.top.bottom()?.equalTo()(0)
-            make?.width.equalTo()(titleSize.width)
+            make?.width.equalTo()(titleSize.width + 2)
         }
      
         timeLabel.mas_makeConstraints { (make) in
@@ -89,7 +89,7 @@ class AgoraAnswerSelectorTopView: UIView {
 }
 
 // MAKR: - Option Collection View
-class AgoraAnswerSelectorOptionCell: UICollectionViewCell {
+class AgoraPopupQuizOptionCell: UICollectionViewCell {
     private let grayColor = UIColor(hexString: "#EEEEF7")
     private let darkGrayColor = UIColor(hexString: "#BDBDCA")
     private let blueColor = UIColor(hexString: "#357BF6")
@@ -143,7 +143,7 @@ class AgoraAnswerSelectorOptionCell: UICollectionViewCell {
     }
 }
 
-class AgoraAnswerSelectorOptionCollectionView: UICollectionView {
+class AgoraPopupQuizOptionCollectionView: UICollectionView {
     init() {
         let layout = UICollectionViewFlowLayout()
         
@@ -157,7 +157,7 @@ class AgoraAnswerSelectorOptionCollectionView: UICollectionView {
         backgroundColor = .white
         bounces = false
         
-        register(cellWithClass: AgoraAnswerSelectorOptionCell.self)
+        register(cellWithClass: AgoraPopupQuizOptionCell.self)
     }
     
     required init?(coder: NSCoder) {
@@ -166,8 +166,8 @@ class AgoraAnswerSelectorOptionCollectionView: UICollectionView {
 }
 
 // MAKR: - Result Table View
-class AgoraAnswerSelectorResultCell: UITableViewCell {
-    static let cellId = NSStringFromClass(AgoraAnswerSelectorResultCell.self)
+class AgoraPopupQuizResultCell: UITableViewCell {
+    static let cellId = NSStringFromClass(AgoraPopupQuizResultCell.self)
     static let font = UIFont.systemFont(ofSize: 13)
     static let labelHeight: CGFloat = 18
     
@@ -185,8 +185,8 @@ class AgoraAnswerSelectorResultCell: UITableViewCell {
         titleLabel.textColor = UIColor(hexString: "#7B88A0")
         resultLabel.textColor = UIColor(hexString: "#191919")
         
-        titleLabel.font = AgoraAnswerSelectorResultCell.font
-        resultLabel.font = AgoraAnswerSelectorResultCell.font
+        titleLabel.font = AgoraPopupQuizResultCell.font
+        resultLabel.font = AgoraPopupQuizResultCell.font
         
         titleLabel.textAlignment = .left
         resultLabel.textAlignment = .left
@@ -199,7 +199,7 @@ class AgoraAnswerSelectorResultCell: UITableViewCell {
     }
 }
 
-class AgoraAnswerSelectorResultTableView: UITableView {
+class AgoraPopupQuizResultTableView: UITableView {
     override init(frame: CGRect,
                   style: UITableView.Style) {
         super.init(frame: frame,
@@ -207,8 +207,8 @@ class AgoraAnswerSelectorResultTableView: UITableView {
         rowHeight = 28
         separatorStyle = .none
         isScrollEnabled = false
-        register(AgoraAnswerSelectorResultCell.self,
-                 forCellReuseIdentifier: AgoraAnswerSelectorResultCell.cellId)
+        register(AgoraPopupQuizResultCell.self,
+                 forCellReuseIdentifier: AgoraPopupQuizResultCell.cellId)
     }
     
     required init?(coder: NSCoder) {
@@ -217,16 +217,16 @@ class AgoraAnswerSelectorResultTableView: UITableView {
 }
 
 // MAKR: - Button
-class AgoraAnswerSelectorButton: UIButton {
+class AgoraPopupQuizButton: UIButton {
     private let blueColor = UIColor(hexString: "#357BF6")
     private let lightBlueColor = UIColor(hexString: "#C0D6FF")
     
-    var selectorState: AgoraAnswerSelectorState = .unselected {
+    var selectorState: AgoraPopupQuizState = .unselected {
         didSet {
             switch selectorState {
             case .post:
                 let post = GetWidgetLocalizableString(object: self,
-                                                      key: "fcr_AnswerSelector_Post")
+                                                      key: "FCR_PopupQuiz_Post")
                 setTitle(post,
                          for: .normal)
                 setTitleColor(.white,
@@ -236,7 +236,7 @@ class AgoraAnswerSelectorButton: UIButton {
                 layer.borderColor = blueColor?.cgColor
             case .change:
                 let change = GetWidgetLocalizableString(object: self,
-                                                        key: "fcr_AnswerSelector_Change")
+                                                        key: "FCR_PopupQuiz_Change")
                 setTitle(change,
                          for: .normal)
                 setTitleColor(blueColor,
@@ -246,7 +246,7 @@ class AgoraAnswerSelectorButton: UIButton {
                 layer.borderColor = blueColor?.cgColor
             case .unselected:
                 let post = GetWidgetLocalizableString(object: self,
-                                                      key: "fcr_AnswerSelector_Post")
+                                                      key: "FCR_PopupQuiz_Post")
                 setTitle(post,
                          for: .disabled)
                 setTitleColor(.white,
@@ -272,17 +272,17 @@ class AgoraAnswerSelectorButton: UIButton {
     }
 }
 
-class AgoraAnswerSelectorView: UIView {
-    let optionCollectionView = AgoraAnswerSelectorOptionCollectionView()
-    let topView = AgoraAnswerSelectorTopView()
-    let button = AgoraAnswerSelectorButton()
-    let resultTableView = AgoraAnswerSelectorResultTableView()
+class AgoraPopupQuizView: UIView {
+    let optionCollectionView = AgoraPopupQuizOptionCollectionView()
+    let topView = AgoraPopupQuizTopView()
+    let button = AgoraPopupQuizButton()
+    let resultTableView = AgoraPopupQuizResultTableView()
     
     let optionCollectionViewHorizontalSpace: CGFloat = 16
     let optionCollectionItemSize = CGSize(width: 40,
                                           height: 40)
     
-    var selectorState: AgoraAnswerSelectorState = .unselected {
+    var selectorState: AgoraPopupQuizState = .unselected {
         didSet {
             button.selectorState = selectorState
             topView.selectorState = selectorState

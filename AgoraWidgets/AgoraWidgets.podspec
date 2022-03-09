@@ -20,7 +20,7 @@ Pod::Spec.new do |spec|
                       "AgoraWidgets/ChatWidget/**/*.{h,m,swift}", 
                       "AgoraWidgets/RtmIM/**/*.{h,m,swift}",
                       "AgoraWidgets/Poller/**/*.{h,m,swift}",
-                      "AgoraWidgets/AnswerSelector/**/*.{h,m,swift}",
+                      "AgoraWidgets/PopupQuiz/**/*.{h,m,swift}",
                       "AgoraWidgets/Countdown/**/*.{h,m,swift}"
   
   spec.dependency "AgoraUIBaseViews", ">=2.1.0"
