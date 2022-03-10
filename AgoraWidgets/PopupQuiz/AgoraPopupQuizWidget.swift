@@ -10,17 +10,7 @@ import AgoraLog
 import Armin
 import UIKit
 
-@objcMembers public class AgoraPopupQuizWidget: AgoraBaseWidget {
-    private var logger: AgoraLogger {
-        let folderPath = GetWidgetLogFolder()
-        
-        let logger = AgoraLogger(folderPath: folderPath,
-                                 filePrefix: "AnswerSelector",
-                                 maximumNumberOfFiles: 5)
-        logger.setPrintOnConsoleType(.all)
-        return logger
-    }
-    
+@objcMembers public class AgoraPopupQuizWidget: AgoraBaseWidget, AgoraWidgetLogTube {
     private var serverAPI: AgoraPopupQuizServerAPI?
     private var timer: Timer?
     
@@ -60,6 +50,22 @@ import UIKit
         }
     }
     
+    var logger: AgoraWidgetLogger
+    
+    public override init(widgetInfo: AgoraWidgetInfo) {
+        let folderPath = GetWidgetLogFolder()
+        
+        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId,
+                                       logFolderPath: folderPath)
+        #if DEBUG
+        logger.isPrintOnConsole = true
+        #endif
+        
+        self.logger = logger
+        
+        super.init(widgetInfo: widgetInfo)
+    }
+    
     public override func onWidgetDidLoad() {
         super.onWidgetDidLoad()
         view.delegate = self
@@ -71,7 +77,6 @@ import UIKit
     
     public override func onMessageReceived(_ message: String) {
         super.onMessageReceived(message)
-        
         if let info = message.toAppBaseInfo() {
             baseInfo = info
         }
@@ -81,6 +86,9 @@ import UIKit
             initTime()
             initServerAPI()
         }
+        
+        log(content: message,
+            type: .info)
     }
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
@@ -90,6 +98,10 @@ import UIKit
                                             cause: cause,
                                             keyPaths: keyPaths)
         updateExtraData()
+        
+        log(content: properties.jsonString() ?? "nil",
+            extra: cause?.jsonString(),
+            type: .info)
     }
     
     @objc func doButtonPressed(_ sender: UIButton) {
@@ -166,11 +178,11 @@ private extension AgoraPopupQuizWidget {
         }
         
         serverAPI = AgoraPopupQuizServerAPI(host: keys.host,
-                                                 appId: keys.agoraAppId,
-                                                 token: keys.token,
-                                                 roomId: info.roomInfo.roomUuid,
-                                                 userId: info.localUserInfo.userUuid,
-                                                 logTube: self)
+                                            appId: keys.agoraAppId,
+                                            token: keys.token,
+                                            roomId: info.roomInfo.roomUuid,
+                                            userId: info.localUserInfo.userUuid,
+                                            logTube: self)
     }
     
     func updateExtraData() {
@@ -213,10 +225,6 @@ private extension AgoraPopupQuizWidget {
     func findMyAnswer() -> [String] {
         var selectedItems = [String]()
         
-        guard let extra = extraData else {
-            return selectedItems
-        }
-        
         // first, get selected items from local memory
         for item in optionList where item.isSelected {
             selectedItems.append(item.title)
@@ -224,9 +232,10 @@ private extension AgoraPopupQuizWidget {
         
         // second, get selected items from local user properties
         if selectedItems.count == 0,
-           let selectedId = info.localUserProperties?["selectorId"] as? String,
+           let popupQuizId = info.localUserProperties?["popupQuizId"] as? String,
            let items = info.localUserProperties?["selectedItems"] as? [String],
-           selectedId == extra.popupQuizId {
+           let extra = extraData,
+           popupQuizId == extra.popupQuizId {
             for item in items {
                 selectedItems.append(item)
             }
@@ -365,37 +374,22 @@ extension AgoraPopupQuizWidget: AgoraUIContainerDelegate {
 extension AgoraPopupQuizWidget: ArLogTube {
     public func log(info: String,
                     extra: String?) {
-        var log = info
-        
-        if let ext = extra {
-            log += ext
-        }
-        
-        logger.log(log,
-                   type: .info)
+        log(content: info,
+            extra: extra,
+            type: .info)
     }
     
     public func log(warning: String,
                     extra: String?) {
-        var log = warning
-        
-        if let ext = extra {
-            log += ext
-        }
-        
-        logger.log(log,
-                   type: .warning)
+        log(content: warning,
+            extra: extra,
+            type: .info)
     }
     
     public func log(error: ArError,
                     extra: String?) {
-        var log = error.localizedDescription
-        
-        if let ext = extra {
-            log += ext
-        }
-        
-        logger.log(log,
-                   type: .error)
+        log(content: error.localizedDescription,
+            extra: extra,
+            type: .info)
     }
 }

@@ -5,6 +5,7 @@
 //  Created by Cavan on 2021/7/21.
 //
 
+import CommonCrypto
 import Foundation
 
 struct AgoraAppBaseInfo {
@@ -120,6 +121,25 @@ extension String {
         let resource = "AgoraWidgets"
         return self.ag_localizedIn(resource)
     }
+    
+    func agora_md5() -> String {
+        let CC_MD5_DIGEST_LENGTH = 16
+        
+        guard self.count > 0 else {
+            return ""
+        }
+        
+        let cCharArray = self.cString(using: .utf8)
+        var uint8Array = [UInt8](repeating: 0,
+                                 count: CC_MD5_DIGEST_LENGTH)
+        CC_MD5(cCharArray,
+               CC_LONG(cCharArray!.count - 1),
+               &uint8Array)
+        let data = Data(bytes: &uint8Array,
+                        count: CC_MD5_DIGEST_LENGTH)
+        let base64Str = data.base64EncodedString()
+        return base64Str
+    }
 }
 
 extension Double {
@@ -134,6 +154,16 @@ extension Double {
         else {
             return "\((self/(1024 * 1024)).roundTo(places: 1))" + "M"
         }
+    }
+    
+    /// Rounds the double to decimal places value
+    func roundTo(places:Int) -> Double {
+        let divisor = pow(10.0, Double(places))
+        return (self * divisor).rounded() / divisor
+    }
+    
+    var intValue: Int64 {
+        return Int64(self)
     }
 }
 
@@ -162,15 +192,6 @@ extension TimeInterval {
         return formatter.string(from: date)
     }
 }
-
-extension Double {
-    /// Rounds the double to decimal places value
-    func roundTo(places:Int) -> Double {
-        let divisor = pow(10.0, Double(places))
-        return (self * divisor).rounded() / divisor
-    }
-}
-
 
 // MARK: - resource
 public func GetWidgetImage(object: NSObject,
@@ -210,3 +231,4 @@ extension AgoraBaseWidget {
         return info.localUserInfo.userRole == "teacher"
     }
 }
+
