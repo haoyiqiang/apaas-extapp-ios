@@ -151,32 +151,37 @@ private extension AgoraCountdownView {
     }
     
     func initLayout() {
+        let singleWidth: CGFloat = 36
+        let singleHeight: CGFloat = 48
+        let gap_small: CGFloat = 4
+        let colonViewWidth: CGFloat = 12
         
-        let singleWidth: CGFloat = isPad ? 50 : 36
-        let gap_small: CGFloat = isPad ? 6 : 4
-        let gap_big: CGFloat = isPad ? 20 : 12
+        let titleViewHeight: CGFloat = 32
         
-        let xArr: [CGFloat] = [0,
-                               singleWidth + gap_small,
-                               singleWidth * 2 + gap_small + gap_big,
-                               singleWidth * 3 + gap_small * 2 + gap_big]
+        let xArr: [CGFloat] = [-((singleWidth * 1.5) + gap_small + (colonViewWidth * 0.5)),
+                               -((singleWidth * 0.5) + (colonViewWidth * 0.5)),
+                               (singleWidth * 0.5) + (colonViewWidth * 0.5),
+                               (singleWidth * 1.5) + (colonViewWidth * 0.5) + gap_small]
+        
         titleView.mas_makeConstraints { make in
             make?.left.right().top().equalTo()(0)
-            make?.height.equalTo()(isPad ? 40 : 32)
+            make?.height.equalTo()(titleViewHeight)
         }
-
+        
         colonView.mas_makeConstraints { make in
+            make?.top.equalTo()(titleView.mas_bottom)
+            make?.bottom.equalTo()(0)
             make?.centerX.equalTo()(0)
-            make?.centerY.equalTo()(isPad ? 20 : 16)
+            make?.width.equalTo()(colonViewWidth)
         }
         
         for i in 0..<timeArr.count {
             let timeView = timeArr[i]
             timeView.mas_makeConstraints { make in
-                make?.left.equalTo()(xArr[i] + (isPad ? 14 : 15))
+                make?.centerX.equalTo()(0)?.offset()(xArr[i])
+                make?.top.equalTo()(titleView.mas_bottom)?.offset()(11)
                 make?.width.equalTo()(singleWidth)
-                make?.height.equalTo()(isPad ? 57 : 44)
-                make?.centerY.equalTo()(isPad ? 20 : 16)
+                make?.height.equalTo()(singleHeight)
             }
         }
     }

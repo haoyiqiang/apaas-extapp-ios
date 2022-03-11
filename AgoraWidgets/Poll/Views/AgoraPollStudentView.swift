@@ -17,7 +17,7 @@ struct AgoraPollSelectInfo {
 
 struct AgoraPollResultInfo {
     var title: String
-    var details: Dictionary<Int,AgoraPollDetails>
+    var details: Dictionary<Int, AgoraPollDetails>
 }
 
 enum AgoraPollStudentViewType {
@@ -35,9 +35,9 @@ class AgoraPollStudentView: UIView {
     private weak var delegate: AgoraPollStudentViewDelegate?
     private var title: String = ""
     private var items = [String]()
-    private var isSingle: Bool = false
+    
     private var presentedResult: Bool = false
-    private var pollingDetails = Dictionary<Int,AgoraPollDetails>()
+    private var pollDetails = Dictionary<Int, AgoraPollDetails>()
     private var curChosesIndexs = [Int]() {
         didSet {
             submitEnable = (curChosesIndexs.count > 0)
@@ -50,11 +50,19 @@ class AgoraPollStudentView: UIView {
             submitButton.backgroundColor = submitEnable ? UIColor(hex: 0x357BF6) : UIColor(hex: 0xC0D6FF)
         }
     }
+    
+    private var isSingle: Bool = false {
+        didSet {
+            modeLabel.text = GetWidgetLocalizableString(object: self,
+                                                        key: isSingle ? "FCR_Poll_Single" : "FCR_Poll_Multi")
+            selectTable.reloadData()
+        }
+    }
+    
     /**Views**/
     private lazy var headerView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(hex: 0xF9F9FC)
-
         view.addSubview(headerTitle)
         view.addSubview(modeLabel)
         return view
@@ -76,14 +84,16 @@ class AgoraPollStudentView: UIView {
         label.layer.borderColor = UIColor(hex: 0x357BF6)?.cgColor
         label.textColor = UIColor(hex: 0x357BF6)
         label.layer.cornerRadius = 8
+        label.layer.masksToBounds = true
         label.font = .systemFont(ofSize: 11)
-        label.sizeToFit()
+        label.textAlignment = .center
         label.text = GetWidgetLocalizableString(object: self,
                                                 key: isSingle ? "FCR_Poll_Single" : "FCR_Poll_Multi")
-        label.backgroundColor = UIColor(hex: 0xEEEEF7)
+        label.backgroundColor = UIColor(hex: 0xF9F9FC)
         return label
     }()
-    private lazy var pollingTitle: UILabel = {
+    
+    private lazy var pollTitleLabel: UILabel = {
         let label = UILabel()
         label.text = title
         label.textColor = UIColor(hex: 0x191919)
@@ -104,8 +114,8 @@ class AgoraPollStudentView: UIView {
     
     private lazy var resultView: AgoraPollResultView = {
         return AgoraPollResultView(title: title,
-                                     items: items,
-                                     pollingDetails: pollingDetails)
+                                   items: items,
+                                   pollDetails: pollDetails)
     }()
 
     private lazy var submitButton: UIButton = {
@@ -134,19 +144,21 @@ class AgoraPollStudentView: UIView {
                 isEnd: Bool,
                 title: String,
                 items: [String],
-                pollingDetails: Dictionary<Int,AgoraPollDetails>) {
+                pollDetails: Dictionary<Int, AgoraPollDetails>) {
         self.items = items
-        self.pollingDetails = pollingDetails
+        self.pollDetails = pollDetails
+        self.isSingle = isSingle
         
         if !self.presentedResult,
            !isEnd {
-            selectTable.reloadData()
+            pollTitleLabel.text = title
+            
         } else {
             self.presentedResult = isEnd
             presentResult()
             resultView.update(title: title,
                               items: items,
-                              pollingDetails: pollingDetails)
+                              pollDetails: pollDetails)
         }
     }
     
@@ -165,7 +177,7 @@ extension AgoraPollStudentView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let reuseId = "PollingCell"
+        let reuseId = "pollCell"
         var cell = tableView.dequeueReusableCell(withIdentifier: reuseId) as? AgoraPollSelectCell
         if cell == nil {
             cell = AgoraPollSelectCell(style: .default,
@@ -176,8 +188,8 @@ extension AgoraPollStudentView: UITableViewDelegate, UITableViewDataSource {
             return cell!
         }
         cell?.updateInfo(AgoraPollCellPollingInfo(isSingle: isSingle,
-                                                    isSelected: curChosesIndexs.contains(indexPath.row),
-                                                    itemText: items[indexPath.row]))
+                                                  isSelected: curChosesIndexs.contains(indexPath.row),
+                                                  itemText: items[indexPath.row]))
         
         cell?.selectionStyle = .none
         return cell!
@@ -208,14 +220,17 @@ private extension AgoraPollStudentView {
     }
     
     func presentResult() {
-        if resultView.superview == nil {
-            addSubview(resultView)
-            resultView.mas_makeConstraints { make in
-                make?.top.equalTo()(headerView.mas_bottom)?.offset()(0)
-                make?.left.equalTo()(AgoraWidgetsFit.scale(5))
-                make?.right.equalTo()(AgoraWidgetsFit.scale(-5))
-                make?.bottom.equalTo()(AgoraWidgetsFit.scale(30))
-            }
+        guard resultView.superview == nil else {
+            return
+        }
+        
+        addSubview(resultView)
+        
+        resultView.mas_makeConstraints { make in
+            make?.top.equalTo()(headerView.mas_bottom)?.offset()(0)
+            make?.left.equalTo()(5)
+            make?.right.equalTo()(-5)
+            make?.bottom.equalTo()(0)
         }
     }
 
@@ -223,7 +238,8 @@ private extension AgoraPollStudentView {
         backgroundColor = .white
         layer.shadowColor = UIColor(hex: 0x2F4192,
                                     transparency: 0.15)?.cgColor
-        layer.shadowOffset = CGSize(width: 0, height: 2)
+        layer.shadowOffset = CGSize(width: 0,
+                                    height: 2)
         layer.shadowOpacity = 1
         layer.shadowRadius = 6
         layer.cornerRadius = 6
@@ -233,7 +249,7 @@ private extension AgoraPollStudentView {
         if presentedResult {
             addSubview(resultView)
         } else {
-            addSubview(pollingTitle)
+            addSubview(pollTitleLabel)
             addSubview(selectTable)
             addSubview(submitButton)
             submitEnable = false
@@ -242,41 +258,51 @@ private extension AgoraPollStudentView {
     
     func createConstrains() {
         // header
+        let headerViewHeight:CGFloat = 30
+        
         headerView.mas_makeConstraints { make in
             make?.left.right().top().equalTo()(0)
-            make?.height.equalTo()(AgoraWidgetsFit.scale(30))
+            make?.height.equalTo()(headerViewHeight)
         }
-        let titleWidth = headerTitle.text?.agora_size(font: headerTitle.font)
-        headerTitle.mas_remakeConstraints { make in
-            make?.left.equalTo()(AgoraWidgetsFit.scale(10))
-            make?.width.equalTo()(titleWidth)
-            make?.top.bottom().equalTo()(0)
+        
+        if let titleSize = headerTitle.text?.agora_size(font: headerTitle.font,
+                                                        height: headerViewHeight) {
+            headerTitle.mas_makeConstraints { make in
+                make?.left.equalTo()(10)
+                make?.width.equalTo()(titleSize.width)
+                make?.top.bottom().equalTo()(0)
+            }
         }
-        let modeWidth = modeLabel.text?.agora_size(font: modeLabel.font)
-        modeLabel.mas_remakeConstraints { make in
-            make?.left.equalTo()(headerTitle.mas_right)?.offset()(AgoraWidgetsFit.scale(10))
-            make?.width.equalTo()(modeWidth?.width ?? 0 + 12)
-            make?.height.equalTo()(modeWidth?.height)
-            make?.centerY.equalTo()(0)
+        
+        if let modeSize = modeLabel.text?.agora_size(font: modeLabel.font,
+                                                     height: headerViewHeight) {
+            modeLabel.mas_makeConstraints { make in
+                make?.left.equalTo()(headerTitle.mas_right)?.offset()(6)
+                make?.width.equalTo()(modeSize.width + 16)
+                make?.height.equalTo()(16)
+                make?.centerY.equalTo()(0)
+            }
         }
+        
         if presentedResult {
             resultView.mas_makeConstraints { make in
                 make?.top.equalTo()(headerView.mas_bottom)?.offset()(0)
-                make?.left.equalTo()(AgoraWidgetsFit.scale(5))
-                make?.right.equalTo()(AgoraWidgetsFit.scale(-5))
-                make?.bottom.equalTo()(AgoraWidgetsFit.scale(30))
+                make?.left.equalTo()(5)
+                make?.right.equalTo()(-5)
+                make?.bottom.equalTo()(30)
             }
         } else {
-            // polling content
-            let size = pollingTitle.text?.agora_size(font: .systemFont(ofSize: 13))
-            pollingTitle.mas_remakeConstraints { make in
-                make?.left.equalTo()(AgoraWidgetsFit.scale(20))
-                make?.right.equalTo()(AgoraWidgetsFit.scale(-20))
-                make?.top.equalTo()(headerView.mas_bottom)?.offset()(AgoraWidgetsFit.scale(25))
-                make?.height.equalTo()(size?.height)
+            // poll content
+            if let size = pollTitleLabel.text?.agora_size(font: pollTitleLabel.font) {
+                pollTitleLabel.mas_makeConstraints { make in
+                    make?.left.equalTo()(15)
+                    make?.right.equalTo()(-15)
+                    make?.top.equalTo()(headerView.mas_bottom)?.offset()(15)
+                    make?.height.equalTo()(size.height)
+                }
             }
             
-            submitButton.mas_remakeConstraints { make in
+            submitButton.mas_makeConstraints { make in
                 make?.centerX.equalTo()(0)
                 make?.width.equalTo()(AgoraWidgetsFit.scale(90))
                 make?.height.equalTo()(AgoraWidgetsFit.scale(30))
@@ -284,10 +310,10 @@ private extension AgoraPollStudentView {
             }
             
             selectTable.mas_makeConstraints { make in
-                make?.left.equalTo()(AgoraWidgetsFit.scale(5))
-                make?.right.equalTo()(AgoraWidgetsFit.scale(-5))
-                make?.top.equalTo()(pollingTitle.mas_bottom)?.offset()(AgoraWidgetsFit.scale(15))
-                make?.bottom.equalTo()(submitButton.mas_top)?.offset()(AgoraWidgetsFit.scale(-15))
+                make?.left.equalTo()(5)
+                make?.right.equalTo()(-5)
+                make?.top.equalTo()(pollTitleLabel.mas_bottom)?.offset()(15)
+                make?.bottom.equalTo()(submitButton.mas_top)?.offset()(-15)
             }
         }
     }

@@ -199,6 +199,7 @@ private extension AgoraPopupQuizWidget {
         
         selectorState = state // .end
         initResultList()
+        stopTimer()
     }
     
     func initOptionList() {

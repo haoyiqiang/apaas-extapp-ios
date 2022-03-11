@@ -5,10 +5,10 @@
 //  Created by LYY on 2022/3/1.
 //
 
-import Armin
-import Masonry
-import AgoraLog
 import AgoraWidget
+import AgoraLog
+import Masonry
+import Armin
 
 @objcMembers public class AgoraPollWidget: AgoraBaseWidget {
     private var logger: AgoraLogger
@@ -72,21 +72,12 @@ import AgoraWidget
         if isTeacher {
             view.addSubview(teacherView)
             teacherView.mas_makeConstraints { make in
-                make?.left.equalTo()(0)
-                make?.top.equalTo()(0)
-                make?.width.equalTo()(0)
-                make?.height.equalTo()(0)
+                make?.left.right()?.top()?.bottom().equalTo()(0)
             }
         } else {
             view.addSubview(studentView)
             studentView.mas_makeConstraints { make in
-//                make?.left.equalTo()(0)
-//                make?.top.equalTo()(0)
-//                make?.width.equalTo()(0)
-//                make?.height.equalTo()(0)
-                make?.centerX.centerY().equalTo()(0)
-                make?.width.equalTo()(348)
-                make?.height.equalTo()(300)
+                make?.left.right()?.top()?.bottom().equalTo()(0)
             }
         }
         
@@ -148,7 +139,7 @@ extension AgoraPollWidget: AgoraPollStudentViewDelegate {
         server.submit(pollId: extra.pollId,
                       selectIndex: indexs) { [weak self] in
             self?.logInfo("submit success:\(indexs)")
-        } fail: {[weak self] error in
+        } fail: { [weak self] error in
             self?.logError(error.localizedDescription)
         }
     }
@@ -204,7 +195,7 @@ private extension AgoraPollWidget {
                                isEnd: isEnd,
                                title: extra.pollTitle,
                                items: extra.pollItems,
-                               pollingDetails: extra.pollDetails)
+                               pollDetails: extra.pollDetails)
         }
     }
     

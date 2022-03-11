@@ -172,7 +172,7 @@ class AgoraPollResultCell: UITableViewCell {
     }
     
     func updateInfo(_ resultInfo: AgoraPollCellResultInfo) {
-        resultSerial.text = "\(resultInfo.index)."
+        resultSerial.text = "\(resultInfo.index + 1)."
         optionLabel.text = resultInfo.itemText
         resultPercentage.text = "(\(resultInfo.count)) \(resultInfo.percent * 100)%"
         resultProgress.progress = resultInfo.percent

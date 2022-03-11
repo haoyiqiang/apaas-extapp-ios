@@ -52,14 +52,7 @@ import AgoraWidget
         } else {
             view.addSubview(countdownView)
             countdownView.mas_makeConstraints { make in
-//                make?.left.equalTo()(0)
-//                make?.top.equalTo()(0)
-//                make?.width.equalTo()(0)
-//                make?.height.equalTo()(0)
-                // TODO: temp
-                make?.centerX.centerY().equalTo()(0)
-                make?.width.equalTo()(195)
-                make?.height.equalTo()(120)
+                make?.left.right()?.top()?.bottom().equalTo()(0)
             }
         }
         
@@ -79,7 +72,6 @@ import AgoraWidget
     
     public override func onMessageReceived(_ message: String) {
         logInfo("onMessageReceived:\(message)")
-        
         
         if let tsDic = message.toDic() ,
            let syncTimestamp = tsDic["syncTimestamp"] as? Int64 {
