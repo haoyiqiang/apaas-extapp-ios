@@ -299,23 +299,28 @@ extension AgoraWhiteboardWidget {
                               log: error.debugDescription)
                 }
             }
-//            room.setSceneIndex(UInt(index < 0 ? 0 : index),
-//                               completionHandler: nil)
         case .count(let count):
             if count > dt.page.count {
-                let newIndex = UInt(dt.page.index + 1)
-                // 新增
-                var scenes = [WhiteScene]()
-                for i in dt.page.count ..< count {
-                    scenes.append(WhiteScene(name: "\(info.widgetId)\(newIndex)", ppt: nil))
+                //                let newIndex = UInt(dt.page.index + 1)
+                //                // 新增
+                //                var scenes = [WhiteScene]()
+                //                for i in dt.page.count ..< count {
+                //                    scenes.append(WhiteScene(name: "\(info.widgetId)\(newIndex)", ppt: nil))
+                //                }
+                //
+                room.addPage()
+                room.nextPage { [weak self] success in
+                    if success {
+                        self?.log(.info,
+                                  log: "add page successfullt")
+                    }
                 }
-                
-                room.putScenes("/",
-                               scenes: scenes,
-                               index: newIndex)
-                room.setSceneIndex(newIndex) { success, error in
-                    print(success)
-                }
+                //                room.putScenes("/",
+                //                               scenes: scenes,
+                //                               index: newIndex)
+                //                room.setSceneIndex(newIndex) { success, error in
+                //                    print(success)
+                //                }
             } else {
                 // 减少
                 for i in dt.page.count ..< count {

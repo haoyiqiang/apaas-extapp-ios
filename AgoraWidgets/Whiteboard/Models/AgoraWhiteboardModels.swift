@@ -250,17 +250,6 @@ enum AgoraBoardStepChangeType: Convertable {
     case undoCount(Int)
     case redoCount(Int)
     
-    var rawValue: Int {
-        get {
-            switch self {
-            case .pre(let _):         return 0
-            case .next(let _):        return 1
-            case .undoCount(let _):   return 2
-            case .redoCount(let _):   return 3
-            }
-        }
-    }
-    
     private enum CodingKeys: CodingKey {
         case pre
         case next
@@ -270,25 +259,23 @@ enum AgoraBoardStepChangeType: Convertable {
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        if let x = try? container.decodeIfPresent(Int.self,
-                                                  forKey: .pre) {
+        if let x = try? container.decode(Int.self,
+                                         forKey: .pre) {
             self = .pre(x)
-        }
-        if let x = try? container.decodeIfPresent(Int.self,
-                                                  forKey: .next) {
+        } else if let x = try? container.decode(Int.self,
+                                         forKey: .next) {
             self = .next(x)
-        }
-        if let x = try? container.decodeIfPresent(Int.self,
-                                                  forKey: .undoCount) {
+        } else if let x = try? container.decode(Int.self,
+                                         forKey: .undoCount) {
             self = .undoCount(x)
-        }
-        if let x = try? container.decodeIfPresent(Int.self,
-                                                  forKey: .redoCount) {
+        } else if let x = try? container.decode(Int.self,
+                                                forKey: .redoCount) {
             self = .redoCount(x)
+        } else {
+            throw DecodingError.typeMismatch(AgoraBoardStepChangeType.self,
+                                             DecodingError.Context(codingPath: decoder.codingPath,
+                                                                   debugDescription: "Wrong type for AgoraBoardWidgetStepChangeType"))
         }
-        throw DecodingError.typeMismatch(AgoraBoardStepChangeType.self,
-                                         DecodingError.Context(codingPath: decoder.codingPath,
-                                                               debugDescription: "Wrong type for AgoraBoardStepChangeType"))
     }
     
     func encode(to encoder: Encoder) throws {
