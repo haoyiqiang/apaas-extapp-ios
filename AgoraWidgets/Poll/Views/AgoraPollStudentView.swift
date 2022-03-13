@@ -137,7 +137,7 @@ class AgoraPollStudentView: UIView {
         super.init(frame: .zero)
         
         createViews()
-        createConstrains()
+        createConstraint()
     }
     
     func update(isSingle: Bool,
@@ -256,7 +256,7 @@ private extension AgoraPollStudentView {
         }
     }
     
-    func createConstrains() {
+    func createConstraint() {
         // header
         let headerViewHeight:CGFloat = 30
         

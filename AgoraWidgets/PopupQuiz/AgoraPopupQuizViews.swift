@@ -300,7 +300,7 @@ class AgoraPopupQuizView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         createViews()
-        createConstrains()
+        createConstraint()
     }
     
     required init?(coder: NSCoder) {
@@ -341,7 +341,7 @@ class AgoraPopupQuizView: UIView {
         layer.masksToBounds = true
     }
     
-    private func createConstrains() {
+    private func createConstraint() {
         topView.mas_makeConstraints { (make) in
             make?.top.right()?.left()?.equalTo()(0)
             make?.height.equalTo()(topView.defaultHeight)

@@ -23,7 +23,7 @@ class AgoraRtmIMMessageListView: UIView {
         backgroundColor = .white
         
         createViews()
-        createConstrains()
+        createConstraint()
     }
     
     required init?(coder: NSCoder) {
@@ -109,7 +109,7 @@ private extension AgoraRtmIMMessageListView {
         addSubview(tableView)
     }
     
-    func createConstrains() {
+    func createConstraint() {
         emptyImage.mas_makeConstraints { make in
             make?.centerX.equalTo()(0)
             make?.centerY.equalTo()(-20)

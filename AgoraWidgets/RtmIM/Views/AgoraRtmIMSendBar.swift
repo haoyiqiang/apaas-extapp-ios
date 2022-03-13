@@ -28,7 +28,7 @@ class AgoraRtmIMSendBar: UIView {
         super.init(frame: frame)
         
         createViews()
-        createConstrains()
+        createConstraint()
     }
     
     required init?(coder: NSCoder) {
@@ -84,7 +84,7 @@ private extension AgoraRtmIMSendBar {
         addSubview(emojiButton)
     }
     
-    func createConstrains() {
+    func createConstraint() {
         topLine.mas_makeConstraints { make in
             make?.left.right().top().equalTo()(0)
             make?.height.equalTo()(1)

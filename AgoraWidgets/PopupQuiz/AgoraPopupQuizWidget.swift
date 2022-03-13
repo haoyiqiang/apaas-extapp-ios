@@ -71,7 +71,7 @@ import UIKit
         view.delegate = self
         
         createViews()
-        createConstrains()
+        createConstraint()
         initExtraData()
     }
     
@@ -143,7 +143,7 @@ private extension AgoraPopupQuizWidget {
         view.layer.shadowRadius = 6
     }
     
-    func createConstrains() {
+    func createConstraint() {
         contentView.mas_makeConstraints { (make) in
             make?.top.left()?.right()?.bottom()?.equalTo()(0)
         }

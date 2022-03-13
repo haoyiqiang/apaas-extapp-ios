@@ -35,7 +35,7 @@ fileprivate class AgoraRtmDataModel: NSObject {
         super.init(widgetInfo: widgetInfo)
         
         createViews()
-        createConstrains()
+        createConstraint()
         
         fetchHistoryMessage()
     }
@@ -245,7 +245,7 @@ private extension AgoraRtmIMWidget {
         contentView.addSubview(sendBar)
     }
     
-    func createConstrains() {
+    func createConstraint() {
         contentView.mas_makeConstraints { make in
             make?.left.right().top().bottom().equalTo()(0)
         }

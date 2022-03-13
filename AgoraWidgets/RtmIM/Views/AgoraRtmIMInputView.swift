@@ -33,7 +33,7 @@ class AgoraRtmIMInputView: UIView {
         super.init(frame: frame)
         
         createViews()
-        createConstrains()
+        createConstraint()
         
         NotificationCenter.default.addObserver(
             self, selector: #selector(keyboardWillShow(noti:)),
@@ -148,7 +148,7 @@ private extension AgoraRtmIMInputView {
         self.addSubview(self.textFiled)
     }
     
-    func createConstrains() {
+    func createConstraint() {
         self.contentView.mas_makeConstraints { make in
             make?.left.right().equalTo()(0)
             make?.bottom.equalTo()(frame.maxY)

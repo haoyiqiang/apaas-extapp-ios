@@ -33,7 +33,7 @@ class AgoraRtmIMReceiveCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         createViews()
-        createConstrains()
+        createConstraint()
     }
     
     public func setMessage(msg: String) {
@@ -96,7 +96,7 @@ private extension AgoraRtmIMReceiveCell {
         contentView.addSubview(messageLabel)
     }
     
-    func createConstrains() {
+    func createConstraint() {
         avatarView.mas_makeConstraints { make in
             make?.top.equalTo()(5)
             make?.left.equalTo()(14)

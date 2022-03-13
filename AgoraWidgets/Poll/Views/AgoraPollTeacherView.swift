@@ -67,7 +67,7 @@ class AgoraPollTeacherView: UIView {
         super.init(frame: .zero)
         
         createViews(title: title)
-        createConstrains()
+        createConstraint()
     }
     
     func update(isSingle: Bool,
@@ -241,7 +241,7 @@ private extension AgoraPollTeacherView {
         startEnable = false
     }
     
-    func createConstrains() {
+    func createConstraint() {
         // header
         headerView.mas_makeConstraints { make in
             make?.left.right().top().equalTo()(0)
