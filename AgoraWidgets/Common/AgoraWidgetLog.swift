@@ -40,11 +40,12 @@ class AgoraWidgetLogger: NSObject {
     private var traceId: String
     var isPrintOnConsole: Bool = false
     
-    init(widgetId: String,
-         logFolderPath: String) {
-        logger = AgoraLogger(folderPath: logFolderPath,
+    init(widgetId: String) {
+        let folderPath = GetWidgetLogFolder()
+        
+        logger = AgoraLogger(folderPath: folderPath,
                              filePrefix: widgetId,
-                             maximumNumberOfFiles: 5)
+                             maximumNumberOfFiles: 3)
         logger.setPrintOnConsoleType(.none)
         
         let timeStamp = "\(Date().timeIntervalSince1970.intValue)"

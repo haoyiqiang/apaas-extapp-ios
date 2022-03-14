@@ -5,8 +5,10 @@
 //  Created by DoubleCircle on 2022/1/14.
 //
 
-import UIKit
 import AgoraUIBaseViews
+import UIKit
+
+fileprivate let kPad = UIDevice.current.userInterfaceIdiom == .pad
 
 fileprivate var kScale: CGFloat = {
     let width = max(UIScreen.main.bounds.width,
@@ -21,7 +23,7 @@ fileprivate var kScale: CGFloat = {
         return width / 667.0
     }
 }()
-fileprivate let kPad = UIDevice.current.userInterfaceIdiom == .pad
+
 struct AgoraWidgetsFit {
     static func scale(_ value: CGFloat) -> CGFloat {
         return value * kScale

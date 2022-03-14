@@ -19,7 +19,7 @@ class AgoraPopupQuizTopView: UIView {
     private let backColor = UIColor(hexString: "#191919")
     private let grayColor = UIColor(hexString: "#677386")
     
-    let defaultHeight: CGFloat = 30
+    let defaultHeight: CGFloat = 17
     
     var selectorState: AgoraPopupQuizState = .unselected {
         didSet {
@@ -40,7 +40,7 @@ class AgoraPopupQuizTopView: UIView {
         let selector = GetWidgetLocalizableString(object: self,
                                                   key: "FCR_PopupQuiz")
         
-        let font = UIFont.systemFont(ofSize: 13)
+        let font = UIFont.systemFont(ofSize: 9)
         
         let titleSize = selector.agora_size(font: font,
                                             height: defaultHeight)
@@ -123,13 +123,13 @@ class AgoraPopupQuizOptionCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.addSubview(optionLabel)
-
+        
         optionLabel.textColor = darkGrayColor
         optionLabel.textAlignment = .center
-        optionLabel.font = UIFont.systemFont(ofSize: 20)
+        optionLabel.font = UIFont.systemFont(ofSize: 12)
         
         layer.borderWidth = 1
-        layer.cornerRadius = 12
+        layer.cornerRadius = 8
         layer.masksToBounds = true
     }
     
@@ -168,8 +168,7 @@ class AgoraPopupQuizOptionCollectionView: UICollectionView {
 // MAKR: - Result Table View
 class AgoraPopupQuizResultCell: UITableViewCell {
     static let cellId = NSStringFromClass(AgoraPopupQuizResultCell.self)
-    static let font = UIFont.systemFont(ofSize: 13)
-    static let labelHeight: CGFloat = 18
+    static let font = UIFont.systemFont(ofSize: 9)
     
     let titleLabel = UILabel()
     let resultLabel = UILabel()
@@ -204,7 +203,7 @@ class AgoraPopupQuizResultTableView: UITableView {
                   style: UITableView.Style) {
         super.init(frame: frame,
                    style: style)
-        rowHeight = 28
+        rowHeight = 19
         separatorStyle = .none
         isScrollEnabled = false
         register(AgoraPopupQuizResultCell.self,
@@ -224,7 +223,7 @@ class AgoraPopupQuizButton: UIButton {
     var selectorState: AgoraPopupQuizState = .unselected {
         didSet {
             switch selectorState {
-            case .post:
+            case .selected:
                 let post = GetWidgetLocalizableString(object: self,
                                                       key: "FCR_PopupQuiz_Post")
                 setTitle(post,
@@ -234,7 +233,7 @@ class AgoraPopupQuizButton: UIButton {
                 isEnabled = true
                 backgroundColor = blueColor
                 layer.borderColor = blueColor?.cgColor
-            case .change:
+            case .changing:
                 let change = GetWidgetLocalizableString(object: self,
                                                         key: "FCR_PopupQuiz_Change")
                 setTitle(change,
@@ -263,8 +262,8 @@ class AgoraPopupQuizButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
         layer.borderWidth = 1
-        cornerRadius = 15
-        titleLabel?.font = UIFont.systemFont(ofSize: 13)
+        cornerRadius = 11
+        titleLabel?.font = UIFont.systemFont(ofSize: 10)
     }
     
     required init?(coder: NSCoder) {
@@ -273,21 +272,29 @@ class AgoraPopupQuizButton: UIButton {
 }
 
 class AgoraPopupQuizView: UIView {
+    // View
     let optionCollectionView = AgoraPopupQuizOptionCollectionView()
     let topView = AgoraPopupQuizTopView()
     let button = AgoraPopupQuizButton()
     let resultTableView = AgoraPopupQuizResultTableView()
     
-    let optionCollectionViewHorizontalSpace: CGFloat = 16
-    let optionCollectionItemSize = CGSize(width: 40,
-                                          height: 40)
+    // Frame
+    private(set) var unfinishedNeededSize = CGSize(width: 180,
+                                                   height: 106)
+    
+    let finishedNeededSize = CGSize(width: 180,
+                                    height: 142)
+    
+    private let optionCollectionViewHorizontalSpace: CGFloat = 16
+    private let optionCollectionItemSize = CGSize(width: 26,
+                                                  height: 26)
     
     var selectorState: AgoraPopupQuizState = .unselected {
         didSet {
             button.selectorState = selectorState
             topView.selectorState = selectorState
             
-            guard selectorState == .end else {
+            guard selectorState == .finished else {
                 return
             }
             
@@ -299,21 +306,21 @@ class AgoraPopupQuizView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        createViews()
-        createConstraint()
+        initViews()
+        initViewFrame()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func collectionViewLayout(superViewSize: CGSize) {
+    func collectionViewLayout() {
         let rowCount: CGFloat = 4
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         
-        let totalSpace = superViewSize.width - (optionCollectionViewHorizontalSpace * 2) - (optionCollectionItemSize.width * rowCount)
+        let totalSpace = unfinishedNeededSize.width - (optionCollectionViewHorizontalSpace * 2) - (optionCollectionItemSize.width * rowCount)
         let minSpace = totalSpace / (rowCount - 1)
         
         layout.itemSize = optionCollectionItemSize
@@ -324,7 +331,7 @@ class AgoraPopupQuizView: UIView {
                                                      animated: false)
     }
     
-    private func createViews() {
+    private func initViews() {
         selectorState = .unselected
         
         addSubview(topView)
@@ -341,31 +348,56 @@ class AgoraPopupQuizView: UIView {
         layer.masksToBounds = true
     }
     
-    private func createConstraint() {
-        topView.mas_makeConstraints { (make) in
-            make?.top.right()?.left()?.equalTo()(0)
-            make?.height.equalTo()(topView.defaultHeight)
-        }
+    private func initViewFrame() {
+        let topViewWidth = unfinishedNeededSize.width
+        let topViewHeight = topView.defaultHeight
         
-        button.mas_makeConstraints { (make) in
-            make?.centerX.equalTo()(0)
-            make?.bottom.equalTo()(-20)
-            make?.width.equalTo()(80)
-            make?.height.equalTo()(30)
-        }
+        topView.frame = CGRect(x: 0,
+                               y: 0,
+                               width: topViewWidth,
+                               height: topViewHeight)
         
-        optionCollectionView.mas_makeConstraints { (make) in
-            make?.top.equalTo()(topView.mas_bottom)?.offset()(20)
-            make?.left.equalTo()(optionCollectionViewHorizontalSpace)
-            make?.right.equalTo()(-optionCollectionViewHorizontalSpace)
-            make?.bottom.equalTo()(button.mas_top)?.offset()(-16)
-        }
+        let resultTableViewY: CGFloat = topView.frame.maxY + 20
+        let resultTableViewWidth: CGFloat = finishedNeededSize.width
+        let resultTableViewHeight: CGFloat = finishedNeededSize.height
         
-        resultTableView.mas_makeConstraints { (make) in
-            make?.top.equalTo()(topView.mas_bottom)?.offset()(20)
-            make?.left.equalTo()(0)
-            make?.right.equalTo()(0)
-            make?.bottom.equalTo()(0)
-        }
+        resultTableView.frame = CGRect(x: 0,
+                                       y: resultTableViewY,
+                                       width: resultTableViewWidth,
+                                       height: resultTableViewHeight)
+        
+        collectionViewLayout()
+    }
+    
+    func updateUnfinishedViewFrame(optionCount: Int) {
+        let optionCollectionViewX = optionCollectionViewHorizontalSpace
+        let optionCollectionViewY = topView.frame.maxY + 15
+        let optionCollectionViewWidth = unfinishedNeededSize.width - (optionCollectionViewHorizontalSpace * 2)
+        let optionCollectionViewHeight = (optionCount > 4 ? (optionCollectionItemSize.height * 2 + 10) : optionCollectionItemSize.height)
+        
+        optionCollectionView.frame = CGRect(x: optionCollectionViewX,
+                                            y: optionCollectionViewY,
+                                            width: optionCollectionViewWidth,
+                                            height: optionCollectionViewHeight)
+        
+        let buttonWidth: CGFloat = 70
+        let buttonHeight: CGFloat = 22
+        
+        let buttonX = (unfinishedNeededSize.width - buttonWidth) * 0.5
+        let buttonY = optionCollectionView.frame.maxY + 15
+        
+        button.frame = CGRect(x: buttonX,
+                              y: buttonY,
+                              width: buttonWidth,
+                              height: buttonHeight)
+        
+        let buttonBottomSpace: CGFloat = 10
+        let newHeight: CGFloat = button.frame.maxY + buttonBottomSpace
+        let newWidth: CGFloat = unfinishedNeededSize.width
+        
+        let newSize = CGSize(width: newWidth,
+                             height: newHeight)
+        
+        unfinishedNeededSize = newSize
     }
 }

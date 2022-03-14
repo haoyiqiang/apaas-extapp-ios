@@ -60,6 +60,9 @@ import AgoraWidget
            let countdownExtraModel = roomProps.toObj(AgoraCountdownExtraModel.self) {
             curExtra = countdownExtraModel
         }
+        
+        initViews()
+        updateViewFrame()
     }
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
@@ -96,6 +99,31 @@ import AgoraWidget
 
 // MARK: - private
 private extension AgoraCountdownTimerWidget {
+    func initViews() {
+        view.layer.shadowColor = UIColor(hexString: "#2F4192")?.cgColor
+        view.layer.shadowOffset = CGSize(width: 0,
+                                         height: 2)
+        view.layer.shadowOpacity = 0.15
+        view.layer.shadowRadius = 6
+        view.isHidden = true
+    }
+    
+    func updateViewFrame() {
+        let size = ["width": countdownView.neededSize.width,
+                    "height": countdownView.neededSize.height]
+        
+        guard let message = ["size": size].jsonString() else {
+            return
+        }
+        
+        sendMessage(message)
+        
+        DispatchQueue.main.async {
+            self.countdownView.afterLayout()
+            self.view.isHidden = false
+        }
+    }
+    
     func handleRoomProperties() {
         guard let extra = curExtra else {
             return

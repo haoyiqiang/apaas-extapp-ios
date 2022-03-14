@@ -12,47 +12,30 @@ class AgoraPollServerAPI: NSObject {
     typealias FailBlock = (Error) -> ()
     typealias SuccessBlock = () -> ()
     
-    private var armin: Armin!
+    private var armin: Armin
     
     private let baseInfo: AgoraAppBaseInfo
     private let roomId: String
     private let uid: String
     
-    private lazy var coursewareDir: String = {
-        let cachesFolder = NSSearchPathForDirectoriesInDomains(.cachesDirectory,
-                                                               .userDomainMask,
-                                                               true)[0]
-        let path = "\(cachesFolder)/AgoraDownload"
-        if !FileManager.default.fileExists(atPath: path,
-                                           isDirectory: nil) {
-            try? FileManager.default.createDirectory(atPath: path,
-                                                     withIntermediateDirectories: true,
-                                                     attributes: nil)
-        }
-        return path
-    }()
-    
     init(baseInfo: AgoraAppBaseInfo,
          roomId: String,
-         uid: String) {
+         uid: String,
+         logTube: ArLogTube) {
         self.baseInfo = baseInfo
         self.roomId = roomId
         self.uid = uid
         
+        self.armin = Armin(delegate: nil,
+                           logTube: logTube)
+        
         super.init()
-        
-        self.armin = Armin(delegate: self,
-                           logTube: self)
-    }
-    
-    func start() {
-        
     }
     
     func submit(pollId: String,
-                selectIndex: [Int],
-                success: @escaping SuccessBlock,
-                fail: @escaping FailBlock) {
+                selectList: [Int],
+                success: SuccessBlock? = nil,
+                fail: FailBlock? = nil) {
         let path = "/edu/apps/\(baseInfo.agoraAppId)/v2/rooms/\(roomId)/widgets/polls/\(pollId)/users/\(uid)"
         let urlString = baseInfo.host + path
         
@@ -61,7 +44,7 @@ class AgoraPollServerAPI: NSObject {
                                       url: urlString)
         let header = ["x-agora-token" : baseInfo.token,
                       "x-agora-uid" : uid]
-        let parameters: [String : Any] = ["selectIndex" : selectIndex]
+        let parameters: [String : Any] = ["selectIndex" : selectList]
         let task = ArRequestTask(event: event,
                                  type: type,
                                  header: header,
@@ -70,48 +53,19 @@ class AgoraPollServerAPI: NSObject {
         armin.request(task: task,
                       responseOnMainQueue: true,
                       success: .data({ data in
-            success()
+            success?()
         }), failRetry: { error in
-            fail(error)
+            fail?(error)
             return .resign
         })
     }
     
+    func start() {
+        
+    }
+    
     func stop() {
         
-    }
-}
-
-extension AgoraPollServerAPI: ArminDelegate {
-    func armin(_ client: Armin,
-               requestSuccess event: ArRequestEvent,
-               startTime: TimeInterval,
-               url: String) {
-        
-    }
-    
-    func armin(_ client: Armin,
-               requestFail error: ArError,
-               event: ArRequestEvent,
-               url: String) {
-        
-    }
-}
-
-extension AgoraPollServerAPI: ArLogTube {
-    func log(info: String,
-             extra: String?) {
-        print("[AgoraPollServerAPI] \(extra) - \(info)")
-    }
-    
-    func log(warning: String,
-             extra: String?) {
-        print("[AgoraPollServerAPI] \(extra) - \(warning)")
-    }
-    
-    func log(error: ArError,
-             extra: String?) {
-        print("[AgoraPollServerAPI] \(extra) - \(error.localizedDescription)")
     }
 }
 

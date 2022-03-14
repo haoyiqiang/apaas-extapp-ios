@@ -142,6 +142,16 @@ extension String {
     }
 }
 
+extension UIImage {
+    static func ag_imageName(_ name: String) -> UIImage? {
+        let resource = "AgoraWidgets"
+        let bundle = Bundle.ag_compentsBundleNamed(resource)
+        return UIImage.init(named: name,
+                            in: bundle,
+                            compatibleWith: nil)
+    }
+}
+
 extension Double {
     /// will return 970B or 1.3K or 1.3M
     var toDataSizeUnitString: String {
@@ -231,4 +241,3 @@ extension AgoraBaseWidget {
         return info.localUserInfo.userRole == "teacher"
     }
 }
-

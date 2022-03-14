@@ -21,11 +21,11 @@ struct AgoraPopupQuizResult {
 }
 
 enum AgoraPopupQuizState {
-    case unselected, post, change, end
+    case unselected, selected, changing, finished
 }
 
 // Origin Data
-struct AgoraPopupQuizExtraData: Decodable {
+struct AgoraPopupQuizRoomPropertiesData: Decodable {
     var popupQuizId: String         // 本题id
     var correctItems: [String]      // 本题正确答案
     var items: [String]             // 所有选项
@@ -38,7 +38,7 @@ struct AgoraPopupQuizExtraData: Decodable {
     
     func toViewSelectorState() -> AgoraPopupQuizState? {
         if answerState == 0 {
-            return .end
+            return .finished
         } else {
             return nil
         }
@@ -49,7 +49,7 @@ struct AgoraPopupQuizExtraData: Decodable {
         
         for item in items {
             let option = AgoraPopupQuizOption(title: item,
-                                                   isSelected: false)
+                                              isSelected: false)
             list.append(option)
         }
         
@@ -95,8 +95,8 @@ struct AgoraPopupQuizExtraData: Decodable {
         }
         
         let correctItem = AgoraPopupQuizResult(title: correctTitle,
-                                                    result: correctResult,
-                                                    titleSize: correctSize)
+                                               result: correctResult,
+                                               titleSize: correctSize)
         list.append(correctItem)
         
         // My Answer
@@ -119,9 +119,9 @@ struct AgoraPopupQuizExtraData: Decodable {
         }
         
         let myAnswerItem = AgoraPopupQuizResult(title: myAnswerTitle,
-                                                     result: myAnswerResult,
-                                                     titleSize: myAnswerSize,
-                                                     resultColor: resultColor)
+                                                result: myAnswerResult,
+                                                titleSize: myAnswerSize,
+                                                resultColor: resultColor)
         list.append(myAnswerItem)
         
         return list

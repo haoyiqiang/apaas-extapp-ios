@@ -7,6 +7,9 @@
 //
 
 public class AgoraCountdownView: UIView {
+    let neededSize = CGSize(width: 98,
+                            height: 54)
+    
     private let isPad: Bool = UIDevice.current.isPad
     
     private var timer: DispatchSourceTimer?
@@ -32,25 +35,23 @@ public class AgoraCountdownView: UIView {
     
     private lazy var titleView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(hexString: "F9F9FC")
-        view.layer.cornerRadius = 6
-        view.clipsToBounds = true
+        view.backgroundColor = .white
 
         let titleLabel = UILabel()
         titleLabel.text = GetWidgetLocalizableString(object: self,
                                                      key: "Countdown_title")
-        titleLabel.textColor = .black
-        titleLabel.font = UIFont.systemFont(ofSize: 14)
+        titleLabel.textColor = UIColor(hexString: "#191919")
+        titleLabel.font = UIFont.systemFont(ofSize: 9)
         
         let line = UIView()
-        line.backgroundColor = UIColor(hexString: "EEEEF7")
+        line.backgroundColor = UIColor(hexString: "#EEEEF7")
         
         view.addSubview(titleLabel)
         view.addSubview(line)
         
         titleLabel.mas_makeConstraints { make in
-            make?.left.equalTo()(isPad ? 19 : 10)
-            make?.top.equalTo()(isPad ? 10 : 6)
+            make?.left.equalTo()(8)
+            make?.top.right()?.bottom()?.equalTo()(0)
         }
         
         line.mas_makeConstraints { make in
@@ -65,7 +66,7 @@ public class AgoraCountdownView: UIView {
         let colon = UILabel()
         colon.text = ":"
         colon.textColor = UIColor(hexString: "4D6277")
-        colon.font = UIFont.boldSystemFont(ofSize: isPad ? 48 : 34)
+        colon.font = UIFont.boldSystemFont(ofSize: 10)
         colon.backgroundColor = .clear
         colon.textAlignment = .center
         return colon
@@ -131,42 +132,35 @@ private extension AgoraCountdownView {
             }
         }
         
-        layer.shadowColor = UIColor(red: 0.18,
-                                    green: 0.25,
-                                    blue: 0.57,
-                                    alpha: 0.15).cgColor
-        layer.shadowOffset = CGSize(width: 0, height: 2)
-        layer.shadowOpacity = 1
-        layer.shadowRadius = 6
-        layer.shadowPath    = UIBezierPath(rect: frame).cgPath
+        layer.masksToBounds = true
+        layer.cornerRadius = 6
         
         layer.borderWidth = 1
         layer.borderColor = UIColor(red: 0.89,
                                     green: 0.89,
                                     blue: 0.93,
                                     alpha: 1).cgColor
-        clipsToBounds = true
-        layer.cornerRadius = 6
-        
     }
     
     func initLayout() {
-        let singleWidth: CGFloat = 36
-        let singleHeight: CGFloat = 48
-        let gap_small: CGFloat = 4
-        let colonViewWidth: CGFloat = 12
-        
-        let titleViewHeight: CGFloat = 32
-        
-        let xArr: [CGFloat] = [-((singleWidth * 1.5) + gap_small + (colonViewWidth * 0.5)),
-                               -((singleWidth * 0.5) + (colonViewWidth * 0.5)),
-                               (singleWidth * 0.5) + (colonViewWidth * 0.5),
-                               (singleWidth * 1.5) + (colonViewWidth * 0.5) + gap_small]
+        let titleViewHeight: CGFloat = 17
         
         titleView.mas_makeConstraints { make in
             make?.left.right().top().equalTo()(0)
             make?.height.equalTo()(titleViewHeight)
         }
+    }
+    
+    public func afterLayout() {
+        let singleWidth: CGFloat = 18
+        let singleHeight: CGFloat = 24
+        let gap_small: CGFloat = 2
+        let colonViewWidth: CGFloat = 6
+        
+        let xArr: [CGFloat] = [-((singleWidth * 1.5) + gap_small + (colonViewWidth * 0.5)),
+                               -((singleWidth * 0.5) + (colonViewWidth * 0.5)),
+                               (singleWidth * 0.5) + (colonViewWidth * 0.5),
+                               (singleWidth * 1.5) + (colonViewWidth * 0.5) + gap_small]
         
         colonView.mas_makeConstraints { make in
             make?.top.equalTo()(titleView.mas_bottom)
@@ -179,7 +173,7 @@ private extension AgoraCountdownView {
             let timeView = timeArr[i]
             timeView.mas_makeConstraints { make in
                 make?.centerX.equalTo()(0)?.offset()(xArr[i])
-                make?.top.equalTo()(titleView.mas_bottom)?.offset()(11)
+                make?.top.equalTo()(titleView.mas_bottom)?.offset()(6)
                 make?.width.equalTo()(singleWidth)
                 make?.height.equalTo()(singleHeight)
             }

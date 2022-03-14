@@ -22,7 +22,7 @@ public class SingleTimeView: UIView {
         label.text = "0"
         label.textAlignment = .center
         label.textColor = UIColor(hexString: "4D6277")
-        label.font = UIFont.boldSystemFont(ofSize: (UIDevice.current.model == "iPad") ? 48 : 34)
+        label.font = UIFont.boldSystemFont(ofSize: 17)
         return label
     }()
     
@@ -46,5 +46,4 @@ public class SingleTimeView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 }

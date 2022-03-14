@@ -83,7 +83,7 @@ extension AgoraPollResultView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let reuseId = "pollCell\(indexPath.row)"
+        let reuseId = "pollCell"
         var cell = tableView.dequeueReusableCell(withIdentifier: reuseId) as? AgoraPollResultCell
         if cell == nil {
             cell = AgoraPollResultCell(style: .default,
@@ -94,10 +94,10 @@ extension AgoraPollResultView: UITableViewDelegate, UITableViewDataSource {
               let detail = pollDetails[indexPath.row] else {
             return cell!
         }
-        cell?.updateInfo(AgoraPollCellResultInfo(index: indexPath.row,
-                                                 itemText: items[indexPath.row],
-                                                 count: detail.num,
-                                                 percent: detail.percentage))
+//        cell?.updateInfo(AgoraPollCellResultInfo(index: indexPath.row,
+//                                                 itemText: items[indexPath.row],
+//                                                 count: detail.num,
+//                                                 percent: detail.percentage))
         
         cell?.selectionStyle = .none
         return cell!

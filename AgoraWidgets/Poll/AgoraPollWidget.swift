@@ -10,210 +10,336 @@ import AgoraLog
 import Masonry
 import Armin
 
-@objcMembers public class AgoraPollWidget: AgoraBaseWidget {
-    private var logger: AgoraLogger
-    private var serverApi: AgoraPollServerAPI?
+@objcMembers public class AgoraPollWidget: AgoraBaseWidget, AgoraWidgetLogTube {
+    private var serverAPI: AgoraPollServerAPI?
+    var logger: AgoraWidgetLogger
+
+    // Origin Data
+    private var roomData: AgoraPollRoomPropertiesData?
+    private var userData: AgoraPollUserPropertiesData?
+    private var baseInfo: AgoraAppBaseInfo?
     
-    private lazy var studentView: AgoraPollStudentView = {
-        return AgoraPollStudentView(delegate: self)
-    }()
-    
-    private lazy var teacherView: AgoraPollTeacherView = {
-        // TODO: teacher
-        return AgoraPollTeacherView(delegate: self)
-    }()
-    
-    private var curExtra: AgoraPollExtraModel? {
+    // View Data
+    private var state: AgoraPollViewState = .unselected {
         didSet {
-            handleProperties()
+            receiverView.state = state
+            
+            if state == .finished {
+                receiverView.tableView.reloadData()
+            }
         }
     }
     
-    private var curUserProps: AgoraPollUserPropModel? {
+    private var selectedMode: AgoraPollViewSelectedMode = .single {
         didSet {
-            handleProperties()
+            receiverView.selectedMode = selectedMode
         }
     }
+    
+    private var optionList = [AgoraPollViewOption]() {
+        didSet {
+            guard state != .finished else {
+                return
+            }
+            
+            let hasSelected = optionList.contains(where: {$0.isSelected == true})
+            
+            state = (hasSelected ? .selected : .unselected)
+        }
+    }
+    
+    private var resultList = [AgoraPollViewResult]()
+    
+    // View
+    private let receiverView = AgoraPollReceiverView()
     
     public override init(widgetInfo: AgoraWidgetInfo) {
-        let cachesFolder = NSSearchPathForDirectoriesInDomains(.cachesDirectory,
-                                                               .userDomainMask,
-                                                               true)[0]
-        let logFolder = cachesFolder.appending("/AgoraLog")
-        let manager = FileManager.default
+        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId)
+        #if DEBUG
+        logger.isPrintOnConsole = true
+        #endif
         
-        if !manager.fileExists(atPath: logFolder,
-                               isDirectory: nil) {
-            try? manager.createDirectory(atPath: logFolder,
-                                         withIntermediateDirectories: true,
-                                         attributes: nil)
-        }
-        self.logger = AgoraLogger(folderPath: logFolder,
-                                  filePrefix: widgetInfo.widgetId,
-                                  maximumNumberOfFiles: 5)
+        self.logger = logger
         
         super.init(widgetInfo: widgetInfo)
     }
     
     // MARK: widget callback
     public override func onWidgetDidLoad() {
-        if let roomProps = info.roomProperties,
-           let pollExtraModel = roomProps.toObj(AgoraPollExtraModel.self) {
-            curExtra = pollExtraModel
-        }
+        super.onWidgetDidLoad()
+        initViews()
+        initConstraints()
         
-        if let userProps = info.localUserProperties,
-           let pollUserModel = userProps.toObj(AgoraPollUserPropModel.self),
-           let extra = curExtra,
-           pollUserModel.pollId == extra.pollId {
-            curUserProps = pollUserModel
-        }
-        
-        if isTeacher {
-            view.addSubview(teacherView)
-            teacherView.mas_makeConstraints { make in
-                make?.left.right()?.top()?.bottom().equalTo()(0)
-            }
-        } else {
-            view.addSubview(studentView)
-            studentView.mas_makeConstraints { make in
-                make?.left.right()?.top()?.bottom().equalTo()(0)
-            }
-        }
-        
-        handleProperties()
+        updateRoomData()
+        updateUserData()
+        updateViewData()
     }
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
                                                        cause: [String : Any]?,
                                                        keyPaths: [String]) {
-        if let pollExtraModel = properties.toObj(AgoraPollExtraModel.self) {
-            curExtra = pollExtraModel
-        }
+        super.onWidgetRoomPropertiesUpdated(properties,
+                                            cause: cause,
+                                            keyPaths: keyPaths)
+        updateRoomData()
+        updateViewData()
+        
+        log(content: properties.jsonString() ?? "nil",
+            extra: cause?.jsonString(),
+            type: .info)
     }
     
     public override func onWidgetUserPropertiesUpdated(_ properties: [String : Any],
                                                        cause: [String : Any]?,
                                                        keyPaths: [String]) {
-        if let pollUserModel = properties.toObj(AgoraPollUserPropModel.self),
-           let extra = curExtra,
-           pollUserModel.pollId == extra.pollId {
-            curUserProps = pollUserModel
-        }
+        super.onWidgetUserPropertiesUpdated(properties,
+                                            cause: cause,
+                                            keyPaths: keyPaths)
+        updateUserData()
+        
+        log(content: properties.jsonString() ?? "nil",
+            extra: cause?.jsonString(),
+            type: .info)
     }
 
     public override func onMessageReceived(_ message: String) {
-        logInfo("onMessageReceived:\(message)")
+        super.onMessageReceived(message)
         
         if let baseInfo = message.toAppBaseInfo() {
-            serverApi = AgoraPollServerAPI(baseInfo: baseInfo,
-                                             roomId: info.roomInfo.roomUuid,
-                                             uid: info.localUserInfo.userUuid)
+            serverAPI = AgoraPollServerAPI(baseInfo: baseInfo,
+                                           roomId: info.roomInfo.roomUuid,
+                                           uid: info.localUserInfo.userUuid,
+                                           logTube: self)
         }
         
-        if let signal = message.vcMessageToSignal() {
-            
-        }
-    }
-}
-
-// MARK: - AgoraPollTeacherViewDelegate
-extension AgoraPollWidget: AgoraPollTeacherViewDelegate {
-    func didStartpoll(isSingle: Bool,
-                        pollingItems: [String]) {
-        // TODO: 教师操作
+        log(content: message,
+            type: .info)
     }
     
-    func didStoppoll(pollId: String) {
-        // TODO: 教师操作
+    @objc func doButtonPressed(_ sender: UIButton) {
+        submitSelectedList()
     }
 }
 
-// MARK: - AgoraPollStudentViewDelegate
-extension AgoraPollWidget: AgoraPollStudentViewDelegate {
-    func didSubmitIndexs(_ indexs: [Int]) {
-        guard let server = serverApi,
-        let extra = curExtra else {
+private extension AgoraPollWidget {
+    func initViews() {
+        view.addSubview(receiverView)
+        
+        receiverView.tableView.delegate = self
+        receiverView.tableView.dataSource = self
+        
+        receiverView.submitButton.addTarget(self,
+                                            action: #selector(doButtonPressed(_:)),
+                                            for: .touchUpInside)
+        
+        view.backgroundColor = .white
+        view.layer.shadowColor = UIColor(hexString: "#2F4192")?.cgColor
+        view.layer.shadowOffset = CGSize(width: 0,
+                                         height: 2)
+        view.layer.shadowOpacity = 0.15
+        view.layer.shadowRadius = 6
+    }
+    
+    func initConstraints() {
+        receiverView.mas_makeConstraints { (make) in
+            make?.top.bottom()?.right()?.left()?.equalTo()(0)
+        }
+    }
+    
+    func updateViewFrame() {
+        var rowCount: Int
+        
+        if state == .finished {
+            rowCount = resultList.count
+        } else {
+            rowCount = optionList.count
+        }
+        
+        let title = receiverView.titleLabel.text ?? ""
+        
+        receiverView.updateViewFrame(title: title,
+                                     tableRowCount: rowCount)
+        
+        let size = ["width": receiverView.neededSize.width,
+                    "height": receiverView.neededSize.height]
+        
+        guard let message = ["size": size].jsonString() else {
             return
         }
-        server.submit(pollId: extra.pollId,
-                      selectIndex: indexs) { [weak self] in
-            self?.logInfo("submit success:\(indexs)")
-        } fail: { [weak self] error in
-            self?.logError(error.localizedDescription)
+        
+        sendMessage(message)
+    }
+}
+
+private extension AgoraPollWidget {
+    func updateRoomData() {
+        guard let roomProps = info.roomProperties,
+           let data = roomProps.toObj(AgoraPollRoomPropertiesData.self) else {
+            return
+        }
+        
+        roomData = data
+    }
+    
+    func updateUserData() {
+        guard let userProps = info.localUserProperties,
+              let userData = userProps.toObj(AgoraPollUserPropertiesData.self),
+              let data = roomData,
+              userData.pollId == data.pollId else {
+            return
+        }
+        
+        self.userData = userData
+    }
+    
+    func updateViewData() {
+        guard let data = roomData else {
+            return
+        }
+        
+        if let state = data.toPollViewState() { // finished
+            self.state = state
+        } else if let _ = userData { // submited
+            self.state = .finished
+        }
+        
+        resultList = data.toPollViewResultList()
+        optionList = data.toPollViewOptionList(selectedList: userData?.selectIndex)
+        
+        selectedMode = data.toPollViewSelectedMode()
+        receiverView.titleLabel.text = data.pollTitle
+        
+        updateViewFrame()
+        
+        receiverView.tableView.reloadData()
+    }
+    
+    func findSelectedList() -> [Int] {
+        var array = [Int]()
+        
+        for index in 0..<optionList.count {
+            let option = optionList[index]
+            
+            guard option.isSelected else {
+                continue
+            }
+            
+            array.append(index)
+        }
+        
+        return array
+    }
+    
+    func submitSelectedList() {
+        guard let data = roomData,
+              let server = serverAPI else {
+            return
+        }
+        
+        let list = findSelectedList()
+        
+        server.submit(pollId: data.pollId,
+                      selectList: list) { [weak self] in
+            guard let strongSelf = self else {
+                return
+            }
+            
+            strongSelf.state = .finished
         }
     }
 }
 
-// MARK: - ArminDelegate
-extension AgoraPollWidget: ArminDelegate {
-    public func armin(_ client: Armin,
-               requestSuccess event: ArRequestEvent,
-               startTime: TimeInterval,
-               url: String) {
-        
+extension AgoraPollWidget: UITableViewDataSource, UITableViewDelegate {
+    public func tableView(_ tableView: UITableView,
+                          numberOfRowsInSection section: Int) -> Int {
+        if state == .finished {
+            return resultList.count
+        } else {
+            return optionList.count
+        }
     }
     
-    public func armin(_ client: Armin,
-               requestFail error: ArError,
-               event: ArRequestEvent,
-               url: String) {
+    public func tableView(_ tableView: UITableView,
+                          cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        var cell: UITableViewCell
         
+        if state == .finished {
+            let cellId = AgoraPollResultCell.cellId
+            let resultCell = tableView.dequeueReusableCell(withIdentifier: cellId,
+                                                           for: indexPath) as! AgoraPollResultCell
+            
+            let item = resultList[indexPath.row]
+            resultCell.titleLabel.text = item.title
+            resultCell.resultLabel.text = item.result
+            resultCell.resultProgressView.progress = item.percentage
+            
+            cell = resultCell
+        } else {
+            let cellId = AgoraPollOptionCell.cellId
+            let optionCell = tableView.dequeueReusableCell(withIdentifier: cellId,
+                                                           for: indexPath) as! AgoraPollOptionCell
+            
+            let item = optionList[indexPath.row]
+            optionCell.selectedMode = selectedMode
+            optionCell.optionLabel.text = item.title
+            optionCell.optionIsSelected = item.isSelected
+            
+            cell = optionCell
+        }
+        
+        return cell
+    }
+    
+    public func tableView(_ tableView: UITableView,
+                          didSelectRowAt indexPath: IndexPath) {
+        guard state != .finished else {
+            return
+        }
+        
+        var reloadRows = [IndexPath]()
+        
+        if selectedMode == .single,
+           let index = optionList.firstIndex(where: {$0.isSelected == true}) {
+            var item = optionList[index]
+            item.isSelected.toggle()
+            optionList[index] = item
+            
+            let oldSelected = IndexPath(row: index,
+                                        section: 0)
+            
+            reloadRows.append(oldSelected)
+        }
+        
+        var item = optionList[indexPath.row]
+        item.isSelected.toggle()
+        optionList[indexPath.row] = item
+        
+        reloadRows.append(indexPath)
+        
+        tableView.reloadRows(at: reloadRows,
+                             with: .none)
     }
 }
 
-// MARK: - ArLogTube
 extension AgoraPollWidget: ArLogTube {
     public func log(info: String,
-             extra: String?) {
-        logInfo("\(extra) - \(info)")
+                    extra: String?) {
+        log(content: info,
+            extra: extra,
+            type: .info)
     }
     
     public func log(warning: String,
-             extra: String?) {
-        log(warning: warning,
-            extra: extra)
+                    extra: String?) {
+        log(content: warning,
+            extra: extra,
+            type: .info)
     }
     
     public func log(error: ArError,
-             extra: String?) {
-        logError("\(extra) - \(error.localizedDescription)")
-    }
-}
-
-// MARK: - private
-private extension AgoraPollWidget {
-    func handleProperties() {
-        guard let extra = curExtra else {
-            return
-        }
-        if isTeacher {
-            
-        } else {
-            let isEnd = (extra.pollState == .end || curUserProps != nil)
-            studentView.update(isSingle: extra.mode == .single,
-                               isEnd: isEnd,
-                               title: extra.pollTitle,
-                               items: extra.pollItems,
-                               pollDetails: extra.pollDetails)
-        }
-    }
-    
-    func sendMessage(_ signal: AgoraPollInteractionSignal) {
-        guard let text = signal.toMessageString() else {
-            logError("signal encode error!")
-            return
-        }
-        sendMessage(text)
-    }
-    
-    func logInfo(_ log: String) {
-        logger.log("[Poll Widget \(info.widgetId)] \(log)",
-                   type: .info)
-    }
-    
-    func logError(_ log: String) {
-        logger.log("[Poll Widget \(info.widgetId)] \(log)",
-                   type: .error)
+                    extra: String?) {
+        log(content: error.localizedDescription,
+            extra: extra,
+            type: .info)
     }
 }
