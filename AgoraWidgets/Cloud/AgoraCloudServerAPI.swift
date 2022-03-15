@@ -7,7 +7,7 @@
 
 import Armin
 
-class CloudServerApi: NSObject {
+class AgoraCloudServerAPI: NSObject {
     typealias FailBlock = (Error) -> ()
     typealias SuccessBlock<T: Decodable> = (Resp<T>) -> ()
     
@@ -15,6 +15,8 @@ class CloudServerApi: NSObject {
     
     private let baseInfo: AgoraAppBaseInfo
     private let uid: String
+    
+    private var currentRequesting: Bool = false
     
     private lazy var coursewareDir: String = {
         let cachesFolder = NSSearchPathForDirectoriesInDomains(.cachesDirectory,
@@ -45,6 +47,11 @@ class CloudServerApi: NSObject {
                                pageSize: Int,
                                success: @escaping SuccessBlock<SourceDataInUserPage>,
                                fail: @escaping FailBlock) {
+        guard !currentRequesting else {
+            return
+        }
+        currentRequesting = true
+        
         let path = "/edu/apps/\(baseInfo.agoraAppId)/v2/users/\(uid)/resources/page"
         let urlString = baseInfo.host + path
         
@@ -63,7 +70,8 @@ class CloudServerApi: NSObject {
         
         armin.request(task: task,
                       responseOnMainQueue: true,
-                      success: .data({ data in
+                      success: .data({ [weak self] data in
+            self?.currentRequesting = false
             let decoder = JSONDecoder()
             do {
                 let resp = try decoder.decode(Resp<SourceDataInUserPage>.self,
@@ -73,14 +81,15 @@ class CloudServerApi: NSObject {
                 print(e)
                 fail(e)
             }
-        }), failRetry: { error in
+        }), failRetry: {[weak self] error in
+            self?.currentRequesting = false
             fail(error)
             return .resign
         })
     }
 }
 
-extension CloudServerApi: ArminDelegate {
+extension AgoraCloudServerAPI: ArminDelegate {
     func armin(_ client: Armin,
                requestSuccess event: ArRequestEvent,
                startTime: TimeInterval,
@@ -96,7 +105,7 @@ extension CloudServerApi: ArminDelegate {
     }
 }
 
-extension CloudServerApi: ArLogTube {
+extension AgoraCloudServerAPI: ArLogTube {
     func log(info: String,
              extra: String?) {
         print("[CloudServerApi] \(extra) - \(info)")
@@ -113,7 +122,7 @@ extension CloudServerApi: ArLogTube {
     }
 }
 
-extension CloudServerApi {
+extension AgoraCloudServerAPI {
     struct Resp<T: Decodable>: Decodable {
         let msg: String
         let code: Int

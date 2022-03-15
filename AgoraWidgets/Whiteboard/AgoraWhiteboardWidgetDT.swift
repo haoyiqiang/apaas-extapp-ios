@@ -30,7 +30,7 @@ class AgoraWhiteboardWidgetDT {
     var baseMemberState: WhiteMemberState = {
         var state = WhiteMemberState()
         state.currentApplianceName = WhiteApplianceNameKey.ApplianceClicker
-        state.strokeWidth = NSNumber(16)
+        state.strokeWidth = NSNumber(6)
         state.strokeColor = UIColor(hex: 0x0073FF)?.getRGBAArr()
         state.textSize = NSNumber(18)
         return state

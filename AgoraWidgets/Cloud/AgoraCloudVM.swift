@@ -7,95 +7,20 @@
 
 import AgoraWidget
 
-protocol AgoraCloudVMDelegate: NSObjectProtocol {
-    func agoraCloudVMDidUpdateList(vm: AgoraCloudVM,
-                                   list: [AgoraCloudCourseware])
-}
-
 class AgoraCloudVM: NSObject {
+    var selectedType: AgoraCloudCoursewareType = .publicResource
+    
     private(set) var publicFiles = [AgoraCloudCourseware]()
     private(set) var privateFiles = [AgoraCloudCourseware]()
-    private var serverApi: CloudServerApi!
-    private var selectedType: AgoraCloudCoursewareType = .publicResource
-    weak var delegate: AgoraCloudVMDelegate?
-    private var currentPageNo = 0
-    private var currentRequestingPageNo: Int?
     
-    lazy var logFolder: String = {
-        let cachesFolder = NSSearchPathForDirectoriesInDomains(.cachesDirectory,
-                                                               .userDomainMask,
-                                                               true)[0]
-        let folder = cachesFolder.appending("/AgoraLog")
-        let manager = FileManager.default
-        
-        if !manager.fileExists(atPath: folder,
-                               isDirectory: nil) {
-            try? manager.createDirectory(atPath: folder,
-                                         withIntermediateDirectories: true,
-                                         attributes: nil)
-        }
-        return folder
-    }()
-    
-    init(baseInfo: AgoraAppBaseInfo,
-         uid: String,
-         extra: Any?) {
-        self.serverApi = CloudServerApi(baseInfo: baseInfo,
-                                        uid: uid)
+    init(extra: Any?) {
         super.init()
-        
-        // 公共白板课件
-        transformPublicResources(extra: extra)
+        // public
+        transformPublicResources(extraInfo: extra)
     }
     
-    func start() {
-        fetchPrivate()
-    }
-    
-    func fetchData() {
-        switch selectedType {
-        case .publicResource:
-            break
-        case .privateResource:
-            fetchPrivate()
-            break
-        }
-    }
-    
-    /// 获取个人数据
-    private func fetchPrivate() {
-        guard currentRequestingPageNo == nil else {
-            return
-        }
-        let pageNo = currentPageNo
-        currentPageNo = pageNo
-        serverApi.requestResourceInUser(pageNo: pageNo,
-                                        pageSize: 300) { [weak self] (resp) in
-            self?.currentRequestingPageNo = nil
-            guard let `self` = self else { return }
-            self.currentPageNo += 1
-            var temp = self.privateFiles
-            let list = resp.data.list.map({ AgoraCloudCourseware(fileItem: $0) })
-            for item in list {
-                if !temp.contains(where: {$0.resourceUuid == item.resourceUuid}) {
-                    temp.append(item)
-                }
-            }
-            self.privateFiles = temp
-            self.changeSelectedType(type: self.selectedType)
-        } fail: { [weak self](error) in
-            // TODO: error handle
-            self?.currentRequestingPageNo = nil
-        }
-    }
-    
-    func checkShouldFetchData(currentRow: Int) {
-        guard selectedType == .privateResource else {
-            return
-        }
-        
-        let currentMaxRow = (currentPageNo + 1) * 300 - 1
-        fetchData()
+    func updatePrivate(_ files: [AgoraCloudCourseware]?) {
+        privateFiles = files ?? [AgoraCloudCourseware]()
     }
     
     func getSelectedInfo(index: Int) -> AgoraCloudWhiteScenesInfo? {
@@ -111,16 +36,21 @@ class AgoraCloudVM: NSObject {
                                          convert: config.convert)
     }
     
-    func changeSelectedType(type: AgoraCloudCoursewareType) {
-        self.selectedType = type
-        let list = type == .publicResource ? publicFiles : privateFiles
-        delegate?.agoraCloudVMDidUpdateList(vm: self,
-                                            list: list)
+    func getCellCoursewares(type: AgoraCloudCoursewareType) -> [AgoraCloudCellInfo] {
+        switch type {
+        case .publicResource:
+            return publicFiles.toCellInfos()
+        case .privateResource:
+            return privateFiles.toCellInfos()
+        }
     }
-    
+}
+
+// MARK: - private
+private extension AgoraCloudVM {
     /// 公共课件转换
-    private func transformPublicResources(extra: Any?) {
-        guard let extraInfo = extra as? Dictionary<String,Any>,
+    func transformPublicResources(extraInfo: Any?) {
+        guard let extraInfo = extraInfo as? Dictionary<String,Any>,
               let publicJsonArr = extraInfo["publicCoursewares"] as? Array<String>,
               publicJsonArr.count > 0 else {
                   return

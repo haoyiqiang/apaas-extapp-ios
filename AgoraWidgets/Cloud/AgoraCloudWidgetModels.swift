@@ -80,7 +80,6 @@ struct AgoraCloudWhiteScenesInfo: Convertable {
 struct AgoraCloudCourseware: Convertable {
     var resourceName: String
     var resourceUuid: String
-    var scenePath: String
     var resourceURL: String
     var scenes: [AgoraCloudConvertedFile]
     /// 原始文件的扩展名
@@ -94,7 +93,6 @@ struct AgoraCloudCourseware: Convertable {
     
     init(resourceName: String,
          resourceUuid: String,
-         scenePath: String,
          resourceURL: String,
          scenes: [AgoraCloudConvertedFile],
          ext: String,
@@ -103,7 +101,6 @@ struct AgoraCloudCourseware: Convertable {
          convert: Bool?) {
         self.resourceName = resourceName
         self.resourceUuid = resourceUuid
-        self.scenePath = scenePath
         self.resourceURL = resourceURL
         self.scenes = scenes
         self.ext = ext
@@ -112,7 +109,7 @@ struct AgoraCloudCourseware: Convertable {
         self.convert = convert
     }
     
-    init(fileItem: CloudServerApi.FileItem) {
+    init(fileItem: AgoraCloudServerAPI.FileItem) {
         let scenes = fileItem.taskProgress.convertedFileList.map { conFile -> AgoraCloudConvertedFile in
             let ppt = AgoraCloudPptPage(src: conFile.ppt.src,
                                              width: conFile.ppt.width,
@@ -124,7 +121,6 @@ struct AgoraCloudCourseware: Convertable {
         
         self.init(resourceName: fileItem.resourceName,
                   resourceUuid: fileItem.resourceUuid,
-                  scenePath: "/\(fileItem.resourceName)" ,
                   resourceURL: fileItem.url,
                   scenes: scenes,
                   ext: fileItem.ext,
@@ -136,7 +132,6 @@ struct AgoraCloudCourseware: Convertable {
     init(publicCourseware: AgoraCloudPublicCourseware) {
         self.init(resourceName: publicCourseware.resourceName,
                   resourceUuid: publicCourseware.resourceUUID,
-                  scenePath: "/\(publicCourseware.resourceName)" ,
                   resourceURL: publicCourseware.url,
                   scenes: publicCourseware.taskProgress.convertedFileList,
                   ext: publicCourseware.ext,
@@ -206,6 +201,7 @@ extension Array where Element == AgoraCloudPublicCourseware {
     }
 }
 
+// MARK: Data To UI Model
 extension Array where Element == AgoraCloudCourseware {
     func toCellInfos() -> Array<AgoraCloudCellInfo> {
         var cellInfos = [AgoraCloudCellInfo]()
@@ -217,7 +213,7 @@ extension Array where Element == AgoraCloudCourseware {
     }
 }
 
-
+// MARK: - to Signal
 extension String {
     func toCloudSignal() -> AgoraCloudInteractionSignal? {
         guard let dic = self.toDic(),
@@ -229,3 +225,53 @@ extension String {
     }
 }
 
+
+// MARK: - UI
+enum AgoraCloudUIFileType {
+    case uiPublic, uiPrivate
+}
+
+struct AgoraCloudCellInfo {
+    let imageName: String
+    let name: String
+    
+    init(imageName: String,
+         name: String) {
+        self.imageName = imageName
+        self.name = name
+    }
+    
+    // 后台请求刷新时转换
+    init(fileItem: AgoraCloudServerAPI.FileItem) {
+        self.imageName = AgoraCloudCellInfo.imageName(ext: fileItem.ext)
+        self.name = fileItem.resourceName
+    }
+
+    // 传入参数文件
+    init(courseware: AgoraCloudCourseware) {
+        self.imageName = AgoraCloudCellInfo.imageName(ext: courseware.ext)
+        self.name = courseware.resourceName
+    }
+
+    static func imageName(ext: String) -> String {
+        switch ext {
+        case "pptx", "ppt", "pptm":
+            return "format-PPT"
+        case "docx", "doc":
+            return "format-word"
+        case "xlsx", "xls", "csv":
+            return "format-excel"
+        case "pdf":
+            return "format-pdf"
+        case "jpeg", "jpg", "png", "bmp":
+            return "format-pic"
+        case "mp3", "wav", "wma", "aac", "flac", "m4a", "oga", "opu":
+            return "format-audio"
+        case "mp4", "3gp", "mgp", "mpeg", "3g2", "avi", "flv", "wmv", "h264",
+            "m4v", "mj2", "mov", "ogg", "ogv", "rm", "qt", "vob", "webm":
+            return "format-video"
+        default:
+            return "format-unknown"
+        }
+    }
+}

@@ -301,13 +301,6 @@ extension AgoraWhiteboardWidget {
             }
         case .count(let count):
             if count > dt.page.count {
-                //                let newIndex = UInt(dt.page.index + 1)
-                //                // 新增
-                //                var scenes = [WhiteScene]()
-                //                for i in dt.page.count ..< count {
-                //                    scenes.append(WhiteScene(name: "\(info.widgetId)\(newIndex)", ppt: nil))
-                //                }
-                //
                 room.addPage()
                 room.nextPage { [weak self] success in
                     if success {
@@ -315,12 +308,6 @@ extension AgoraWhiteboardWidget {
                                   log: "add page successfullt")
                     }
                 }
-                //                room.putScenes("/",
-                //                               scenes: scenes,
-                //                               index: newIndex)
-                //                room.setSceneIndex(newIndex) { success, error in
-                //                    print(success)
-                //                }
             } else {
                 // 减少
                 for i in dt.page.count ..< count {
