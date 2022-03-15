@@ -184,6 +184,12 @@ extension Int64 {
         let second = self % 60
         return NSString(format: "%02ld:%02ld:%02ld", hour, minute, second) as String
     }
+    
+    var formatStringMS: String {
+        let minute = (self % 3600) / 60
+        let second = self % 60
+        return NSString(format: "%02ld:%02ld", minute, second) as String
+    }
 }
 
 extension TimeInterval {

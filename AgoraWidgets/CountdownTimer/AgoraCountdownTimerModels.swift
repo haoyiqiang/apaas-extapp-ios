@@ -5,14 +5,17 @@
 //  Created by LYY on 2022/3/5.
 //
 
+
+// View Data
 enum AgoraCountdownState: Int, Convertable {
-    case initial = 0, during = 1
+    case end = 0, duration = 1
 }
 
-struct AgoraCountdownExtraModel: Convertable {
-    var startTime: Int64
+// Origin Data
+struct AgoraCountdownRoomData: Convertable {
+    var startTime: Int64            // millisecond
     var state: AgoraCountdownState
-    var duration: Int64
+    var duration: Int64             // second
 }
 
 enum AgoraCountdownInteractionSignal: Convertable {

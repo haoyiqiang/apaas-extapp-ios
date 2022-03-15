@@ -32,7 +32,7 @@ struct AgoraPopupQuizRoomPropertiesData: Codable {
     var correctCount: Int           // 本题答对人数
     var averageAccuracy: Float      // 答题正确率
     var answerState: Int            // 答题状态 1:答题中 0：答题结束
-    var receiveQuestionTime: Int64  // 收到题目时间
+    var receiveQuestionTime: Int64  // 收到题目时间, millisecond
     var selectedCount: Int?         // 已经答题人数
     var totalCount: Int             // 应该答题的人数
     

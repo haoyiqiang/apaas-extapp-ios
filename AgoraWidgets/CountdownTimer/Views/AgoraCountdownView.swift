@@ -6,134 +6,78 @@
 //  Copyright © 2021 Agora. All rights reserved.
 //
 
+import UIKit
+
 public class AgoraCountdownView: UIView {
+    enum Color {
+        case warning, normal
+    }
+    
+    // View
+    private let headerView = AgoraCountdownHeaderView()
+    private let colonView = AgoraCountdownColonLabel()
+    private var timePages = [AgoraCountdownSingleTimeGroup]()
+    
+    // Frame
     let neededSize = CGSize(width: 98,
                             height: 54)
     
-    private let isPad: Bool = UIDevice.current.isPad
-    
-    private var timer: DispatchSourceTimer?
-    
-    private var isSuspend: Bool = true
-        
-    private var timeArr: Array<SingleTimeGroup> = []
-    
-    private var totalTime: Int64 = 0 {
+    var timePageColor: Color = .normal {
         didSet {
-            timeArr.forEach { group in
-                group.turnColor(color: (totalTime <= 3) ? .red : UIColor(hexString: "4D6277")!)
+            guard oldValue != timePageColor else {
+                return
             }
-            let newTimeStrArr = totalTime.secondsToTimeStrArr()
-            for i in 0..<timeArr.count {
-                guard i <= newTimeStrArr.count else {
-                    return
-                }
-                timeArr[i].updateStr(str: newTimeStrArr[i])
+            
+            var color: UIColor
+            
+            switch timePageColor {
+            case .normal:
+                color = UIColor(hexString: "4D6277")!
+            case .warning:
+                color = .red
+            }
+            
+            timePages.forEach { group in
+                group.turnColor(color: color)
             }
         }
     }
     
-    private lazy var titleView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .white
-
-        let titleLabel = UILabel()
-        titleLabel.text = GetWidgetLocalizableString(object: self,
-                                                     key: "Countdown_title")
-        titleLabel.textColor = UIColor(hexString: "#191919")
-        titleLabel.font = UIFont.systemFont(ofSize: 9)
-        
-        let line = UIView()
-        line.backgroundColor = UIColor(hexString: "#EEEEF7")
-        
-        view.addSubview(titleLabel)
-        view.addSubview(line)
-        
-        titleLabel.mas_makeConstraints { make in
-            make?.left.equalTo()(8)
-            make?.top.right()?.bottom()?.equalTo()(0)
-        }
-        
-        line.mas_makeConstraints { make in
-            make?.left.right().bottom().equalTo()(0)
-            make?.height.equalTo()(1)
-        }
-        
-        return view
-    }()
-    
-    private lazy var colonView: UILabel = {
-        let colon = UILabel()
-        colon.text = ":"
-        colon.textColor = UIColor(hexString: "4D6277")
-        colon.font = UIFont.boldSystemFont(ofSize: 10)
-        colon.backgroundColor = .clear
-        colon.textAlignment = .center
-        return colon
-    }()
-    
     public override init(frame: CGRect) {
         super.init(frame: .zero)
-
-        initView()
-        initLayout()
+        initViews()
+        initViewFrame()
+    }
+    
+    func updateTimePages(timeList: [String]) {
+        for index in 0..<timePages.count {
+            let text = timeList[index]
+            let page = timePages[index]
+            page.updateStr(str: text)
+        }
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    public func invokeCountDown(duration: Int64) {
-        guard self.timer == nil else {
-            return
-        }
-        totalTime = duration
-        timer = DispatchSource.makeTimerSource(flags: [],
-                                               queue: DispatchQueue.global())
-        timer?.schedule(deadline: .now(),
-                        repeating: 1)
-        
-        timer?.setEventHandler { [weak self] in
-            if let `self` = self {
-                if self.totalTime > 0 {
-                    self.totalTime -= 1
-                } else {
-                    self.timer?.cancel()
-                    self.timer = nil
-                }
-            } else {
-                self?.timer?.cancel()
-                self?.timer = nil
-            }
-            
-        }
-        isSuspend = true
-        
-        startTimer()
-    }
-
-    public func cancelCountDown() {
-        stopTimer()
-    }
 }
 
-// MARK: UI
+// MARK: - View
 private extension AgoraCountdownView {
-    func initView() {
-        isUserInteractionEnabled = true
+    func initViews() {
         backgroundColor = .white
-        addSubview(titleView)
+        
+        addSubview(headerView)
         addSubview(colonView)
-        if timeArr.count == 0 {
-            for _ in 0...3 {
-                let timeView = SingleTimeGroup(frame: .zero)
-                timeArr.append(timeView)
-                addSubview(timeView)
-            }
+        
+        for _ in 0...3 {
+            let timeView = AgoraCountdownSingleTimeGroup(frame: .zero)
+            timePages.append(timeView)
+            addSubview(timeView)
         }
         
         layer.masksToBounds = true
-        layer.cornerRadius = 6
+        layer.cornerRadius = 4
         
         layer.borderWidth = 1
         layer.borderColor = UIColor(red: 0.89,
@@ -142,63 +86,53 @@ private extension AgoraCountdownView {
                                     alpha: 1).cgColor
     }
     
-    func initLayout() {
+    func initViewFrame() {
+        // Header View
         let titleViewHeight: CGFloat = 17
         
-        titleView.mas_makeConstraints { make in
-            make?.left.right().top().equalTo()(0)
-            make?.height.equalTo()(titleViewHeight)
-        }
-    }
-    
-    public func afterLayout() {
-        let singleWidth: CGFloat = 18
-        let singleHeight: CGFloat = 24
-        let gap_small: CGFloat = 2
+        headerView.frame = CGRect(x: 0,
+                                  y: 0,
+                                  width: neededSize.width,
+                                  height: titleViewHeight)
+        
+        // Colon View
         let colonViewWidth: CGFloat = 6
+        let colonViewHeight: CGFloat = neededSize.height - headerView.frame.maxY
+        let colonViewX: CGFloat = (neededSize.width - colonViewWidth) * 0.5
+        let colonViewY: CGFloat = headerView.frame.maxY
         
-        let xArr: [CGFloat] = [-((singleWidth * 1.5) + gap_small + (colonViewWidth * 0.5)),
-                               -((singleWidth * 0.5) + (colonViewWidth * 0.5)),
-                               (singleWidth * 0.5) + (colonViewWidth * 0.5),
-                               (singleWidth * 1.5) + (colonViewWidth * 0.5) + gap_small]
+        colonView.frame = CGRect(x: colonViewX,
+                                 y: colonViewY,
+                                 width: colonViewWidth,
+                                 height: colonViewHeight)
         
-        colonView.mas_makeConstraints { make in
-            make?.top.equalTo()(titleView.mas_bottom)
-            make?.bottom.equalTo()(0)
-            make?.centerX.equalTo()(0)
-            make?.width.equalTo()(colonViewWidth)
-        }
+        // Time Page View
+        let timePageContentHeight = neededSize.height - headerView.frame.maxY
         
-        for i in 0..<timeArr.count {
-            let timeView = timeArr[i]
-            timeView.mas_makeConstraints { make in
-                make?.centerX.equalTo()(0)?.offset()(xArr[i])
-                make?.top.equalTo()(titleView.mas_bottom)?.offset()(6)
-                make?.width.equalTo()(singleWidth)
-                make?.height.equalTo()(singleHeight)
-            }
+        let timePageWidth: CGFloat = 18
+        let timePageHeight: CGFloat = 24
+        let timePageHorizontalSpace: CGFloat = 2
+        let timePageY: CGFloat = (timePageContentHeight - timePageHeight) * 0.5 + headerView.frame.maxY
+        
+        let timePageXs: [CGFloat] = [(colonView.frame.minX - (timePageWidth * 2) - timePageHorizontalSpace),
+                                     (colonView.frame.minX - timePageWidth),
+                                     (colonView.frame.maxX),
+                                     (colonView.frame.maxX + timePageWidth + timePageHorizontalSpace)]
+        
+        for i in 0..<timePages.count {
+            let timeView = timePages[i]
+            let timePageX = timePageXs[i]
+            
+            timeView.frame = CGRect(x: timePageX,
+                                    y: timePageY,
+                                    width: timePageWidth,
+                                    height: timePageHeight)
         }
-    }
-    
-    func startTimer() {
-        if isSuspend {
-            timer?.resume()
-        }
-        isSuspend = false
-    }
-    
-    func stopTimer() {
-        if isSuspend {
-            timer?.resume()
-        }
-        isSuspend = false
-        timer?.cancel()
-        timer = nil
     }
 }
 
-extension Int64 {
-    fileprivate func secondsToTimeStrArr() -> Array<String> {
+fileprivate extension Int64 {
+    func secondsToTimeStrArr() -> Array<String> {
         guard self > 0 else {
             return ["0","0","0","0"]
         }

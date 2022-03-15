@@ -44,7 +44,7 @@ import UIKit
     private var roomData: AgoraPopupQuizRoomPropertiesData?
     private var userData: AgoraPopupQuizUserPropertiesData?
     
-    private var objectCreateTimestamp: Int64?
+    private var objectCreateTimestamp: Int64? // millisecond
     
     private var currentTimestamp: Int64 = 0 { // second
         didSet {
@@ -286,7 +286,6 @@ private extension AgoraPopupQuizWidget {
     func findMyAnswerFromOptionList() -> [String]? {
         var selectedItems = [String]()
         
-        // first, get selected items from local memory
         for item in optionList where item.isSelected {
             selectedItems.append(item.title)
         }

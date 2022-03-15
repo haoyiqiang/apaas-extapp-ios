@@ -5,107 +5,111 @@
 //  Created by LYY on 2022/3/5.
 //
 
-import Armin
-import Masonry
-import AgoraLog
 import AgoraWidget
+import AgoraLog
+import Masonry
 
-@objcMembers public class AgoraCountdownTimerWidget: AgoraBaseWidget {
-    /**Data**/
-    private var logger: AgoraLogger
+@objcMembers public class AgoraCountdownTimerWidget: AgoraBaseWidget, AgoraWidgetLogTube {
+    private var timer: Timer?
+    var logger: AgoraWidgetLogger
     
-    /**View**/
-    private var countdownView: AgoraCountdownView!
+    // View
+    private var countdownView = AgoraCountdownView(frame: .zero)
 
-    private var curExtra: AgoraCountdownExtraModel? {
+    // Original Data
+    private var roomData: AgoraCountdownRoomData?
+    private var objectCreateTimestamp: Int64?  // millisecond
+    
+    // View Data
+    private var countdownState: AgoraCountdownState = .end {
         didSet {
-            handleRoomProperties()
+            switch countdownState {
+            case .duration:
+                countdownView.timePageColor = .normal
+            case .end:
+                countdownView.timePageColor = .warning
+            }
+        }
+    }
+    
+    private var countdownTimestamp: Int64 = 0 { // second
+        didSet {
+            if countdownTimestamp > 3 {
+                countdownView.timePageColor = .normal
+            } else {
+                countdownView.timePageColor = .warning
+            }
+            
+            let timeString = countdownTimestamp.formatStringMS.replacingOccurrences(of: ":",
+                                                                                    with: "")
+            let array = timeString.map({String($0)})
+            
+            countdownView.updateTimePages(timeList: array)
         }
     }
     
     public override init(widgetInfo: AgoraWidgetInfo) {
-        let cachesFolder = NSSearchPathForDirectoriesInDomains(.cachesDirectory,
-                                                               .userDomainMask,
-                                                               true)[0]
-        let logFolder = cachesFolder.appending("/AgoraLog")
-        let manager = FileManager.default
+        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId)
+        #if DEBUG
+        logger.isPrintOnConsole = true
+        #endif
         
-        if !manager.fileExists(atPath: logFolder,
-                               isDirectory: nil) {
-            try? manager.createDirectory(atPath: logFolder,
-                                         withIntermediateDirectories: true,
-                                         attributes: nil)
-        }
-        self.logger = AgoraLogger(folderPath: logFolder,
-                                  filePrefix: widgetInfo.widgetId,
-                                  maximumNumberOfFiles: 5)
+        self.logger = logger
         
         super.init(widgetInfo: widgetInfo)
     }
     
-    // MARK: widget callback
     public override func onWidgetDidLoad() {
-        countdownView = AgoraCountdownView(frame: .zero)
-        
-        if isTeacher {
-            
-        } else {
-            view.addSubview(countdownView)
-            countdownView.mas_makeConstraints { make in
-                make?.left.right()?.top()?.bottom().equalTo()(0)
-            }
-        }
-        
-        if let roomProps = info.roomProperties,
-           let countdownExtraModel = roomProps.toObj(AgoraCountdownExtraModel.self) {
-            curExtra = countdownExtraModel
-        }
-        
+        super.onWidgetDidLoad()
         initViews()
+        initConstraints()
+        updateRoomData()
+        updateViewData()
         updateViewFrame()
     }
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
                                                        cause: [String : Any]?,
                                                        keyPaths: [String]) {
-        if let countdownExtraModel = properties.toObj(AgoraCountdownExtraModel.self) {
-            curExtra = countdownExtraModel
-        }
+        super.onWidgetRoomPropertiesUpdated(properties,
+                                            cause: cause,
+                                            keyPaths: keyPaths)
+        updateRoomData()
+        updateViewData()
+        shouldStartTime()
     }
     
     public override func onMessageReceived(_ message: String) {
-        logInfo("onMessageReceived:\(message)")
+        super.onMessageReceived(message)
         
-        if let tsDic = message.toDic() ,
-           let syncTimestamp = tsDic["syncTimestamp"] as? Int64 {
-            countdownView.invokeCountDown(duration: calculateCountdown(curTs: syncTimestamp))
-        }
-        
-        if let signal = message.toCountdownSignal() {
-            // TODO: 教师更新frame，需要updateRoomProps
-            switch signal {
-            case .sendTimestamp(let ts):
-                countdownView.invokeCountDown(duration: calculateCountdown(curTs: ts))
-            default:
-                break
-            }
+        if let timestamp = message.toSyncTimestamp() {
+            objectCreateTimestamp = timestamp
+            initCurrentTimestamp()
+            shouldStartTime()
         }
     }
     
     deinit {
-        countdownView.cancelCountDown()
+        stopTimer()
     }
 }
 
-// MARK: - private
+// MARK: - View
 private extension AgoraCountdownTimerWidget {
     func initViews() {
+        view.addSubview(countdownView)
+        
         view.layer.shadowColor = UIColor(hexString: "#2F4192")?.cgColor
         view.layer.shadowOffset = CGSize(width: 0,
                                          height: 2)
         view.layer.shadowOpacity = 0.15
         view.layer.shadowRadius = 6
-        view.isHidden = true
+    }
+    
+    func initConstraints() {
+        countdownView.mas_makeConstraints { (make) in
+            make?.left.right()?.bottom()?.top()?.equalTo()(0)
+        }
     }
     
     func updateViewFrame() {
@@ -117,58 +121,80 @@ private extension AgoraCountdownTimerWidget {
         }
         
         sendMessage(message)
+    }
+}
+
+// MARK: - Data
+private extension AgoraCountdownTimerWidget {
+    func updateRoomData() {
+        guard let roomProperties = info.roomProperties,
+              let data = roomProperties.toObj(AgoraCountdownRoomData.self) else {
+            return
+        }
         
-        DispatchQueue.main.async {
-            self.countdownView.afterLayout()
-            self.view.isHidden = false
-        }
+        roomData = data
     }
     
-    func handleRoomProperties() {
-        guard let extra = curExtra else {
+    func updateViewData() {
+        guard let data = roomData else {
             return
         }
-        if isTeacher {
-            
-        } else {
-            switch extra.state {
-            case .during:
-                sendMessage(.getTimestamp)
-                break
-            case .initial:
-                countdownView.cancelCountDown()
-            default:
-                break
-            }
-        }
+        
+        countdownState = data.state
     }
     
-    // 根据服务端ts，extra的startTime及duration，计算出UI开始的倒计时
-    func calculateCountdown(curTs: Int64) -> Int64 {
-        guard let extra = curExtra else {
-            return 0
-        }
-        let timeGap = (curTs - extra.startTime) / 1000
-        let gap = (timeGap < 0) ? 0 : timeGap
-        let duration = extra.duration - gap
-        return (duration < 0) ? 0 : duration
-    }
-    
-    func sendMessage(_ signal: AgoraCountdownInteractionSignal) {
-        guard let text = signal.toMessageString() else {
-            logError("signal encode error!")
+    func initCurrentTimestamp() {
+        guard let data = roomData,
+              let objectCreate = objectCreateTimestamp else {
             return
         }
-        sendMessage(text)
+        
+        let end = data.startTime + (data.duration * 1000)
+        let countdownMillisecond = end - objectCreate
+        let countdown = (countdownMillisecond < 0) ? 0 : countdownMillisecond  // millisecond
+        countdownTimestamp = Int64(TimeInterval(countdown) / 1000)             // second
+    }
+}
+
+private extension AgoraCountdownTimerWidget {
+    func shouldStartTime() {
+        switch countdownState {
+        case .duration:
+            startTimer()
+        case .end:
+            stopTimer()
+        }
     }
     
-    func logInfo(_ log: String) {
-        logger.log("[CountdownTimer Widget \(info.widgetId)] \(log)",
-                   type: .info)
+    func startTimer() {
+        guard self.timer == nil else {
+            return
+        }
+        
+        let timer = Timer.scheduledTimer(withTimeInterval: 1,
+                                         repeats: true,
+                                         block: { [weak self] _ in
+                                            guard let strongSelf = self else {
+                                                return
+                                            }
+                                            
+                                            if strongSelf.countdownTimestamp <= 0 {
+                                                strongSelf.stopTimer()
+                                                strongSelf.objectCreateTimestamp = nil
+                                            } else {
+                                                strongSelf.countdownTimestamp -= 1
+                                            }
+                                            
+        })
+        
+        RunLoop.main.add(timer,
+                         forMode: .common)
+        timer.fire()
+        self.timer = timer
     }
     
-    func logError(_ log: String) {
-        logger.log("[CountdownTimer Widget \(info.widgetId)] \(log)",
-                   type: .error)
+    func stopTimer() {
+        timer?.invalidate()
+        timer = nil
     }
 }
