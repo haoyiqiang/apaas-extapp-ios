@@ -21,9 +21,9 @@ class AgoraPopupQuizTopView: UIView {
     
     let defaultHeight: CGFloat = 17
     
-    var selectorState: AgoraPopupQuizState = .unselected {
+    var quizState: AgoraPopupQuizState = .unselected {
         didSet {
-            timeLabel.textColor = (selectorState == .unselected) ? backColor : grayColor 
+            timeLabel.textColor = (quizState == .unselected) ? backColor : grayColor
         }
     }
     
@@ -220,9 +220,9 @@ class AgoraPopupQuizButton: UIButton {
     private let blueColor = UIColor(hexString: "#357BF6")
     private let lightBlueColor = UIColor(hexString: "#C0D6FF")
     
-    var selectorState: AgoraPopupQuizState = .unselected {
+    var quizState: AgoraPopupQuizState = .unselected {
         didSet {
-            switch selectorState {
+            switch quizState {
             case .selected:
                 let post = GetWidgetLocalizableString(object: self,
                                                       key: "FCR_PopupQuiz_Post")
@@ -289,12 +289,12 @@ class AgoraPopupQuizView: UIView {
     private let optionCollectionItemSize = CGSize(width: 26,
                                                   height: 26)
     
-    var selectorState: AgoraPopupQuizState = .unselected {
+    var quizState: AgoraPopupQuizState = .unselected {
         didSet {
-            button.selectorState = selectorState
-            topView.selectorState = selectorState
+            button.quizState = quizState
+            topView.quizState = quizState
             
-            guard selectorState == .finished else {
+            guard quizState == .finished else {
                 return
             }
             
@@ -332,7 +332,7 @@ class AgoraPopupQuizView: UIView {
     }
     
     private func initViews() {
-        selectorState = .unselected
+        quizState = .unselected
         
         addSubview(topView)
         addSubview(optionCollectionView)

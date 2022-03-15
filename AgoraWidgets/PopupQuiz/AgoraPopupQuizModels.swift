@@ -25,7 +25,7 @@ enum AgoraPopupQuizState {
 }
 
 // Origin Data
-struct AgoraPopupQuizRoomPropertiesData: Decodable {
+struct AgoraPopupQuizRoomPropertiesData: Codable {
     var popupQuizId: String         // 本题id
     var correctItems: [String]      // 本题正确答案
     var items: [String]             // 所有选项
@@ -44,12 +44,18 @@ struct AgoraPopupQuizRoomPropertiesData: Decodable {
         }
     }
     
-    func toViewSelectorOptionList() -> [AgoraPopupQuizOption] {
+    func toViewSelectorOptionList(myAnswer: [String]?) -> [AgoraPopupQuizOption] {
         var list = [AgoraPopupQuizOption]()
         
         for item in items {
+            var isSelected = false
+            
+            if let list = myAnswer {
+                isSelected = list.contains(item)
+            }
+            
             let option = AgoraPopupQuizOption(title: item,
-                                              isSelected: false)
+                                              isSelected: isSelected)
             list.append(option)
         }
         
@@ -58,7 +64,7 @@ struct AgoraPopupQuizRoomPropertiesData: Decodable {
     
     func toViewSelectorResultList(font: UIFont,
                                   fontHeight: CGFloat,
-                                  myAnswer: [String]) -> [AgoraPopupQuizResult] {
+                                  myAnswer: [String]?) -> [AgoraPopupQuizResult] {
         var list = [AgoraPopupQuizResult]()
         
         let postfix = ":   "
@@ -106,8 +112,10 @@ struct AgoraPopupQuizRoomPropertiesData: Decodable {
         
         var myAnswerResult = ""
         
-        for item in myAnswer {
-            myAnswerResult += item
+        if let list = myAnswer {
+            for item in list {
+                myAnswerResult += item
+            }
         }
         
         var resultColor: UIColor?
@@ -128,3 +136,9 @@ struct AgoraPopupQuizRoomPropertiesData: Decodable {
     }
 }
 
+struct AgoraPopupQuizUserPropertiesData: Codable {
+    var popupQuizId: String
+    var selectedItems: [String]
+    var lastCommitTime: Int64
+    var isCorrect: Bool  
+}

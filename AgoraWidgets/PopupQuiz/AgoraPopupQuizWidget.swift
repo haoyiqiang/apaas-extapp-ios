@@ -18,36 +18,38 @@ import UIKit
     // View
     private let contentView = AgoraPopupQuizView() // for mask shadowo
     
-    // Origin Data
-    private var baseInfo: AgoraAppBaseInfo?
-    
-    private var roomData: AgoraPopupQuizRoomPropertiesData?
-    
-    private var objectCreateTimestamp: Int64?
-    private var currentTimestamp: Int64 = 0 { // second
-        didSet {
-            let timeString = currentTimestamp.formatStringHMS
-            contentView.topView.update(timeString: timeString)
-        }
-    }
-    
     // View Data
     private var optionList = [AgoraPopupQuizOption]() {
         didSet {
             if let _ = optionList.first(where: {$0.isSelected}) {
-                selectorState = .selected
+                quizState = .selected
             } else {
-                selectorState = .unselected
+                quizState = .unselected
             }
         }
     }
     
     private var resultList = [AgoraPopupQuizResult]()
     
-    private var selectorState: AgoraPopupQuizState = .unselected {
+    private var quizState: AgoraPopupQuizState = .unselected {
         didSet {
-            contentView.selectorState = selectorState
+            contentView.quizState = quizState
             contentView.optionCollectionView.reloadData()
+        }
+    }
+    
+    // Origin Data
+    private var baseInfo: AgoraAppBaseInfo?
+    
+    private var roomData: AgoraPopupQuizRoomPropertiesData?
+    private var userData: AgoraPopupQuizUserPropertiesData?
+    
+    private var objectCreateTimestamp: Int64?
+    
+    private var currentTimestamp: Int64 = 0 { // second
+        didSet {
+            let timeString = currentTimestamp.formatStringHMS
+            contentView.topView.update(timeString: timeString)
         }
     }
     
@@ -64,23 +66,29 @@ import UIKit
     
     public override func onWidgetDidLoad() {
         super.onWidgetDidLoad()
-        
         createViews()
         createConstraint()
-        initRoomData()
+        
+        updateRoomData()
+        updateUserData()
+        initViewData()
+        
         updateViewFrame()
+        initServerAPI()
     }
     
     public override func onMessageReceived(_ message: String) {
         super.onMessageReceived(message)
+        
         if let info = message.toAppBaseInfo() {
             baseInfo = info
+            initServerAPI()
         }
         
         if let timestamp = message.toSyncTimestamp() {
             objectCreateTimestamp = timestamp
-            initTime()
-            initServerAPI()
+            initCurrentTimestamp()
+            shouldStartTime()
         }
         
         log(content: message,
@@ -94,7 +102,23 @@ import UIKit
                                             cause: cause,
                                             keyPaths: keyPaths)
         updateRoomData()
+        updateViewData()
         updateViewFrame()
+        shouldStartTime()
+        
+        log(content: properties.jsonString() ?? "nil",
+            extra: cause?.jsonString(),
+            type: .info)
+    }
+    
+    public override func onWidgetUserPropertiesUpdated(_ properties: [String : Any],
+                                                       cause: [String : Any]?,
+                                                       keyPaths: [String]) {
+        super.onWidgetUserPropertiesUpdated(properties,
+                                            cause: cause,
+                                            keyPaths: keyPaths)
+        
+        updateUserData()
         
         log(content: properties.jsonString() ?? "nil",
             extra: cause?.jsonString(),
@@ -102,11 +126,11 @@ import UIKit
     }
     
     @objc func doButtonPressed(_ sender: UIButton) {
-        switch selectorState {
+        switch quizState {
         case .selected:
             submitAnswer()
         case .changing:
-            selectorState = .selected
+            quizState = .selected
         default:
             break
         }
@@ -120,7 +144,7 @@ import UIKit
 // MARK: - View
 private extension AgoraPopupQuizWidget {
     func createViews() {
-        selectorState = .unselected
+        quizState = .unselected
         
         view.addSubview(contentView)
        
@@ -149,7 +173,7 @@ private extension AgoraPopupQuizWidget {
     func updateViewFrame() {
         var size: [String: Any]
         
-        if selectorState != .finished {
+        if quizState != .finished {
             contentView.updateUnfinishedViewFrame(optionCount: optionList.count)
             
             size = ["width": contentView.unfinishedNeededSize.width,
@@ -169,28 +193,149 @@ private extension AgoraPopupQuizWidget {
 
 // MAKR: - Data
 private extension AgoraPopupQuizWidget {
-    func initRoomData() {
+    func updateRoomData() {
         guard let roomProperties = info.roomProperties,
               let data = roomProperties.toObj(AgoraPopupQuizRoomPropertiesData.self) else {
             return
         }
-        
+
         roomData = data
+    }
+    
+    func updateUserData() {
+        guard let userProperties = info.localUserProperties,
+              let data = userProperties.toObj(AgoraPopupQuizUserPropertiesData.self) else {
+            return
+        }
+        
+        userData = data
+    }
+    
+    func initViewData() {
+        guard let data = roomData else {
+            return
+        }
         
         if let state = data.toViewSelectorState() {
-            selectorState = state // .end
+            quizState = state // .end
             initResultList()
         } else {
             initOptionList()
         }
         
-        initTime()
-        initServerAPI()
+        // if 'changing' state
+        guard let `userData` = userData else {
+            return
+        }
+        
+        guard let leftList = findMyAnswerFromUserData(),
+              let rightList = findMyAnswerFromOptionList(),
+              leftList == rightList else {
+            return
+        }
+        
+        quizState = .changing
     }
     
+    func updateViewData() {
+        guard let data = roomData else {
+            return
+        }
+        
+        guard let state = data.toViewSelectorState() else {
+            return
+        }
+        
+        quizState = state // .end
+        initResultList()
+    }
+        
+    func initOptionList() {
+        guard let data = roomData else {
+            return
+        }
+        
+        optionList = data.toViewSelectorOptionList(myAnswer: findMyAnswer())
+        contentView.optionCollectionView.reloadData()
+    }
+    
+    func initResultList() {
+        guard let data = roomData else {
+            return
+        }
+        
+        let font = AgoraPopupQuizResultCell.font
+        resultList = data.toViewSelectorResultList(font: font,
+                                                   fontHeight: contentView.resultTableView.rowHeight,
+                                                   myAnswer: findMyAnswer())
+        contentView.resultTableView.reloadData()
+    }
+        
+    func findMyAnswer() -> [String]? {
+        var selectedItems: [String]?
+        
+        if let list = findMyAnswerFromOptionList() {
+            selectedItems = list
+        } else if let list = findMyAnswerFromUserData() {
+            selectedItems = list
+        }
+        
+        return selectedItems
+    }
+    
+    func findMyAnswerFromOptionList() -> [String]? {
+        var selectedItems = [String]()
+        
+        // first, get selected items from local memory
+        for item in optionList where item.isSelected {
+            selectedItems.append(item.title)
+        }
+        
+        if selectedItems.count == 0 {
+            return nil
+        } else {
+            return selectedItems
+        }
+    }
+    
+    func findMyAnswerFromUserData() -> [String]? {
+        var selectedItems = [String]()
+        
+        if selectedItems.count == 0,
+           let `roomData` = roomData,
+           let `userData` = userData,
+           roomData.popupQuizId == userData.popupQuizId {
+            for item in userData.selectedItems {
+                selectedItems.append(item)
+            }
+        }
+        
+        if selectedItems.count == 0 {
+            return nil
+        } else {
+            return selectedItems
+        }
+    }
+    
+    func initCurrentTimestamp() {
+        guard let data = roomData,
+              let objectCreate = objectCreateTimestamp else {
+            return
+        }
+        
+        // init timer
+        let start = data.receiveQuestionTime
+        let diff = objectCreate - start
+        let msTimestamp = (diff < 0) ? 0 : diff                    // millisecond
+        currentTimestamp = Int64(TimeInterval(msTimestamp) / 1000) // second
+    }
+}
+
+private extension AgoraPopupQuizWidget {
     func initServerAPI() {
         guard let keys = baseInfo,
-              let extra = roomData else {
+              let data = roomData,
+              serverAPI == nil else {
             return
         }
         
@@ -202,78 +347,8 @@ private extension AgoraPopupQuizWidget {
                                             logTube: self)
     }
     
-    func updateRoomData() {
-        guard let roomProperties = info.roomProperties,
-              let data = roomProperties.toObj(AgoraPopupQuizRoomPropertiesData.self) else {
-            return
-        }
-        
-        roomData = data
-        
-        guard let state = data.toViewSelectorState() else {
-            return
-        }
-        
-        selectorState = state // .end
-        initResultList()
-        stopTimer()
-    }
-    
-    func initOptionList() {
-        guard let data = roomData else {
-            return
-        }
-        
-        optionList = data.toViewSelectorOptionList()
-        contentView.optionCollectionView.reloadData()
-    }
-    
-    func initResultList() {
-        guard let data = roomData else {
-            return
-        }
-        
-        let font = AgoraPopupQuizResultCell.font
-        resultList = data.toViewSelectorResultList(font: font,
-                                                    fontHeight: contentView.resultTableView.rowHeight,
-                                                    myAnswer: findMyAnswer())
-        contentView.resultTableView.reloadData()
-    }
-        
-    func findMyAnswer() -> [String] {
-        var selectedItems = [String]()
-        
-        // first, get selected items from local memory
-        for item in optionList where item.isSelected {
-            selectedItems.append(item.title)
-        }
-        
-        // second, get selected items from local user properties
-        if selectedItems.count == 0,
-           let popupQuizId = info.localUserProperties?["popupQuizId"] as? String,
-           let items = info.localUserProperties?["selectedItems"] as? [String],
-           let extra = roomData,
-           popupQuizId == extra.popupQuizId {
-            for item in items {
-                selectedItems.append(item)
-            }
-        }
-        
-        return selectedItems
-    }
-    
-    func initTime() {
-        guard let data = roomData,
-              let objectCreate = objectCreateTimestamp else {
-            return
-        }
-        
-        let start = data.receiveQuestionTime
-        let diff = objectCreate - start
-        let msTimestamp = (diff < 0) ? 0 : diff // millisecond
-        currentTimestamp = Int64(TimeInterval(msTimestamp) / 1000) // second
-        
-        if selectorState != .finished {
+    func shouldStartTime() {
+        if quizState != .finished {
             startTimer()
         } else {
             stopTimer()
@@ -281,6 +356,10 @@ private extension AgoraPopupQuizWidget {
     }
     
     func startTimer() {
+        guard self.timer == nil else {
+            return
+        }
+        
         let timer = Timer.scheduledTimer(withTimeInterval: 1,
                                          repeats: true,
                                          block: { [weak self] _ in
@@ -306,16 +385,17 @@ private extension AgoraPopupQuizWidget {
 private extension AgoraPopupQuizWidget {
     func submitAnswer() {
         guard let api = serverAPI,
-              let extra = roomData else {
+              let data = roomData,
+              let myAnswer = findMyAnswer() else {
             return
         }
         
-        api.submitAnswer(findMyAnswer(),
-                         selectorId: extra.popupQuizId) { [weak self] in
+        api.submitAnswer(myAnswer,
+                         selectorId: data.popupQuizId) { [weak self] in
             guard let `self` = self else {
                 return
             }
-            self.selectorState = .changing
+            self.quizState = .changing
         }
     }
 }
@@ -333,7 +413,7 @@ extension AgoraPopupQuizWidget: UICollectionViewDataSource, UICollectionViewDele
                                                       for: indexPath)
         cell.optionLabel.text = option.title
         cell.optionIsSelected = option.isSelected
-        cell.isEnable = !(selectorState == .changing)
+        cell.isEnable = !(quizState == .changing)
         return cell
     }
     
@@ -400,5 +480,15 @@ extension AgoraPopupQuizWidget: ArLogTube {
         log(content: error.localizedDescription,
             extra: extra,
             type: .info)
+    }
+}
+
+fileprivate extension Array where Element == String {
+    static func==(left: [String],
+                  right: [String]) -> Bool {
+        let leftString = left.joined(separator: "")
+        let rightString = right.joined(separator: "")
+        
+        return (leftString == rightString)
     }
 }
