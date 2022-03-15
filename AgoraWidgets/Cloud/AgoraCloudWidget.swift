@@ -16,12 +16,7 @@ import Darwin
     private var serverApi: AgoraCloudServerAPI?
     private let logger: AgoraLogger
     /**View*/
-    private lazy var cloudView:AgoraCloudView = {
-        let view = AgoraCloudView(frame: .zero)
-        let list = self.vm.getCellCoursewares(type: self.vm.selectedType)
-        view.listView.update(infos: list)
-        return view
-    }()
+    private let cloudView = AgoraCloudView(frame: .zero)
     
     public override init(widgetInfo: AgoraWidgetInfo) {
         self.vm = AgoraCloudVM(extra: widgetInfo.extraInfo)
@@ -46,12 +41,12 @@ import Darwin
     }
 }
 
-extension AgoraCloudWidget: AgoraCloudTopViewDelegate, AgoraCloudListViewDelegate {
+extension AgoraCloudWidget: AgoraCloudTopViewDelegate {
     // MARK: - AgoraCloudTopViewDelegate
-    func agoraCloudTopViewDidTapAreaButton(type: AgoraCloudCoursewareType) {
-        vm.selectedType = type
-        let cellInfos = self.vm.getCellCoursewares(type: type)
-        self.cloudView.listView.update(infos: cellInfos)
+    func agoraCloudTopViewDidTapAreaButton(type: AgoraCloudUIFileType) {
+        vm.selectedType = type.dataType
+        cloudView.topView.update(selectedType: type)
+        cloudView.listView.reloadData()
     }
     
     func agoraCloudTopViewDidTapCloseButton() {
@@ -67,36 +62,46 @@ extension AgoraCloudWidget: AgoraCloudTopViewDelegate, AgoraCloudListViewDelegat
             guard let `self` = self else {
                 return
             }
-            let cellInfos = self.vm.getCellCoursewares(type: .privateResource)
-            self.cloudView.listView.update(infos: cellInfos)
+
+            self.cloudView.listView.reloadData()
         } fail: {[weak self] error in
             self?.log(.error,
                       log: error.localizedDescription)
         }
     }
     
-    func agoraCloudTopViewDidSearch(type: AgoraCloudUIFileType,
-                                    keyStr: String) {
-        let dataType: AgoraCloudCoursewareType = (type == .uiPublic) ? .publicResource : .privateResource
+    func agoraCloudTopViewDidSearch(keyStr: String) {
+        vm.currentFilterStr = keyStr
+        cloudView.listView.reloadData()
+    }
+}
 
-        guard keyStr != "" else {
-            let list = vm.getCellCoursewares(type: dataType)
-            cloudView.listView.update(infos: list)
-            return
-        }
-        switch dataType {
-        case .publicResource:
-            let newList = vm.publicFiles.filter{ $0.resourceName.contains(keyStr) }
-            cloudView.listView.update(infos: newList.toCellInfos())
-        case .privateResource:
-            let newList = vm.privateFiles.filter{ $0.resourceName.contains(keyStr) }
-            cloudView.listView.update(infos: newList.toCellInfos())
-        }
+
+// MARK: - UITableViewDataSource, UITableViewDelegate
+extension AgoraCloudWidget: UITableViewDataSource, UITableViewDelegate {
+    // MARK: UITableViewDataSource
+    public func tableView(_ tableView: UITableView,
+                          numberOfRowsInSection section: Int) -> Int {
+        return vm.currentFiles.count
     }
     
-    // MARK: - AgoraCloudListViewDelegate
-    func agoraCloudListViewDidSelectedIndex(index: Int) {
-        guard let coursewareInfo = vm.getSelectedInfo(index: index) else {
+    public func tableView(_ tableView: UITableView,
+                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        var cell = tableView.dequeueReusableCell(withIdentifier: cloudView.listView.cellId,
+                                             for: indexPath) as! AgoraCloudCell
+        let info = vm.currentFiles[indexPath.row]
+        cell.iconImageView.image = info.image
+        cell.nameLabel.text = info.name
+        
+        return cell
+    }
+    
+    // MARK: UITableViewDelegate
+    public func tableView(_ tableView: UITableView,
+                   didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath,
+                              animated: true)
+        guard let coursewareInfo = vm.getSelectedInfo(index: indexPath.row) else {
             return
         }
         sendMessage(signal: .OpenCoursewares(coursewareInfo))
@@ -121,7 +126,10 @@ private extension AgoraCloudWidget {
         view.addSubview(cloudView)
         
         cloudView.topView.delegate = self
-        cloudView.listView.listDelegate = self
+        cloudView.listView.dataSource = self
+        cloudView.listView.delegate = self
+        cloudView.listView.reloadData()
+        cloudView.topView.update(selectedType: vm.selectedType.uiType)
         
         cloudView.mas_makeConstraints { make in
             make?.left.right().top().bottom().equalTo()(self.view)

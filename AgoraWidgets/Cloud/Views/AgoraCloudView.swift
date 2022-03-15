@@ -33,18 +33,13 @@ class AgoraCloudView: UIView {
     private func initLayout() {
         topView.mas_makeConstraints { make in
             make?.left.and().right().and().top().equalTo()(self)
-            make?.height.equalTo()(60)
+            make?.height.equalTo()(90)
         }
         
         listView.mas_makeConstraints { make in
             make?.left.and().right().and().bottom().equalTo()(self)
             make?.top.equalTo()(self.topView.mas_bottom)
         }
-    }
-    
-    override func touchesBegan(_ touches: Set<UITouch>,
-                               with event: UIEvent?) {
-        endEditing(true)
     }
 }
 

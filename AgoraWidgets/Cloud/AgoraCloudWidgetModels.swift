@@ -61,6 +61,13 @@ enum AgoraCloudCoursewareType {
     case publicResource
     /// 我的云盘
     case privateResource
+    
+    var uiType: AgoraCloudUIFileType {
+        switch self {
+        case .publicResource:  return .uiPublic
+        case .privateResource: return .uiPrivate
+        }
+    }
 }
 
 // MARK: - to Whiteboard
@@ -206,7 +213,8 @@ extension Array where Element == AgoraCloudCourseware {
     func toCellInfos() -> Array<AgoraCloudCellInfo> {
         var cellInfos = [AgoraCloudCellInfo]()
         for courseware in self {
-            let info = AgoraCloudCellInfo(courseware: courseware)
+            let info = AgoraCloudCellInfo(ext: courseware.ext,
+                                          name: courseware.resourceName)
             cellInfos.append(info)
         }
         return cellInfos
@@ -229,30 +237,30 @@ extension String {
 // MARK: - UI
 enum AgoraCloudUIFileType {
     case uiPublic, uiPrivate
+    
+    var dataType: AgoraCloudCoursewareType {
+        switch self {
+        case .uiPublic:
+            return .publicResource
+        case .uiPrivate:
+            return .privateResource
+        }
+    }
 }
 
-struct AgoraCloudCellInfo {
-    let imageName: String
+class AgoraCloudCellInfo: NSObject {
+    var image: UIImage?
     let name: String
     
-    init(imageName: String,
+    init(ext: String,
          name: String) {
-        self.imageName = imageName
         self.name = name
+        super.init()
+        let imageName = AgoraCloudCellInfo.imageName(ext: ext)
+        self.image = GetWidgetImage(object: self,
+                                    imageName)
     }
     
-    // 后台请求刷新时转换
-    init(fileItem: AgoraCloudServerAPI.FileItem) {
-        self.imageName = AgoraCloudCellInfo.imageName(ext: fileItem.ext)
-        self.name = fileItem.resourceName
-    }
-
-    // 传入参数文件
-    init(courseware: AgoraCloudCourseware) {
-        self.imageName = AgoraCloudCellInfo.imageName(ext: courseware.ext)
-        self.name = courseware.resourceName
-    }
-
     static func imageName(ext: String) -> String {
         switch ext {
         case "pptx", "ppt", "pptm":

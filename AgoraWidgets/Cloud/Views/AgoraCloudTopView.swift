@@ -21,11 +21,10 @@ import Masonry
  */
 
 protocol AgoraCloudTopViewDelegate: NSObjectProtocol {
-    func agoraCloudTopViewDidTapAreaButton(type: AgoraCloudCoursewareType)
+    func agoraCloudTopViewDidTapAreaButton(type: AgoraCloudUIFileType)
     func agoraCloudTopViewDidTapCloseButton()
     func agoraCloudTopViewDidTapRefreshButton()
-    func agoraCloudTopViewDidSearch(type: AgoraCloudUIFileType,
-                                    keyStr: String)
+    func agoraCloudTopViewDidSearch(keyStr: String)
 }
 
 class AgoraCloudTopView: UIView {
@@ -44,9 +43,8 @@ class AgoraCloudTopView: UIView {
     private let searchBar = UISearchBar()
     private let sepLineLayer2 = CALayer()
     
-    /// data
-    private var selectedType: AgoraCloudUIFileType = .uiPublic
-    private var fileNum = 0
+    private let listHeaderView = UIView()
+    private let sepLineLayer3 = CALayer()
     
     /// delegate
     weak var delegate: AgoraCloudTopViewDelegate?
@@ -61,17 +59,32 @@ class AgoraCloudTopView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc func buttonTap(sender: UIButton) {
-        if sender == closeButton {
-            delegate?.agoraCloudTopViewDidTapCloseButton()
-        }else if sender == publicAreaButton {
-            update(selectedType: .uiPublic)
-            delegate?.agoraCloudTopViewDidTapAreaButton(type: .publicResource)
-        }else if sender == privateAreaButton {
-            update(selectedType: .uiPrivate)
-            delegate?.agoraCloudTopViewDidTapAreaButton(type: .privateResource)
-        }else if sender == refreshButton {
-            delegate?.agoraCloudTopViewDidTapRefreshButton()
+    func update(selectedType: AgoraCloudUIFileType) {
+        switch selectedType {
+        case .uiPublic:
+            privateAreaButton.isSelected = false
+            publicAreaButton.isSelected = true
+            pathNameLabel.text = GetWidgetLocalizableString(object: self,
+                                                            key: "CloudPublicResource")
+            selectedLine.mas_remakeConstraints { make in
+                make?.width.equalTo()(66)
+                make?.height.equalTo()(2)
+                make?.bottom.equalTo()(self.contentView1)
+                make?.centerX.equalTo()(publicAreaButton.mas_centerX)
+            }
+
+        case .uiPrivate:
+            publicAreaButton.isSelected = false
+            privateAreaButton.isSelected = true
+            pathNameLabel.text = GetWidgetLocalizableString(object: self,
+                                                            key: "CloudPrivateResource")
+            selectedLine.mas_remakeConstraints { make in
+                make?.width.equalTo()(66)
+                make?.height.equalTo()(2)
+                make?.bottom.equalTo()(self.contentView1)
+                make?.centerX.equalTo()(privateAreaButton.mas_centerX)
+            }
+            break
         }
     }
     
@@ -93,11 +106,34 @@ class AgoraCloudTopView: UIView {
                                      y: 60,
                                      width: bounds.width,
                                      height: 1)
+        sepLineLayer3.frame = CGRect(x: 0,
+                                 y: 90,
+                                 width: bounds.width,
+                                 height: 1)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>,
+                               with event: UIEvent?) {
+        super.touchesBegan(touches,
+                           with: event)
+        didSearch()
     }
 }
 
 // MARK: - private
 private extension AgoraCloudTopView {
+    @objc func buttonTap(sender: UIButton) {
+        if sender == closeButton {
+            delegate?.agoraCloudTopViewDidTapCloseButton()
+        }else if sender == publicAreaButton {
+            delegate?.agoraCloudTopViewDidTapAreaButton(type: .uiPublic)
+        }else if sender == privateAreaButton {
+            delegate?.agoraCloudTopViewDidTapAreaButton(type: .uiPrivate)
+        }else if sender == refreshButton {
+            delegate?.agoraCloudTopViewDidTapRefreshButton()
+        }
+    }
+    
     func initViews() {
         /// 上半部分
         contentView1.backgroundColor = UIColor(hex: 0xF9F9FC)
@@ -124,7 +160,7 @@ private extension AgoraCloudTopView {
                                             "icon_close"),
                              for: .normal)
         
-        sepLineLayer1.backgroundColor = lineColor?.cgColor
+        
         
         addSubview(contentView1)
         contentView1.addSubview(publicAreaButton)
@@ -161,7 +197,10 @@ private extension AgoraCloudTopView {
         searchBar.textField?.clearButtonMode = .never
         searchBar.textField?.delegate = self
         
-        sepLineLayer2.backgroundColor = lineColor?.cgColor
+        for sepLayer in [sepLineLayer1, sepLineLayer2, sepLineLayer3] {
+            sepLayer.backgroundColor = lineColor?.cgColor
+            layer.addSublayer(sepLayer)
+        }
         
         addSubview(contentView2)
         contentView2.addSubview(refreshButton)
@@ -169,16 +208,28 @@ private extension AgoraCloudTopView {
         contentView2.addSubview(fileCountLabel)
         contentView2.addSubview(searchBar)
         
-        layer.addSublayer(sepLineLayer1)
-        layer.addSublayer(sepLineLayer2)
-        
         for btn in [publicAreaButton,privateAreaButton,closeButton,refreshButton] {
             btn.addTarget(self,
                           action: #selector(buttonTap(sender:)),
                           for: .touchUpInside)
         }
+        // header view
+        let nameLabel = UILabel()
         
-        update(selectedType: selectedType)
+        listHeaderView.backgroundColor = UIColor(hex: 0xF9F9FC)
+        nameLabel.text = GetWidgetLocalizableString(object: self,
+                                                    key: "CloudFileName")
+        
+        nameLabel.textColor = UIColor(hex: 0x191919)
+        nameLabel.font = .systemFont(ofSize: 13)
+        
+        listHeaderView.addSubview(nameLabel)
+        
+        nameLabel.mas_makeConstraints { make in
+            make?.centerY.equalTo()(self.listHeaderView)
+            make?.left.equalTo()(self.listHeaderView)?.offset()(14)
+        }
+        addSubview(listHeaderView)
     }
     
     func initLayout() {
@@ -214,7 +265,8 @@ private extension AgoraCloudTopView {
         }
         /// 下半部分
         contentView2.mas_makeConstraints { make in
-            make?.left.right().bottom().equalTo()(self)
+            make?.top.equalTo()(contentView1.mas_bottom)
+            make?.left.right().equalTo()(self)
             make?.height.equalTo()(30)
         }
         
@@ -241,64 +293,29 @@ private extension AgoraCloudTopView {
             make?.right.equalTo()(self.searchBar.mas_left)?.offset()(-10)
             make?.centerY.equalTo()(self.contentView2)
         }
-
-    }
-    
-    func update(selectedType: AgoraCloudUIFileType) {
-        self.selectedType = selectedType
-        switch selectedType {
-        case .uiPublic:
-            privateAreaButton.isSelected = false
-            publicAreaButton.isSelected = true
-            pathNameLabel.text = GetWidgetLocalizableString(object: self,
-                                                            key: "CloudPublicResource")
-            selectedLine.mas_remakeConstraints { make in
-                make?.width.equalTo()(66)
-                make?.height.equalTo()(2)
-                make?.bottom.equalTo()(self.contentView1)
-                make?.centerX.equalTo()(publicAreaButton.mas_centerX)
-            }
-
-        case .uiPrivate:
-            publicAreaButton.isSelected = false
-            privateAreaButton.isSelected = true
-            pathNameLabel.text = GetWidgetLocalizableString(object: self,
-                                                            key: "CloudPrivateResource")
-            selectedLine.mas_remakeConstraints { make in
-                make?.width.equalTo()(66)
-                make?.height.equalTo()(2)
-                make?.bottom.equalTo()(self.contentView1)
-                make?.centerX.equalTo()(privateAreaButton.mas_centerX)
-            }
-            break
+        
+        listHeaderView.mas_makeConstraints { make in
+            make?.top.equalTo()(contentView2.mas_bottom)
+            make?.left.right().equalTo()(self)
+            make?.height.equalTo()(30)
         }
+
     }
     
     func didSearch() {
         UIApplication.shared.windows[0].endEditing(true)
         guard let text = searchBar.text else {
+            delegate?.agoraCloudTopViewDidSearch(keyStr: "")
             return
         }
-        delegate?.agoraCloudTopViewDidSearch(type: self.selectedType,
-                                             keyStr: text)
+        delegate?.agoraCloudTopViewDidSearch(keyStr: text)
     }
+
 }
 
 // MARK: - UISearchBarDelegate
 extension AgoraCloudTopView: UISearchBarDelegate,UITextFieldDelegate {
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        didSearch()
-    }
-    
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        didSearch()
-    }
-    
-    func searchBarBookmarkButtonClicked(_ searchBar: UISearchBar) {
-        didSearch()
-    }
-    
-    func searchBarResultsListButtonClicked(_ searchBar: UISearchBar) {
         didSearch()
     }
     

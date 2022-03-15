@@ -8,8 +8,19 @@
 import AgoraWidget
 
 class AgoraCloudVM: NSObject {
-    var selectedType: AgoraCloudCoursewareType = .publicResource
+    var selectedType: AgoraCloudCoursewareType = .publicResource {
+        didSet {
+            handleCurrentCoursewares()
+        }
+    }
     
+    var currentFilterStr: String = "" {
+        didSet {
+            handleCurrentCoursewares()
+        }
+    }
+    
+    private(set) var currentFiles = [AgoraCloudCellInfo]()
     private(set) var publicFiles = [AgoraCloudCourseware]()
     private(set) var privateFiles = [AgoraCloudCourseware]()
     
@@ -17,6 +28,7 @@ class AgoraCloudVM: NSObject {
         super.init()
         // public
         transformPublicResources(extraInfo: extra)
+        handleCurrentCoursewares()
     }
     
     func updatePrivate(_ files: [AgoraCloudCourseware]?) {
@@ -35,19 +47,24 @@ class AgoraCloudVM: NSObject {
                                          scenes: config.scenes,
                                          convert: config.convert)
     }
-    
-    func getCellCoursewares(type: AgoraCloudCoursewareType) -> [AgoraCloudCellInfo] {
-        switch type {
-        case .publicResource:
-            return publicFiles.toCellInfos()
-        case .privateResource:
-            return privateFiles.toCellInfos()
-        }
-    }
 }
 
 // MARK: - private
 private extension AgoraCloudVM {
+    func handleCurrentCoursewares() {
+        var courseFiles = [AgoraCloudCourseware]()
+        if currentFilterStr == "" {
+            courseFiles = (selectedType == .publicResource ? publicFiles : privateFiles)
+        } else {
+            switch selectedType {
+            case .publicResource:
+                courseFiles = publicFiles.filter{ $0.resourceName.contains(currentFilterStr) }
+            case .privateResource:
+                courseFiles = privateFiles.filter{ $0.resourceName.contains(currentFilterStr) }
+            }
+        }
+        currentFiles = courseFiles.toCellInfos()
+    }
     /// 公共课件转换
     func transformPublicResources(extraInfo: Any?) {
         guard let extraInfo = extraInfo as? Dictionary<String,Any>,
