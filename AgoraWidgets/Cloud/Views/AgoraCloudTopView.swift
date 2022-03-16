@@ -65,7 +65,7 @@ class AgoraCloudTopView: UIView {
             privateAreaButton.isSelected = false
             publicAreaButton.isSelected = true
             pathNameLabel.text = GetWidgetLocalizableString(object: self,
-                                                            key: "CloudPublicResource")
+                                                            key: "fcr_cloud_public_resource")
             selectedLine.mas_remakeConstraints { make in
                 make?.width.equalTo()(66)
                 make?.height.equalTo()(2)
@@ -77,7 +77,7 @@ class AgoraCloudTopView: UIView {
             publicAreaButton.isSelected = false
             privateAreaButton.isSelected = true
             pathNameLabel.text = GetWidgetLocalizableString(object: self,
-                                                            key: "CloudPrivateResource")
+                                                            key: "fcr_cloud_private_resource")
             selectedLine.mas_remakeConstraints { make in
                 make?.width.equalTo()(66)
                 make?.height.equalTo()(2)
@@ -90,9 +90,9 @@ class AgoraCloudTopView: UIView {
     
     func set(fileNum: Int) {
         let sumText = GetWidgetLocalizableString(object: self,
-                                                 key: "CloudSum")
+                                                 key: "fcr_cloud_sum")
         let itemText = GetWidgetLocalizableString(object: self,
-                                                  key: "CloudItem")
+                                                  key: "fcr_cloud_item")
         fileCountLabel.text = "\(sumText)\(fileNum)\(itemText)"
     }
     
@@ -142,10 +142,10 @@ private extension AgoraCloudTopView {
         let lineColor = UIColor(hex: 0xEEEEF7)
         
         publicAreaButton.setTitleForAllStates(GetWidgetLocalizableString(object: self,
-                                                                         key: "CloudPublicResource"))
+                                                                         key: "fcr_cloud_public_resource"))
         
         privateAreaButton.setTitleForAllStates(GetWidgetLocalizableString(object: self,
-                                                                          key: "CloudPrivateResource"))
+                                                                          key: "fcr_cloud_private_resource"))
         for btn in [publicAreaButton,privateAreaButton] {
             btn.titleLabel?.font = .systemFont(ofSize: 12)
             btn.setTitleColor(buttonNormalColor,
@@ -186,7 +186,7 @@ private extension AgoraCloudTopView {
         fileCountLabel.textAlignment = .right
         
         searchBar.placeholder = GetWidgetLocalizableString(object: self,
-                                                           key: "CloudSearch")
+                                                           key: "fcr_cloud_search")
         searchBar.delegate = self
         searchBar.backgroundColor = .white
         searchBar.cornerRadius = 4
@@ -218,7 +218,7 @@ private extension AgoraCloudTopView {
         
         listHeaderView.backgroundColor = UIColor(hex: 0xF9F9FC)
         nameLabel.text = GetWidgetLocalizableString(object: self,
-                                                    key: "CloudFileName")
+                                                    key: "fcr_cloud_file_name")
         
         nameLabel.textColor = UIColor(hex: 0x191919)
         nameLabel.font = .systemFont(ofSize: 13)

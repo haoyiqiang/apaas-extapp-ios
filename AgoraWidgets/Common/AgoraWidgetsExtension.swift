@@ -140,6 +140,10 @@ extension String {
         let base64Str = data.base64EncodedString()
         return base64Str
     }
+    
+    static func ag_localized_replacing() -> String {
+        return "{xxx}"
+    }
 }
 
 extension UIImage {

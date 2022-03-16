@@ -95,13 +95,13 @@ private extension AgoraRtmIMWidget {
     
     func roleName(role: String) -> String? {
         if role == "teacher" {
-            return "rtm_role_teacher".ag_localizedIn("AgoraWidgets")
+            return "fcr_rtm_im_teacher".ag_localizedIn("AgoraWidgets")
         } else if role == "student" {
-            return "rtm_role_student".ag_localizedIn("AgoraWidgets")
+            return "fcr_rtm_im_student".ag_localizedIn("AgoraWidgets")
         } else if role == "1" {
-            return "rtm_role_teacher".ag_localizedIn("AgoraWidgets")
+            return "fcr_rtm_im_teacher".ag_localizedIn("AgoraWidgets")
         } else if role == "2" {
-            return "rtm_role_student".ag_localizedIn("AgoraWidgets")
+            return "fcr_rtm_im_student".ag_localizedIn("AgoraWidgets")
         } else {
             return nil
         }

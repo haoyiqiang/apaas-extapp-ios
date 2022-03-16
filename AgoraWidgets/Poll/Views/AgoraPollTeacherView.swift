@@ -179,7 +179,7 @@ private extension AgoraPollTeacherView {
         // header view
         headerView.backgroundColor = UIColor(hex: 0xF9F9FC)
         headerTitle.text = GetWidgetLocalizableString(object: self,
-                                                      key: "FCR_Poll_Title")
+                                                      key: "fcr_poll_title")
         headerTitle.textColor = UIColor(hex: 0x191919)
         headerTitle.font = .systemFont(ofSize: 13)
         headerTitle.sizeToFit()
@@ -199,9 +199,9 @@ private extension AgoraPollTeacherView {
         
         isSingle = true // default
         singleBtn.setTitleForAllStates(GetWidgetLocalizableString(object: self,
-                                                                  key: "FCR_Poll_Single"))
+                                                                  key: "fcr_poll_single"))
         multiBtn.setTitleForAllStates(GetWidgetLocalizableString(object: self,
-                                                                  key: "FCR_Poll_Multi"))
+                                                                  key: "fcr_poll_multi"))
         singleBtn.titleLabel?.font = .systemFont(ofSize: 12)
         multiBtn.titleLabel?.font = .systemFont(ofSize: 12)
         addSubview(singleBtn)
@@ -233,7 +233,7 @@ private extension AgoraPollTeacherView {
         startButton.layer.cornerRadius = 15
         startButton.titleLabel?.font = .systemFont(ofSize: 18)
         startButton.setTitle(GetWidgetLocalizableString(object: self,
-                                                        key: "FCR_Poll_Start"),
+                                                        key: "fcr_poll_start"),
                              for: .normal)
         startButton.addTarget(self,
                               action: #selector(onClickStart),

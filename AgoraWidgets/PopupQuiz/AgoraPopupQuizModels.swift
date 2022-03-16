@@ -70,7 +70,7 @@ struct AgoraPopupQuizRoomPropertiesData: Codable {
         let postfix = ":   "
         
         // Submission
-        let submissionTitle = "FCR_PopupQuiz_Submission".ag_widget_localized() + postfix
+        let submissionTitle = "fcr_popup_quiz_submission".ag_widget_localized() + postfix
         let submissionSize = submissionTitle.agora_size(font: font,
                                                         height: fontHeight)
         var tSelectedCount = selectedCount ?? 0
@@ -81,7 +81,7 @@ struct AgoraPopupQuizRoomPropertiesData: Codable {
         list.append(submissionItem)
         
         // Accuracy
-        let accuracyTitle = "FCR_PopupQuiz_Accuracy".ag_widget_localized() + postfix
+        let accuracyTitle = "fcr_popup_quiz_accuracy".ag_widget_localized() + postfix
         let accuracySize = accuracyTitle.agora_size(font: font,
                                                     height: fontHeight)
         let accuracyResult = "\(averageAccuracy * 100)%"
@@ -91,7 +91,7 @@ struct AgoraPopupQuizRoomPropertiesData: Codable {
         list.append(accuracyItem)
         
         // Correct
-        let correctTitle = "FCR_PopupQuiz_Correct".ag_widget_localized() + postfix
+        let correctTitle = "fcr_popup_quiz_correct".ag_widget_localized() + postfix
         let correctSize = correctTitle.agora_size(font: font,
                                                   height: fontHeight)
         var correctResult = ""
@@ -106,7 +106,7 @@ struct AgoraPopupQuizRoomPropertiesData: Codable {
         list.append(correctItem)
         
         // My Answer
-        let myAnswerTitle = "FCR_PopupQuiz_MyAnswer".ag_widget_localized() + postfix
+        let myAnswerTitle = "fcr_popup_quiz_my_answer".ag_widget_localized() + postfix
         let myAnswerSize = myAnswerTitle.agora_size(font: font,
                                                     height: fontHeight)
         

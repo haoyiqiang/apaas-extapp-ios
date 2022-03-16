@@ -38,7 +38,7 @@ class AgoraPopupQuizTopView: UIView {
     
     private func createViews() {
         let selector = GetWidgetLocalizableString(object: self,
-                                                  key: "FCR_PopupQuiz")
+                                                  key: "fcr_popup_quiz")
         
         let font = UIFont.systemFont(ofSize: 9)
         
@@ -225,7 +225,7 @@ class AgoraPopupQuizButton: UIButton {
             switch quizState {
             case .selected:
                 let post = GetWidgetLocalizableString(object: self,
-                                                      key: "FCR_PopupQuiz_Post")
+                                                      key: "fcr_popup_quiz_post")
                 setTitle(post,
                          for: .normal)
                 setTitleColor(.white,
@@ -235,7 +235,7 @@ class AgoraPopupQuizButton: UIButton {
                 layer.borderColor = blueColor?.cgColor
             case .changing:
                 let change = GetWidgetLocalizableString(object: self,
-                                                        key: "FCR_PopupQuiz_Change")
+                                                        key: "fcr_popup_quiz_change")
                 setTitle(change,
                          for: .normal)
                 setTitleColor(blueColor,
@@ -245,7 +245,7 @@ class AgoraPopupQuizButton: UIButton {
                 layer.borderColor = blueColor?.cgColor
             case .unselected:
                 let post = GetWidgetLocalizableString(object: self,
-                                                      key: "FCR_PopupQuiz_Post")
+                                                      key: "fcr_popup_quiz_post")
                 setTitle(post,
                          for: .disabled)
                 setTitleColor(.white,

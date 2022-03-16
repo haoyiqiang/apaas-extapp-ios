@@ -17,7 +17,7 @@ class AgoraCountdownHeaderView: UIView {
     }
     
     private func initViews() {
-        titleLabel.text = "Countdown_title".ag_widget_localized()
+        titleLabel.text = "fcr_countdown_timer_title".ag_widget_localized()
         titleLabel.textColor = UIColor(hexString: "#191919")
         titleLabel.font = UIFont.systemFont(ofSize: 9)
         lineLayer.backgroundColor = UIColor(hexString: "#EEEEF7")?.cgColor

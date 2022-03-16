@@ -64,7 +64,7 @@
     self.inputField.leftView.userInteractionEnabled = NO;
     self.inputField.leftViewMode = UITextFieldViewModeAlways;
     self.inputField.backgroundColor = [UIColor whiteColor];
-    self.inputField.placeholder = [@"ChatPlaceholderText" ag_localizedIn:@"AgoraWidgets"];
+    self.inputField.placeholder = [@"fcr_hyphenate_im_input_placeholder" ag_localizedIn:@"AgoraWidgets"];
     //self.inputField.layer.cornerRadius = 15;
     self.inputField.returnKeyType = UIReturnKeySend;
     self.inputField.delegate = self;

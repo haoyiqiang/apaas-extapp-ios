@@ -162,6 +162,8 @@ extension AgoraWhiteboardWidget: AGBoardWidgetDTDelegate {
         log(.info,
             content: "local granted: \(localGranted)")
         
+        self.room?.setViewMode(localGranted ? .freedom : .broadcaster)
+        
         room?.setWritable(localGranted,
                           completionHandler: {[weak self] isWritable, error in
             guard let `self` = self else {
@@ -173,7 +175,6 @@ extension AgoraWhiteboardWidget: AGBoardWidgetDTDelegate {
             } else {
                 self.room?.disableCameraTransform(!isWritable)
                 self.ifUseLocalCameraConfig()
-                self.room?.setViewMode(isWritable ? .freedom : .follower)
                 self.room?.disableDeviceInputs(!localGranted)
                 if !self.initMemberStateFlag {
                     if isWritable {

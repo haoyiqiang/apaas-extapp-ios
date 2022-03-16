@@ -44,7 +44,7 @@
     }];
     
     self.nilMsgLable = [[UILabel alloc] init];
-    self.nilMsgLable.text = [@"ChatEmptyText" ag_localizedIn:@"AgoraWidgets"];
+    self.nilMsgLable.text = [@"fcr_hyphenate_im_no_message" ag_localizedIn:@"AgoraWidgets"];
     self.nilMsgLable.font = [UIFont systemFontOfSize:12];
     self.nilMsgLable.textColor = [UIColor colorWithRed:125/255.0 green:135/255.0 blue:152/255.0 alpha:1.0];
     self.nilMsgLable.textAlignment = NSTextAlignmentCenter;
@@ -270,7 +270,7 @@
 - (UIMenuItem *)recallMenuItem
 {
     if (_recallMenuItem == nil) {
-        _recallMenuItem = [[UIMenuItem alloc] initWithTitle:[@"ChatRecall" ag_localizedIn:@"AgoraWidgets"] action:@selector(recallMenuItemAction:)];
+        _recallMenuItem = [[UIMenuItem alloc] initWithTitle:[@"fcr_hyphenate_im_recall" ag_localizedIn:@"AgoraWidgets"] action:@selector(recallMenuItemAction:)];
     }
     
     return _recallMenuItem;
@@ -302,20 +302,20 @@
     } else if ([obj isKindOfClass:[EMMessageModel class]]) {
         EMMessageModel *model = (EMMessageModel *)obj;
         if (model.type == EMMessageTypeExtRecall) {
-            cellString = [@"ChatRecallAMessage" ag_localizedIn:@"AgoraWidgets"];
+            cellString = [@"fcr_hyphenate_im_recall_a_message" ag_localizedIn:@"AgoraWidgets"];
         }
         if (model.emModel.body.type == EMMessageBodyTypeCmd) {
             EMCmdMessageBody* cmdBody = (EMCmdMessageBody*)model.emModel.body;
             NSString*action = cmdBody.action;
             NSDictionary* ext = model.emModel.ext;
             if([action isEqualToString:@"DEL"]) {
-                cellString = [@"ChatTeacherRemoveMsg" ag_localizedIn:@"AgoraWidgets"];
+                cellString = [@"fcr_hyphenate_im_teacher_remove_message" ag_localizedIn:@"AgoraWidgets"];
             }
             if([action isEqualToString:@"setAllMute"]) {
-                cellString = [@"ChatTeacherMuteAll" ag_localizedIn:@"AgoraWidgets"];
+                cellString = [@"fcr_hyphenate_im_teacher_mute_all" ag_localizedIn:@"AgoraWidgets"];
             }
             if([action isEqualToString:@"removeAllMute"]) {
-                cellString = [@"ChatTeacherUnmuteAll" ag_localizedIn:@"AgoraWidgets"];
+                cellString = [@"fcr_hyphenate_im_teacher_unmute_all" ag_localizedIn:@"AgoraWidgets"];
             }
             if([action isEqualToString:@"mute"] || [action isEqualToString:@"unmute"]) {
                 NSString* muteMember = [ext objectForKey:@"muteMember"];
@@ -324,9 +324,13 @@
                     NSString* muteNickname = [ext objectForKey:@"muteNickName"];
                     NSString* teacherNickName = [ext objectForKey:@"nickName"];
                     if([action isEqualToString:@"mute"]) {
-                        cellString = [NSString stringWithFormat: [@"ChatMutedByTeacher" ag_localizedIn:@"AgoraWidgets"],teacherNickName];
+                        NSString *str = [@"fcr_hyphenate_im_muted_by_teacher" ag_localizedIn:@"AgoraWidgets"];
+                        cellString = [str stringByReplacingOccurrencesOfString:Ag_localized_replacing
+                                                                    withString:teacherNickName];
                     }else{
-                        cellString = [NSString stringWithFormat: [@"ChatUnmutedByTeacher" ag_localizedIn:@"AgoraWidgets"],teacherNickName];
+                        NSString *str = [@"fcr_hyphenate_im_unmuted_by_teacher" ag_localizedIn:@"AgoraWidgets"];
+                        cellString = [str stringByReplacingOccurrencesOfString:Ag_localized_replacing
+                                                                    withString:teacherNickName];
                     }
                     
                 }
@@ -506,7 +510,7 @@
     
     [[EMClient sharedClient].chatManager recallMessageWithMessageId:model.emModel.messageId completion:^(EMError *aError) {
         if (!aError) {
-            EMTextMessageBody *body = [[EMTextMessageBody alloc] initWithText:[@"ChatRecallAMessage" ag_localizedIn:@"AgoraWidgets"]];
+            EMTextMessageBody *body = [[EMTextMessageBody alloc] initWithText:[@"fcr_hyphenate_im_recall_a_message" ag_localizedIn:@"AgoraWidgets"]];
             NSString *from = [[EMClient sharedClient] currentUsername];
             NSString *to = self.chatManager.chatRoomId;
             EMMessage *message = [[EMMessage alloc] initWithConversationID:to from:from to:to body:body ext:@{MSG_EXT_RECALL:@(YES)}];

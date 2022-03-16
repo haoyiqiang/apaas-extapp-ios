@@ -80,7 +80,7 @@ extension AgoraRtmIMMessageListView: UITableViewDelegate, UITableViewDataSource 
 // MARK: - Creations
 private extension AgoraRtmIMMessageListView {
     func createViews() {
-        emptyImage = UIImageView(image: UIImage.ag_imageNamed("ic_rtm_no_message",
+        emptyImage = UIImageView(image: UIImage.ag_imageNamed("fcr_rtm_im_no_message",
                                                               in: "AgoraWidgets"))
         addSubview(emptyImage)
         
@@ -88,7 +88,7 @@ private extension AgoraRtmIMMessageListView {
         emptyLabel.font = UIFont.systemFont(ofSize: 12)
         emptyLabel.textColor = UIColor(hex: 0x7D8798)
         emptyLabel.textAlignment = .center
-        emptyLabel.text = "rtm_no_message".ag_localizedIn("AgoraWidgets")
+        emptyLabel.text = "fcr_rtm_im_no_message".ag_localizedIn("AgoraWidgets")
         addSubview(emptyLabel)
         
         tableView = UITableView.init(frame: .zero,

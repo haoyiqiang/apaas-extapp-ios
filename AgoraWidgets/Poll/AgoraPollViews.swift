@@ -54,8 +54,8 @@ class AgoraPollHeaderView: UIView {
     
     private func updateTitle() {
         let isSingle = (selectedMode == .single)
-        let mode = (isSingle ? "FCR_Poll_Single" : "FCR_Poll_Multi").ag_widget_localized()
-        let title = "FCR_Poll_Title".ag_widget_localized()
+        let mode = (isSingle ? "fcr_poll_single" : "fcr_poll_multi").ag_widget_localized()
+        let title = "fcr_poll_title".ag_widget_localized()
         let fullTitle = title + "  " + "(\(mode))"
         label.text = fullTitle
     }
@@ -270,7 +270,7 @@ class AgoraPollSubmitButton: UIButton {
         layer.cornerRadius = 11
         titleLabel?.font = .systemFont(ofSize: 10)
         
-        let title = "FCR_Poll_Submit".ag_widget_localized()
+        let title = "fcr_poll_submit".ag_widget_localized()
         
         setTitle(title,
                  for: .normal)

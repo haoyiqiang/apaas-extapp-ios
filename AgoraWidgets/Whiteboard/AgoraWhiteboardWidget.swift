@@ -352,7 +352,6 @@ extension AgoraWhiteboardWidget {
         
         if info.localUserInfo.userRole == "teacher" {
             dt.localGranted = true
-            room.setViewMode(.broadcaster)
         }
         
         if let state = state.globalState as? AgoraWhiteboardGlobalState {

@@ -41,7 +41,7 @@ class AgoraPollInputCell: UITableViewCell {
         serialLabel.font = .systemFont(ofSize: 14)
         optionField.font = .systemFont(ofSize: 13)
         optionField.placeholder = GetWidgetLocalizableString(object: self,
-                                                             key: "FCR_Poll_Input_Place_Holder")
+                                                             key: "fcr_poll_input_placeholder")
         optionField.delegate = self
         sepLine.backgroundColor = UIColor(hex: 0xEEEEF7)
         
