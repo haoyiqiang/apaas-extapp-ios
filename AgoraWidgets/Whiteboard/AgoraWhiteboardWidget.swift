@@ -16,7 +16,7 @@ struct InitCondition {
     var needJoin = false
 }
 
-@objcMembers public class AgoraWhiteboardWidget: AgoraBaseWidget {
+@objcMembers public class AgoraWhiteboardWidget: AgoraBaseWidget, AgoraWidgetLogTube {
     
     private(set) var contentView: UIView!
     
@@ -27,8 +27,8 @@ struct InitCondition {
     
     var initMemberStateFlag: Bool = false
     
-    private var logger: AgoraLogger
-    
+    var logger: AgoraWidgetLogger
+
     var initCondition = InitCondition() {
         didSet {
             if initCondition.configComplete,
@@ -45,11 +45,11 @@ struct InitCondition {
         self.dt = AgoraWhiteboardWidgetDT(extra: AgoraWhiteboardExtraInfo.fromExtraDic(widgetInfo.extraInfo),
                                           localUserInfo: widgetInfo.localUserInfo)
         
-        self.logger = AgoraLogger(folderPath: GetWidgetLogFolder(),
-                                  filePrefix: widgetInfo.widgetId,
-                                  maximumNumberOfFiles: 5)
-        // MARK: 在此修改日志是否打印在控制台,默认为不打印
-        self.logger.setPrintOnConsoleType(.none)
+        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId)
+        #if DEBUG
+        logger.isPrintOnConsole = true
+        #endif
+        self.logger = logger
         
         super.init(widgetInfo: widgetInfo)
         self.dt.delegate = self
@@ -68,7 +68,7 @@ struct InitCondition {
     
     public override func onMessageReceived(_ message: String) {
         log(.info,
-            log: "onMessageReceived:\(message)")
+            content: "onMessageReceived:\(message)")
         
         if let signal = message.toBoardSignal() {
             switch signal {
@@ -101,7 +101,7 @@ struct InitCondition {
             return
         }
         log(.info,
-            log: "onWidgetRoomPropertiesUpdated:\(properties)")
+            content: "onWidgetRoomPropertiesUpdated:\(properties)")
         dt.propsExtra = wbProperties
     }
     
@@ -109,7 +109,7 @@ struct InitCondition {
                                                        cause: [String : Any]?,
                                                        keyPaths: [String]) {
         log(.info,
-            log: "onWidgetRoomPropertiesUpdated:\(keyPaths)")
+            content: "onWidgetRoomPropertiesUpdated:\(keyPaths)")
         guard let wbProperties = properties?.toObj(AgoraWhiteboardPropExtra.self) else {
             return
         }
@@ -117,20 +117,20 @@ struct InitCondition {
     }
     
     func log(_ type: AgoraWhiteboardLogType,
-             log: String) {
+             content: String) {
         switch type {
         case .info:
-            logger.log("[Whiteboard widget] \(log)",
-                       type: .info)
+            log(content: "[Whiteboard widget] \(content)",
+                type: .info)
         case .warning:
-            logger.log("[Whiteboard widget] \(log)",
-                       type: .warning)
+            log(content: "[Whiteboard widget] \(content)",
+                type: .warning)
         case .error:
-            logger.log("[Whiteboard widget] \(log)",
-                       type: .error)
+            log(content: "[Whiteboard widget] \(content)",
+                type: .error)
         default:
-            logger.log("[Whiteboard widget] \(log)",
-                       type: .info)
+            log(content: "[Whiteboard widget] \(content)",
+                type: .info)
         }
     }
     
@@ -146,7 +146,7 @@ extension AgoraWhiteboardWidget {
     func sendMessage(signal: AgoraBoardInteractionSignal) {
         guard let text = signal.toMessageString() else {
             log(.error,
-                log: "signal encode error!")
+                content: "signal encode error!")
             return
         }
         sendMessage(text)
@@ -194,7 +194,7 @@ extension AgoraWhiteboardWidget {
             AgoraWidgetLoading.addLoading(in: self.view)
         }
         log(.info,
-            log: "start join")
+            content: "start join")
         sdk.joinRoom(with: roomConfig,
                      callbacks: self) { [weak self] (success, room, error) in
             DispatchQueue.main.async {
@@ -206,13 +206,13 @@ extension AgoraWhiteboardWidget {
             guard success, error == nil ,
                   let whiteRoom = room else {
                 self.log(.error,
-                         log: "join room error :\(error?.localizedDescription)")
+                         content: "join room error :\(error?.localizedDescription)")
                 self.dt.reconnectTime += 2
                 self.sendMessage(signal: .BoardPhaseChanged(.Disconnected))
                 return
             }
             self.log(.info,
-                     log: "join room success")
+                     content: "join room success")
             
             self.room = whiteRoom
             self.initRoomState(state: whiteRoom.state)
@@ -296,7 +296,7 @@ extension AgoraWhiteboardWidget {
             room.setSceneIndex(UInt(index < 0 ? 0 : index)) {[weak self] success, error in
                 if !success {
                     self?.log(.error,
-                              log: error.debugDescription)
+                              content: error.debugDescription)
                 }
             }
         case .count(let count):
@@ -305,7 +305,7 @@ extension AgoraWhiteboardWidget {
                 room.nextPage { [weak self] success in
                     if success {
                         self?.log(.info,
-                                  log: "add page successfullt")
+                                  content: "add page successfullt")
                     }
                 }
             } else {
@@ -352,6 +352,7 @@ extension AgoraWhiteboardWidget {
         
         if info.localUserInfo.userRole == "teacher" {
             dt.localGranted = true
+            room.setViewMode(.broadcaster)
         }
         
         if let state = state.globalState as? AgoraWhiteboardGlobalState {

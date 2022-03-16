@@ -10,29 +10,30 @@ import AgoraLog
 import Masonry
 import Darwin
 
-@objcMembers public class AgoraCloudWidget: AgoraBaseWidget {
+@objcMembers public class AgoraCloudWidget: AgoraBaseWidget, AgoraWidgetLogTube {
     /**Data*/
     private var vm: AgoraCloudVM
     private var serverApi: AgoraCloudServerAPI?
-    private let logger: AgoraLogger
+    var logger: AgoraWidgetLogger
     /**View*/
     private let cloudView = AgoraCloudView(frame: .zero)
     
     public override init(widgetInfo: AgoraWidgetInfo) {
         self.vm = AgoraCloudVM(extra: widgetInfo.extraInfo)
-        self.logger = AgoraLogger(folderPath: GetWidgetLogFolder(),
-                                  filePrefix: widgetInfo.widgetId,
-                                  maximumNumberOfFiles: 5)
-        // MARK: 在此修改日志是否打印在控制台,默认为不打印
-        self.logger.setPrintOnConsoleType(.all)
+        
+        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId)
+        #if DEBUG
+        logger.isPrintOnConsole = true
+        #endif
+        self.logger = logger
         
         super.init(widgetInfo: widgetInfo)
         initViews()
     }
     
     public override func onMessageReceived(_ message: String) {
-        log(.info,
-            log: "onMessageReceived:\(message)")
+        log(content: "onMessageReceived:\(message)",
+            type: .info)
         
         if let baseInfo = message.toAppBaseInfo() {
             serverApi = AgoraCloudServerAPI(baseInfo: baseInfo,
@@ -65,8 +66,8 @@ extension AgoraCloudWidget: AgoraCloudTopViewDelegate {
 
             self.cloudView.listView.reloadData()
         } fail: {[weak self] error in
-            self?.log(.error,
-                      log: error.localizedDescription)
+            self?.log(content: error.localizedDescription,
+                      type: .error)
         }
     }
     
@@ -158,24 +159,6 @@ private extension AgoraCloudWidget {
             success?(temp)
         } fail: { [weak self](error) in
             fail?(error)
-        }
-    }
-    
-    func log(_ type: AgoraLogType,
-             log: String) {
-        switch type {
-        case .info:
-            logger.log("[Cloud widget] \(log)",
-                       type: .info)
-        case .warning:
-            logger.log("[Cloud widget] \(log)",
-                       type: .warning)
-        case .error:
-            logger.log("[Cloud widget] \(log)",
-                       type: .error)
-        default:
-            logger.log("[Cloud widget] \(log)",
-                       type: .info)
         }
     }
 }
