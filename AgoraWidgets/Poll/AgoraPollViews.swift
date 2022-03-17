@@ -76,6 +76,7 @@ class AgoraPollTitleLabel: UILabel {
 
 class AgoraPollOptionCell: UITableViewCell {
     static let cellId = NSStringFromClass(AgoraPollOptionCell.self)
+    static let font = UIFont.systemFont(ofSize: 12)
     
     private let optionImageView = UIImageView()
     private let sepLine = UIView()
@@ -121,7 +122,7 @@ class AgoraPollOptionCell: UITableViewCell {
     private func initViews() {
         selectionStyle = .none
         
-        optionLabel.font = .systemFont(ofSize: 12)
+        optionLabel.font = AgoraPollOptionCell.font
         sepLine.backgroundColor = UIColor(hex: 0xEEEEF7)
         
         addSubviews([optionImageView,
