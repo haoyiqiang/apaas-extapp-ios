@@ -149,10 +149,10 @@ private extension AgoraCountdownTimerWidget {
             return
         }
         
-        let end = data.startTime + (data.duration * 1000)
-        let countdownMillisecond = end - objectCreate
+        let end = data.startTime + (data.duration * 1000)                      // millisecond
+        let countdownMillisecond = end - objectCreate                          // millisecond
         let countdown = (countdownMillisecond < 0) ? 0 : countdownMillisecond  // millisecond
-        countdownTimestamp = Int64(TimeInterval(countdown) / 1000)             // second
+        countdownTimestamp = Int64(ceil(TimeInterval(countdown) / 1000))       // second
     }
 }
 
@@ -171,26 +171,32 @@ private extension AgoraCountdownTimerWidget {
             return
         }
         
-        let timer = Timer.scheduledTimer(withTimeInterval: 1,
-                                         repeats: true,
-                                         block: { [weak self] _ in
-                                            guard let strongSelf = self else {
-                                                return
-                                            }
-                                            
-                                            if strongSelf.countdownTimestamp <= 0 {
-                                                strongSelf.stopTimer()
-                                                strongSelf.objectCreateTimestamp = nil
-                                            } else {
-                                                strongSelf.countdownTimestamp -= 1
-                                            }
-                                            
-        })
+        func fireTimer() {
+            let timer = Timer.scheduledTimer(withTimeInterval: 1,
+                                             repeats: true,
+                                             block: { [weak self] _ in
+                                                guard let strongSelf = self else {
+                                                    return
+                                                }
+                                                
+                                                if strongSelf.countdownTimestamp <= 0 {
+                                                    strongSelf.stopTimer()
+                                                    strongSelf.objectCreateTimestamp = nil
+                                                } else {
+                                                    strongSelf.countdownTimestamp -= 1
+                                                }
+
+            })
+            
+            RunLoop.main.add(timer,
+                             forMode: .common)
+            timer.fire()
+            self.timer = timer
+        }
         
-        RunLoop.main.add(timer,
-                         forMode: .common)
-        timer.fire()
-        self.timer = timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            fireTimer()
+        }
     }
     
     func stopTimer() {
