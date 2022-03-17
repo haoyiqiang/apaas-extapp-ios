@@ -24,6 +24,7 @@ struct AgoraWhiteboardPropExtra: Decodable {
 struct AgoraWhiteboardExtraInfo : Convertable {
     var useMultiViews: Bool
     var coursewareDirectory: String
+    var coursewareList: Array<String>?
     var autoFit: Bool
     var fonts: Dictionary<String,String>?
     var collectorStyles: Dictionary<String,String>
@@ -44,6 +45,10 @@ struct AgoraWhiteboardExtraInfo : Convertable {
             if let fonts = extraDic["fonts"] as? Dictionary<String,String> {
                 extra.fonts = fonts
             }
+            if let list = extraDic["coursewareList"] as? Array<String> {
+                extra.coursewareList = list
+            }
+            
             if let collectorStyles = extraDic["collectorStyles"] as? Dictionary<String,String> {
                 extra.collectorStyles = collectorStyles
             }
@@ -79,6 +84,7 @@ struct AgoraWhiteboardExtraInfo : Convertable {
     var materialList: [AgoraWhiteBoardTask]?
     var currentSceneIndex: Int = 0
     var grantUsers = Array<String>()
+    var teacherFirstLogin: Bool = false
 }
 
 @objc class AgoraWhiteBoardCameraConfig : NSObject {

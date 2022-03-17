@@ -304,6 +304,23 @@ struct AgoraBoardCoursewareInfo: Convertable {
     var resourceName: String
     var scenes: [AgoraBoardWhiteScene]
     var convert: Bool?
+    
+    init(resourceName: String,
+         resourceUuid: String,
+         scenes: [AgoraBoardWhiteScene],
+         convert: Bool?) {
+        self.resourceName = resourceName
+        self.resourceUuid = resourceUuid
+        self.scenes = scenes
+        self.convert = convert
+    }
+    
+    init(publicCourseware: AgoraBoardPublicCourseware) {
+        self.init(resourceName: publicCourseware.resourceName,
+                  resourceUuid: publicCourseware.resourceUuid,
+                  scenes: publicCourseware.taskProgress.convertedFileList,
+                  convert: publicCourseware.conversion.canvasVersion)
+    }
 }
 
 struct AgoraBoardWhiteScene: Convertable {
@@ -319,5 +336,47 @@ struct AgoraBoardWhitePptPage: Convertable {
     /// 图片的 URL 高度。单位为像素。
     var height: Float
     /// 预览图片的 URL 地址
-    var previewURL: String?
+    var preview: String?
+}
+
+// MARK: - public coursewares
+struct AgoraBoardPublicCourseware: Convertable {
+    let resourceUuid: String
+    let resourceName: String
+    let ext: String
+    let size: Int64
+    let url: String
+    let updateTime: Int64
+    let taskUuid: String
+    let conversion: AgoraBoardPublicConversion
+    let taskProgress: AgoraBoardTaskProgress
+}
+
+struct AgoraBoardPublicConversion: Convertable {
+    let type: String
+    let preview: Bool
+    let scale: Double
+    let outputFormat: String
+    let canvasVersion: Bool?
+}
+
+struct AgoraBoardTaskProgress: Convertable {
+    let status: String?
+    let totalPageSize: Int64
+    let convertedPageSize: Int64
+    let convertedPercentage: Int64
+    let currentStep: String?
+    let convertedFileList: [AgoraBoardWhiteScene]
+}
+
+// MARK: - common extension
+extension Array where Element == AgoraBoardPublicCourseware {
+    func toCoursewareList() -> Array<AgoraBoardCoursewareInfo> {
+        var configs = Array<AgoraBoardCoursewareInfo>()
+        for item in self {
+            var config = AgoraBoardCoursewareInfo(publicCourseware: item)
+            configs.append(config)
+        }
+        return configs
+    }
 }

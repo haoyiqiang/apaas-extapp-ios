@@ -12,6 +12,8 @@ import Whiteboard
 protocol AGBoardWidgetDTDelegate: NSObjectProtocol {
     func onLocalGrantedChangedForBoardHandle(localGranted: Bool)
     
+    func onNonTeacherFirstLogin()
+    
     func onScenePathChanged(path: String)
     func onGrantUsersChanged(grantUsers: [String])
     func onPageIndexChanged(index: Int)
@@ -26,7 +28,7 @@ class AgoraWhiteboardWidgetDT {
     private let scheme = "agoranetless"
     // from whiteboard
     var regionDomain = "convertcdn"
-    
+        
     var baseMemberState: WhiteMemberState = {
         var state = WhiteMemberState()
         state.currentApplianceName = WhiteApplianceNameKey.ApplianceClicker
@@ -35,6 +37,8 @@ class AgoraWhiteboardWidgetDT {
         state.textSize = NSNumber(18)
         return state
     }()
+    
+    var coursewareList: Array<AgoraBoardCoursewareInfo>?
     
     @available(iOS 11.0, *)
     lazy var schemeHandler: AgoraWhiteURLSchemeHandler? = {
@@ -64,8 +68,11 @@ class AgoraWhiteboardWidgetDT {
     
     var globalState = AgoraWhiteboardGlobalState() {
         didSet {
-            if globalState.grantUsers != oldValue.grantUsers {
-                if localUserInfo.userRole != "teacher" {
+            if !globalState.teacherFirstLogin {
+                delegate?.onNonTeacherFirstLogin()
+            }else if globalState.grantUsers != oldValue.grantUsers {
+                // 授权相关
+                if localUserInfo.userRole == "teacher" {
                     // 若为学生，涉及localGranted
                     if globalState.grantUsers.contains(localUserInfo.userUuid) {
                         localGranted = true                        
@@ -112,6 +119,11 @@ class AgoraWhiteboardWidgetDT {
          localUserInfo: AgoraWidgetUserInfo) {
         self.configExtra = extra
         self.localUserInfo = localUserInfo
+        
+        if let coursewareJsonList = extra.coursewareList,
+           let infoList = transformPublicResources(coursewareJsonList: coursewareJsonList) {
+            coursewareList = infoList
+        }
     }
     
     func updateMemberState(state: AgoraBoardMemberState) {
@@ -138,6 +150,23 @@ class AgoraWhiteboardWidgetDT {
         if let shape = state.shapeType {
             currentMemberState?.shapeType = shape.toNetless()
         }
+    }
+    
+    /// 公共课件转换
+    func transformPublicResources(coursewareJsonList: Array<String> ) -> Array<AgoraBoardCoursewareInfo>? {
+        guard coursewareJsonList.count > 0 else {
+            return nil
+        }
+        var publicCoursewares = [AgoraBoardPublicCourseware]()
+        for json in coursewareJsonList {
+            if let data = json.data(using: .utf8),
+               let courseware = try? JSONDecoder().decode(AgoraBoardPublicCourseware.self,
+                                                          from: data) {
+                publicCoursewares.append(courseware)
+            }
+        }
+        
+        return publicCoursewares.toCoursewareList()
     }
     
     func getWKConfig() -> WKWebViewConfiguration {

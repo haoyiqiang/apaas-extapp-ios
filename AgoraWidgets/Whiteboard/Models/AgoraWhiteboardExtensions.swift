@@ -227,7 +227,7 @@ extension Array where Element == AgoraBoardWhiteScene {
         var sceneArr = [WhiteScene]()
         for item in self {
             var pptPage: WhitePptPage?
-            if let url = item.ppt.previewURL {
+            if let url = item.ppt.preview {
                 pptPage = WhitePptPage(src: item.ppt.src,
                                        preview: url,
                                        size: CGSize(width: CGFloat(item.ppt.width),
