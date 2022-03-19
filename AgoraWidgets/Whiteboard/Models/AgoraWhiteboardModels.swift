@@ -298,7 +298,6 @@ enum AgoraBoardStepChangeType: Convertable {
 }
 
 // courseware
-// 待定
 struct AgoraBoardCoursewareInfo: Convertable {
     var resourceUuid: String
     var resourceName: String

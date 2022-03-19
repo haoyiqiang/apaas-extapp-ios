@@ -52,8 +52,7 @@ fcr_cloud_file_name = "文件名";
 fcr_cloud_search = "搜索";
 fcr_cloud_public_resource = "公共资源";
 fcr_cloud_private_resource = "我的云盘";
-fcr_cloud_sum = "共";
-fcr_cloud_item = "项";
+fcr_cloud_total_item = "共{xxx}项";
 
 // AnswerSelector
 fcr_popup_quiz = "答题器";

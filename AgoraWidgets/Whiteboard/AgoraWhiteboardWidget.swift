@@ -85,7 +85,8 @@ struct InitCondition {
             case .BoardStepChanged(let changeType):
                 handleStepChange(changeType: changeType)
             case .ClearBoard:
-                handleClearBoard()
+                // 清屏，保留ppt
+                room?.cleanScene(true)
             case .OpenCourseware(let courseware):
                 handleOpenCourseware(info: courseware)
             default:
@@ -111,6 +112,7 @@ struct InitCondition {
         log(.info,
             content: "onWidgetRoomPropertiesUpdated:\(keyPaths)")
         guard let wbProperties = properties?.toObj(AgoraWhiteboardPropExtra.self) else {
+            dt.propsExtra = nil
             return
         }
         dt.propsExtra = wbProperties
@@ -278,12 +280,7 @@ extension AgoraWhiteboardWidget {
         guard let `room` = room else {
             return
         }
-        
-        let newState = AgoraWhiteboardGlobalState()
-        newState.materialList = dt.globalState.materialList
-        newState.currentSceneIndex = dt.globalState.currentSceneIndex
-        newState.grantUsers = (list == nil) ? Array<String>() : list!
-        
+        let newState = dt.makeGlobalState(grantUsers: list)
         room.setGlobalState(newState)
     }
     
@@ -334,30 +331,21 @@ extension AgoraWhiteboardWidget {
             break
         }
     }
-    
-    func handleClearBoard() {
-        guard let `room` = room else {
-            return
-        }
-        // 清屏，保留ppt
-        room.cleanScene(true)
-    }
-    
+
     func initRoomState(state: WhiteRoomState) {
         guard let `room` = room else {
             return
         }
         
+        // undo和redo只有在disableSerialization为false时生效
         room.disableSerialization(false)
-        
-        if info.localUserInfo.userRole == "teacher" {
-            dt.localGranted = true
-        }
         
         if let state = state.globalState as? AgoraWhiteboardGlobalState {
             // 发送初始授权状态的消息
             dt.globalState = state
         }
+        
+        self.onNonTeacherFirstLogin()
         
         if let boxState = room.state.windowBoxState,
            let widgetState = boxState.toWidget(){
@@ -396,7 +384,7 @@ extension AgoraWhiteboardWidget {
             let paths = sceneState.scenePath.split(separator: "/")
             if  paths.count > 0 {
                 let newScenePath = String(sceneState.scenePath.split(separator: "/")[0])
-                dt.scenePath = "/(newScenePath)"
+                dt.scenePath = "\(newScenePath)"
             }
             
             // 3. ppt 获取总页数，当前第几页
@@ -416,5 +404,56 @@ extension AgoraWhiteboardWidget {
             // 如果本地被授权，则是本地自己设置的摄像机视角
             dt.localCameraConfigs[room.sceneState.scenePath] = cameraState.toWidget()
         }
+    }
+    
+    func onNonTeacherFirstLogin() {
+        guard let `room` = room,
+              !dt.globalState.teacherFirstLogin else {
+            return
+        }
+        
+        let teacherCompletion: (() -> Void) = { [weak self] in
+            guard let `self` = self else {
+                return
+            }
+            let newState = AgoraWhiteboardGlobalState()
+            newState.materialList = self.dt.globalState.materialList
+            newState.currentSceneIndex = self.dt.globalState.currentSceneIndex
+            // 收回权限
+            newState.grantUsers = Array<String>()
+            // 设置globalState
+            newState.teacherFirstLogin = true
+            
+            room.setGlobalState(newState)
+            
+            // 关闭当前所有课件
+            room.removeScenes("/")
+            // 打开课件
+            if let list = self.dt.coursewareList {
+                for item in list {
+                    self.handleOpenCourseware(info: item)
+                }
+            }
+        }
+        
+        let studentCompletion: (() -> Void) = {
+            // 打开新课件
+            if let list = self.dt.coursewareList {
+                for item in list {
+                    self.handleOpenCourseware(info: item)
+                }
+            }
+            
+            self.sendMessage(signal: .BoardGrantDataChanged([self.info.localUserInfo.userUuid]))
+        }
+        
+        dt.localGranted = true
+        onLocalGrantedChangedForBoardHandle(localGranted: true,
+                                            completion: { [weak self] in
+                                                guard let `self` = self else {
+                                                    return
+                                                }
+                                                self.isTeacher ? teacherCompletion() : studentCompletion()
+                                            })
     }
 }

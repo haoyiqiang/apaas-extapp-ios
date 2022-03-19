@@ -25,6 +25,15 @@ class AgoraColorGroup {
     init() {
         self.mode = Mode
     }
+    
+    // cloud
+    var cloud_header_1_bg_color: UIColor = UIColor(hex: 0xF9F9FC)!
+    var cloud_header_2_bg_color: UIColor = UIColor.white
+    var cloud_select_line_color: UIColor = UIColor(hex: 0x0073FF)!
+    var cloud_label_color: UIColor = UIColor(hex: 0x191919)!
+    var cloud_file_name_label_color: UIColor = UIColor(hex: 0x7B88A0)!
+    var cloud_sep_line_color: CGColor = UIColor(hex: 0xEEEEF7)!.cgColor
+    var cloud_search_bar_border_color: CGColor = UIColor(hex: 0xD7D7E6)!.cgColor
 }
 
 class AgoraFrameGroup {
@@ -65,6 +74,11 @@ class AgoraFrameGroup {
     var poll_result_value_label_width: CGFloat {
         return 40
     }
+ // cloud
+    var cloud_bg_corner_radius: CGFloat = 6
+    var cloud_search_bar_corner_radius: CGFloat = 4
+    var cloud_search_bar_border_width: CGFloat = 1
+
 }
 
 class AgoraFontGroup {
@@ -77,4 +91,7 @@ class AgoraFontGroup {
     var poll_label_font: UIFont {
         return UIFont.systemFont(ofSize: 9)
     }
+ // cloud
+    var cloud_label_font = UIFont.systemFont(ofSize: 12)
+
 }

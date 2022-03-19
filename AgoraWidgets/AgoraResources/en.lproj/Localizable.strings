@@ -52,8 +52,7 @@ fcr_cloud_file_name = "File Name";
 fcr_cloud_search = "Search";
 fcr_cloud_public_resource = "Public coursewares";
 fcr_cloud_private_resource = "Private coursewares";
-fcr_cloud_sum = "";
-fcr_cloud_item = "items";
+fcr_cloud_total_item = "items";
 
 // AnswerSelector
 fcr_popup_quiz = "Selector";

@@ -31,10 +31,6 @@ extension AgoraWhiteboardWidget: WhiteRoomCallbackDelegate {
             return
         }
         
-        if let zoomScale = modifyState.zoomScale {
-            return
-        }
-
         if let state = modifyState.globalState as? AgoraWhiteboardGlobalState {
             dt.globalState = state
             return
@@ -158,7 +154,8 @@ extension AgoraWhiteboardWidget: AGBoardWidgetDTDelegate {
         sendMessage(signal: .BoardGrantDataChanged(grantUsers))
     }
     
-    func onLocalGrantedChangedForBoardHandle(localGranted: Bool) {
+    func onLocalGrantedChangedForBoardHandle(localGranted: Bool,
+                                             completion: (() -> Void)?) {
         log(.info,
             content: "local granted: \(localGranted)")
         
@@ -166,85 +163,24 @@ extension AgoraWhiteboardWidget: AGBoardWidgetDTDelegate {
         
         room?.setWritable(localGranted,
                           completionHandler: {[weak self] isWritable, error in
-            guard let `self` = self else {
-                return
-            }
-            if let error = error {
-                self.log(.error,
-                         content: "setWritable error: \(error.localizedDescription)")
-            } else {
-                self.room?.disableCameraTransform(!isWritable)
-                self.ifUseLocalCameraConfig()
-                self.room?.disableDeviceInputs(!localGranted)
-                if !self.initMemberStateFlag {
-                    if isWritable {
-                        self.room?.setMemberState(self.dt.baseMemberState)
-                        self.initMemberStateFlag = true
-                    }
-                }
-            }
-        })
-    }
-    
-    func onNonTeacherFirstLogin() {
-        guard let `room` = room else {
-            return
-        }
-        if isTeacher {
-            let newState = AgoraWhiteboardGlobalState()
-            newState.materialList = dt.globalState.materialList
-            newState.currentSceneIndex = dt.globalState.currentSceneIndex
-            // 收回权限
-            newState.grantUsers = Array<String>()
-            // 设置globalState
-            newState.teacherFirstLogin = true
-            
-            room.setGlobalState(newState)
-            
-            
-            // 关闭当前所有课件
-            room.removeScenes("/")
-            // 打开新课件
-            if let list = dt.coursewareList {
-                for item in list {
-                    handleOpenCourseware(info: item)
-                }
-            }
-        } else {
-            room.setViewMode(.freedom)
-            
-            room.setWritable(true,
-                              completionHandler: {[weak self] isWritable, error in
-                guard let `self` = self else {
-                    return
-                }
-                if let error = error {
-                    self.log(.error,
-                             content: "setWritable error: \(error.localizedDescription)")
-                } else {
-                    
-                    // 关闭当前所有课件
-                    room.removeScenes("/")
-                    // 打开新课件
-                    if let list = self.dt.coursewareList {
-                        for item in list {
-                            self.handleOpenCourseware(info: item)
-                        }
-                    }
-                    
-                    self.sendMessage(signal: .BoardGrantDataChanged([self.info.localUserInfo.userUuid]))
-                    self.room?.disableCameraTransform(!isWritable)
-                    self.ifUseLocalCameraConfig()
-                    self.room?.disableDeviceInputs(false)
-                    if !self.initMemberStateFlag {
-                        if isWritable {
-                            self.room?.setMemberState(self.dt.baseMemberState)
-                            self.initMemberStateFlag = true
-                        }
-                    }
-                }
-            })
-        }
+                            guard let `self` = self else {
+                                return
+                            }
+                            if let error = error {
+                                self.log(.error,
+                                         content: "setWritable error: \(error.localizedDescription)")
+                            } else {
+                                self.room?.disableCameraTransform(!isWritable)
+                                self.ifUseLocalCameraConfig()
+                                self.room?.disableDeviceInputs(!localGranted)
+                                if !self.initMemberStateFlag,
+                                   isWritable {
+                                    self.room?.setMemberState(self.dt.baseMemberState)
+                                    self.initMemberStateFlag = true
+                                }
+                            }
+                            completion?()
+                          })
     }
     
     func onOpenPublicCoursewares(list: Array<AgoraBoardCoursewareInfo>) {

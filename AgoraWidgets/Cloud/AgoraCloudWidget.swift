@@ -38,6 +38,9 @@ import Darwin
         if let baseInfo = message.toAppBaseInfo() {
             serverApi = AgoraCloudServerAPI(baseInfo: baseInfo,
                                             uid: info.localUserInfo.userUuid)
+            // init private data
+            fetchPrivate(success: nil,
+                         fail: nil)
         }
     }
 }
@@ -47,6 +50,7 @@ extension AgoraCloudWidget: AgoraCloudTopViewDelegate {
     func agoraCloudTopViewDidTapAreaButton(type: AgoraCloudUIFileType) {
         vm.selectedType = type.dataType
         cloudView.topView.update(selectedType: type)
+        cloudView.topView.set(fileNum: vm.currentFiles.count)
         cloudView.listView.reloadData()
     }
     
@@ -72,8 +76,19 @@ extension AgoraCloudWidget: AgoraCloudTopViewDelegate {
     }
     
     func agoraCloudTopViewDidSearch(keyStr: String) {
-        vm.currentFilterStr = keyStr
-        cloudView.listView.reloadData()
+        guard vm.selectedType == .privateResource else {
+            return
+        }
+        fetchPrivate(resourceName: keyStr) {[weak self] list in
+            guard let `self` = self else {
+                return
+            }
+            self.vm.currentFilterStr = keyStr
+            self.cloudView.listView.reloadData()
+        } fail: {[weak self] error in
+            self?.log(content: error.localizedDescription,
+                      type: .error)
+        }
     }
 }
 
@@ -131,6 +146,7 @@ private extension AgoraCloudWidget {
         cloudView.listView.delegate = self
         cloudView.listView.reloadData()
         cloudView.topView.update(selectedType: vm.selectedType.uiType)
+        cloudView.topView.set(fileNum: vm.currentFiles.count)
         
         cloudView.mas_makeConstraints { make in
             make?.left.right().top().bottom().equalTo()(self.view)
@@ -138,18 +154,20 @@ private extension AgoraCloudWidget {
     }
 
     /// 获取个人数据
-    func fetchPrivate(success: (([AgoraCloudCourseware]) -> ())?,
+    func fetchPrivate(resourceName: String? = nil,
+                      success: (([AgoraCloudCourseware]) -> ())?,
                       fail: ((Error) -> ())?) {
         guard let `serverApi` = serverApi else {
             return
         }
         serverApi.requestResourceInUser(pageNo: 0,
-                                        pageSize: 300) { [weak self] (resp) in
+                                        pageSize: 10,
+                                        resourceName: resourceName) { [weak self] (resp) in
             guard let `self` = self else {
                 return
             }
             var temp = self.vm.privateFiles
-            let list = resp.data.list.map({ AgoraCloudCourseware(fileItem: $0) })
+            let list = resp.list.map({ AgoraCloudCourseware(fileItem: $0) })
             for item in list {
                 if !temp.contains(where: {$0.resourceUuid == item.resourceUuid}) {
                     temp.append(item)

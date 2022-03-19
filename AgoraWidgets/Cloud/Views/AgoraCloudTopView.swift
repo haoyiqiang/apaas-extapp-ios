@@ -90,20 +90,20 @@ class AgoraCloudTopView: UIView {
     
     func set(fileNum: Int) {
         let sumText = GetWidgetLocalizableString(object: self,
-                                                 key: "fcr_cloud_sum")
-        let itemText = GetWidgetLocalizableString(object: self,
-                                                  key: "fcr_cloud_item")
-        fileCountLabel.text = "\(sumText)\(fileNum)\(itemText)"
+                                                 key: "fcr_cloud_total_item")
+        let final = sumText.replacingOccurrences(of: String.ag_localized_replacing(),
+                                                 with: "\(fileNum)")
+        fileCountLabel.text = final
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         sepLineLayer1.frame = CGRect(x: 0,
-                                     y: 30,
+                                     y: 29,
                                      width: bounds.width,
                                      height: 1)
         sepLineLayer2.frame = CGRect(x: 0,
-                                     y: 60,
+                                     y: 59,
                                      width: bounds.width,
                                      height: 1)
         sepLineLayer3.frame = CGRect(x: 0,
@@ -135,33 +135,26 @@ private extension AgoraCloudTopView {
     }
     
     func initViews() {
+        let ui = AgoraUIGroup()
         /// 上半部分
-        contentView1.backgroundColor = UIColor(hex: 0xF9F9FC)
-        let buttonNormalColor = UIColor(hex: 0x586376)
-        let buttonSelectedColor = UIColor(hex: 0x191919)
-        let lineColor = UIColor(hex: 0xEEEEF7)
-        
+        contentView1.backgroundColor = ui.color.cloud_header_1_bg_color
         publicAreaButton.setTitleForAllStates(GetWidgetLocalizableString(object: self,
                                                                          key: "fcr_cloud_public_resource"))
         
         privateAreaButton.setTitleForAllStates(GetWidgetLocalizableString(object: self,
                                                                           key: "fcr_cloud_private_resource"))
         for btn in [publicAreaButton,privateAreaButton] {
-            btn.titleLabel?.font = .systemFont(ofSize: 12)
-            btn.setTitleColor(buttonNormalColor,
-                                            for: .normal)
-            btn.setTitleColor(buttonSelectedColor,
-                                            for: .selected)
+            btn.titleLabel?.font = ui.font.cloud_label_font
+            btn.setTitleColor(ui.color.cloud_label_color,
+                              for: .normal)
         }
         
-        selectedLine.backgroundColor = UIColor(hex: 0x0073FF)
+        selectedLine.backgroundColor = ui.color.cloud_select_line_color
 
         closeButton.setImage(GetWidgetImage(object: self,
-                                            "icon_close"),
+                                            "cloud_close"),
                              for: .normal)
-        
-        
-        
+
         addSubview(contentView1)
         contentView1.addSubview(publicAreaButton)
         contentView1.addSubview(privateAreaButton)
@@ -169,38 +162,31 @@ private extension AgoraCloudTopView {
         contentView1.addSubview(selectedLine)
         
         /// 下半部分
-        contentView2.backgroundColor = .white
+        contentView2.backgroundColor = ui.color.cloud_header_2_bg_color
         let refreshImage = GetWidgetImage(object: self,
                                           "icon_refresh")
-        let textColor = UIColor(hex: 0x191919)
-        
         refreshButton.setImage(refreshImage,
                                for: .normal)
         
-        pathNameLabel.textColor = textColor
-        pathNameLabel.font = .systemFont(ofSize: 12)
+        pathNameLabel.textColor = ui.color.cloud_label_color
+        pathNameLabel.font = ui.font.cloud_label_font
         pathNameLabel.textAlignment = .left
         
-        fileCountLabel.textColor = textColor
-        fileCountLabel.font = .systemFont(ofSize: 12)
+        fileCountLabel.textColor = ui.color.cloud_label_color
+        fileCountLabel.font = ui.font.cloud_label_font
         fileCountLabel.textAlignment = .right
         
         searchBar.placeholder = GetWidgetLocalizableString(object: self,
                                                            key: "fcr_cloud_search")
         searchBar.delegate = self
-        searchBar.backgroundColor = .white
-        searchBar.cornerRadius = 4
-        searchBar.layer.borderColor = UIColor(hex: 0xD7D7E6)?.cgColor
-        searchBar.layer.borderWidth = 1
-        searchBar.textField?.font = .systemFont(ofSize: 12)
-        searchBar.textField?.backgroundColor = .white
+        searchBar.backgroundColor = ui.color.cloud_header_2_bg_color
+        searchBar.cornerRadius = ui.frame.cloud_search_bar_corner_radius
+        searchBar.layer.borderColor = ui.color.cloud_search_bar_border_color
+        searchBar.layer.borderWidth = ui.frame.cloud_search_bar_border_width
+        searchBar.textField?.font = ui.font.cloud_label_font
+        searchBar.textField?.backgroundColor = ui.color.cloud_header_2_bg_color
         searchBar.textField?.clearButtonMode = .never
         searchBar.textField?.delegate = self
-        
-        for sepLayer in [sepLineLayer1, sepLineLayer2, sepLineLayer3] {
-            sepLayer.backgroundColor = lineColor?.cgColor
-            layer.addSublayer(sepLayer)
-        }
         
         addSubview(contentView2)
         contentView2.addSubview(refreshButton)
@@ -216,12 +202,12 @@ private extension AgoraCloudTopView {
         // header view
         let nameLabel = UILabel()
         
-        listHeaderView.backgroundColor = UIColor(hex: 0xF9F9FC)
+        listHeaderView.backgroundColor = ui.color.cloud_header_1_bg_color
         nameLabel.text = GetWidgetLocalizableString(object: self,
                                                     key: "fcr_cloud_file_name")
         
-        nameLabel.textColor = UIColor(hex: 0x191919)
-        nameLabel.font = .systemFont(ofSize: 13)
+        nameLabel.textColor = ui.color.cloud_file_name_label_color
+        nameLabel.font = ui.font.cloud_label_font
         
         listHeaderView.addSubview(nameLabel)
         
@@ -230,25 +216,28 @@ private extension AgoraCloudTopView {
             make?.left.equalTo()(self.listHeaderView)?.offset()(14)
         }
         addSubview(listHeaderView)
+        
+        for sepLayer in [sepLineLayer1, sepLineLayer2, sepLineLayer3] {
+            sepLayer.backgroundColor = ui.color.cloud_sep_line_color
+            layer.addSublayer(sepLayer)
+        }
     }
     
     func initLayout() {
         /// 上半部分
         contentView1.mas_makeConstraints { make in
             make?.left.right().top().equalTo()(self)
-            make?.height.equalTo()(30)
+            make?.height.equalTo()(29)
         }
         
         publicAreaButton.mas_makeConstraints { make in
             make?.centerY.equalTo()(self.contentView1)
-            make?.left.equalTo()(24)
-            make?.width.equalTo()(80)
+            make?.left.equalTo()(19)
         }
         
         privateAreaButton.mas_makeConstraints { make in
             make?.centerY.equalTo()(self.contentView1)
-            make?.left.equalTo()(publicAreaButton.mas_right)
-            make?.width.equalTo()(80)
+            make?.left.equalTo()(publicAreaButton.mas_right)?.offset()(40)
         }
         
         selectedLine.mas_makeConstraints { make in
@@ -265,7 +254,7 @@ private extension AgoraCloudTopView {
         }
         /// 下半部分
         contentView2.mas_makeConstraints { make in
-            make?.top.equalTo()(contentView1.mas_bottom)
+            make?.top.equalTo()(contentView1.mas_bottom)?.offset()(1)
             make?.left.right().equalTo()(self)
             make?.height.equalTo()(30)
         }

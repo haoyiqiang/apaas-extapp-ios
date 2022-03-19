@@ -9,7 +9,7 @@ import Armin
 
 class AgoraCloudServerAPI: NSObject {
     typealias FailBlock = (Error) -> ()
-    typealias SuccessBlock<T: Decodable> = (Resp<T>) -> ()
+    typealias SuccessBlock<T: Decodable> = (T) -> ()
     
     private var armin: Armin!
     
@@ -45,6 +45,7 @@ class AgoraCloudServerAPI: NSObject {
 
     func requestResourceInUser(pageNo: Int,
                                pageSize: Int,
+                               resourceName: String? = nil,
                                success: @escaping SuccessBlock<SourceDataInUserPage>,
                                fail: @escaping FailBlock) {
         guard !currentRequesting else {
@@ -60,32 +61,30 @@ class AgoraCloudServerAPI: NSObject {
                                       url: urlString)
         let header = ["x-agora-token" : baseInfo.token,
                       "x-agora-uid" : uid]
-        let parameters: [String : Any] = ["pageNo" : pageNo,
-                                          "pageSize" : pageSize,
-                                          "orderBy" : "updateTime"]
+        var parameters: [String : Any] = ["pageNo" : pageNo,
+                                          "pageSize" : pageSize]
+        if let resourceStr = resourceName {
+            parameters["resourceName"] = resourceStr
+        }
         let task = ArRequestTask(event: event,
                                  type: type,
                                  header: header,
                                  parameters: parameters)
-        
         armin.request(task: task,
                       responseOnMainQueue: true,
-                      success: .data({ [weak self] data in
-            self?.currentRequesting = false
-            let decoder = JSONDecoder()
-            do {
-                let resp = try decoder.decode(Resp<SourceDataInUserPage>.self,
-                                              from: data)
-                success(resp)
-            } catch let e {
-                print(e)
-                fail(e)
-            }
-        }), failRetry: {[weak self] error in
+                      success: .json({[weak self] dic in
+                        self?.currentRequesting = false
+                        if let dataDic = dic["data"] as? [String: Any],
+                           let source = dataDic.toObj(SourceDataInUserPage.self){
+                            success(source)
+                        } else {
+                            fail(NSError(domain: "decode", code: -1))
+                        }
+                      })) {[weak self] error in
             self?.currentRequesting = false
             fail(error)
             return .resign
-        })
+        }
     }
 }
 
@@ -123,21 +122,14 @@ extension AgoraCloudServerAPI: ArLogTube {
 }
 
 extension AgoraCloudServerAPI {
-    struct Resp<T: Decodable>: Decodable {
-        let msg: String
-        let code: Int
-        let ts: Double
-        let data: T
-    }
-    
-    struct SourceData: Decodable {
+    struct SourceData: Convertable {
         let total: Int
         let list: [FileItem]
         let nextId: Int?
         let count: Int
     }
     
-    struct SourceDataInUserPage: Decodable {
+    struct SourceDataInUserPage: Convertable {
         let total: Int
         let list: [FileItem]
         let pageNo: Int
@@ -145,7 +137,7 @@ extension AgoraCloudServerAPI {
         let pages: Int
     }
     
-    struct FileItem: Decodable {
+    struct FileItem: Convertable {
         let resourceUuid: String
         let resourceName: String
         let ext: String
@@ -153,10 +145,20 @@ extension AgoraCloudServerAPI {
         let url: String
         let tags: [String]?
         let updateTime: TimeInterval
+        let taskUuid: String?
+        let taskToken: String?
+        let taskProgress: AgoraCloudTaskProgress?
         /// 是否转换
         let convert: Bool?
-        let taskUuid: String
-        let taskToken: String
-        let taskProgress: AgoraCloudTaskProgress
+        let conversion: Conversion?
+    }
+    
+    struct Conversion: Convertable {
+        let type: String
+        let preview: Bool
+        let scale: Double
+        let canvasVersion: Bool
+        let outputFormat: String
+        let convert: Bool?
     }
 }

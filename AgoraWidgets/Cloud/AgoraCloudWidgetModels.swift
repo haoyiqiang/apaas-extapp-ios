@@ -79,7 +79,7 @@ struct AgoraCloudConvertedFile: Convertable {
 struct AgoraCloudWhiteScenesInfo: Convertable {
     public let resourceName: String
     public let resourceUuid: String
-    public let scenes: [AgoraCloudConvertedFile]
+    public let scenes: [AgoraCloudConvertedFile]?
     public let convert: Bool?
 }
 
@@ -88,7 +88,8 @@ struct AgoraCloudCourseware: Convertable {
     var resourceName: String
     var resourceUuid: String
     var resourceURL: String
-    var scenes: [AgoraCloudConvertedFile]
+    /// ppt才有
+    var scenes: [AgoraCloudConvertedFile]?
     /// 原始文件的扩展名
     var ext: String
     /// 原始文件的大小 单位是字节
@@ -101,7 +102,7 @@ struct AgoraCloudCourseware: Convertable {
     init(resourceName: String,
          resourceUuid: String,
          resourceURL: String,
-         scenes: [AgoraCloudConvertedFile],
+         scenes: [AgoraCloudConvertedFile]?,
          ext: String,
          size: Double,
          updateTime: Double,
@@ -117,7 +118,7 @@ struct AgoraCloudCourseware: Convertable {
     }
     
     init(fileItem: AgoraCloudServerAPI.FileItem) {
-        let scenes = fileItem.taskProgress.convertedFileList.map { conFile -> AgoraCloudConvertedFile in
+        let scenes = fileItem.taskProgress?.convertedFileList.map { conFile -> AgoraCloudConvertedFile in
             let ppt = AgoraCloudPptPage(src: conFile.ppt.src,
                                              width: conFile.ppt.width,
                                              height: conFile.ppt.height,
@@ -133,7 +134,7 @@ struct AgoraCloudCourseware: Convertable {
                   ext: fileItem.ext,
                   size: fileItem.size,
                   updateTime: fileItem.updateTime,
-                  convert: fileItem.convert)
+                  convert: fileItem.convert ?? false)
     }
     
     init(publicCourseware: AgoraCloudPublicCourseware) {
