@@ -36,7 +36,8 @@ class AgoraPollHeaderView: UIView {
     }
     
     private func createViews() {
-        label.font = UIFont.systemFont(ofSize: 9)
+        let group = AgoraFontGroup()
+        label.font = group.poll_label_font
         label.textColor = UIColor(hexString: "#191919")
         
         addSubview(label)
@@ -64,8 +65,9 @@ class AgoraPollHeaderView: UIView {
 class AgoraPollTitleLabel: UILabel {
     override init(frame: CGRect) {
         super.init(frame: frame)
+        let group = AgoraFontGroup()
+        font = group.poll_label_font
         textColor = UIColor(hex: 0x191919)
-        font = .systemFont(ofSize: 12)
         numberOfLines = 0
     }
     
@@ -76,7 +78,6 @@ class AgoraPollTitleLabel: UILabel {
 
 class AgoraPollOptionCell: UITableViewCell {
     static let cellId = NSStringFromClass(AgoraPollOptionCell.self)
-    static let font = UIFont.systemFont(ofSize: 12)
     
     private let optionImageView = UIImageView()
     private let sepLine = UIView()
@@ -122,7 +123,11 @@ class AgoraPollOptionCell: UITableViewCell {
     private func initViews() {
         selectionStyle = .none
         
-        optionLabel.font = AgoraPollOptionCell.font
+        let group = AgoraFontGroup()
+        
+        optionLabel.font = group.poll_label_font
+        optionLabel.numberOfLines = 0
+        
         sepLine.backgroundColor = UIColor(hex: 0xEEEEF7)
         
         addSubviews([optionImageView,
@@ -132,17 +137,24 @@ class AgoraPollOptionCell: UITableViewCell {
     
     private func initConstraints() {
         let horizontalSpace: CGFloat = 15
+        let group = AgoraFrameGroup()
         
         optionImageView.mas_makeConstraints { make in
             make?.left.equalTo()(horizontalSpace)
-            make?.centerY.equalTo()(0)
+            make?.top.equalTo()(5)
             make?.width.height().equalTo()(12)
         }
         
+        let labelTop: CGFloat = group.poll_option_label_vertical_space
+        let labelBottom: CGFloat = group.poll_option_label_vertical_space
+        let labelLeft: CGFloat = group.poll_option_label_left_space
+        let labelRight: CGFloat = group.poll_option_label_right_space
+
         optionLabel.mas_makeConstraints { make in
-            make?.top.bottom().right().equalTo()(0)
-            make?.left.equalTo()(optionImageView.mas_right)?.offset()(10)
-            make?.right.equalTo()(-horizontalSpace)
+            make?.top.equalTo()(labelTop)
+            make?.left.equalTo()(labelLeft)
+            make?.right.equalTo()(-labelRight)
+            make?.bottom.equalTo()(-labelBottom)
         }
         
         sepLine.mas_makeConstraints { make in
@@ -176,13 +188,14 @@ class AgoraPollResultCell: UITableViewCell {
     
     private func initViews() {
         selectionStyle = .none
-        
+        let group = AgoraFontGroup()
         let textColor = UIColor(hexString: "#191919")
-        let font = UIFont.systemFont(ofSize: 9)
+        let font = group.poll_label_font
         
         titleLabel.textColor = textColor
         titleLabel.font = font
         titleLabel.textAlignment = .left
+        titleLabel.numberOfLines = 0
         
         resultLabel.textColor = textColor
         resultLabel.font = font
@@ -198,23 +211,24 @@ class AgoraPollResultCell: UITableViewCell {
     }
     
     private func initConstraints() {
-        let horizontalSpace: CGFloat = 15
+        let group = AgoraFrameGroup()
         
         resultLabel.mas_makeConstraints { (make) in
-            make?.top.bottom()?.equalTo()(0)
-            make?.right.equalTo()(-horizontalSpace)
-            make?.width.equalTo()(50)
+            make?.top.equalTo()(group.poll_result_label_vertical_space)
+            make?.right.equalTo()(-group.poll_result_label_horizontal_space)
+            make?.width.equalTo()(group.poll_result_value_label_width)
         }
         
         titleLabel.mas_makeConstraints { make in
-            make?.left.equalTo()(horizontalSpace)
-            make?.top.bottom()?.equalTo()(0)
+            make?.top.equalTo()(group.poll_result_label_vertical_space)
+            make?.left.equalTo()(group.poll_result_label_horizontal_space)
             make?.right.equalTo()(resultLabel.mas_left)
+            make?.bottom.equalTo()(-group.poll_result_label_vertical_space)
         }
         
         resultProgressView.mas_makeConstraints { make in
-            make?.left.equalTo()(horizontalSpace)
-            make?.right.equalTo()(-horizontalSpace)
+            make?.left.equalTo()(group.poll_result_label_horizontal_space)
+            make?.right.equalTo()(-group.poll_result_label_horizontal_space)
             make?.bottom.equalTo()(0)
             make?.height.equalTo()(1)
         }

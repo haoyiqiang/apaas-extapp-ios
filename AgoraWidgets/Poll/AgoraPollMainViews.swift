@@ -57,18 +57,15 @@ class AgoraPollReceiverView: UIView {
                                   height: 17)
     }
     
-    func updateViewFrame(title: String,
-                         tableRowCount: Int) -> CGSize {
+    func updateViewFrame(titleHeight: CGFloat,
+                         tableHeight: CGFloat) -> CGSize {
         let titleLabelSpace: CGFloat = 15
         let limitWidth: CGFloat = neededSize.width - (titleLabelSpace * 2)
-        
-        let titleSize = title.agora_size(font: titleLabel.font,
-                                    width: limitWidth)
-        
+      
         let titleLabelX = titleLabelSpace
         let titleLabelY = headerView.frame.maxY + 10
         let titleLabelWidth = limitWidth
-        let titleLabelHeight = titleSize.height
+        let titleLabelHeight = titleHeight
         
         titleLabel.frame = CGRect(x: titleLabelX,
                                   y: titleLabelY,
@@ -76,7 +73,7 @@ class AgoraPollReceiverView: UIView {
                                   height: titleLabelHeight)
         
         let tableViewY = titleLabel.frame.maxY + 10
-        let tableViewHeight = tableView.rowHeight * CGFloat(tableRowCount)
+        let tableViewHeight = tableHeight
         tableView.frame = CGRect(x: 0,
                                  y: tableViewY,
                                  width: neededSize.width,
