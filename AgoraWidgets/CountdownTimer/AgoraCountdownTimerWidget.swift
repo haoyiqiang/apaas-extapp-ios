@@ -66,6 +66,10 @@ import Masonry
         updateRoomData()
         updateViewData()
         updateViewFrame()
+        
+        log(content: info.roomProperties?.jsonString() ?? "nil",
+            extra: nil,
+            type: .info)
     }
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
@@ -77,6 +81,10 @@ import Masonry
         updateRoomData()
         updateViewData()
         shouldStartTime()
+        
+        log(content: properties.jsonString() ?? "nil",
+            extra: cause?.jsonString(),
+            type: .info)
     }
     
     public override func onMessageReceived(_ message: String) {
@@ -87,6 +95,9 @@ import Masonry
             initCurrentTimestamp()
             shouldStartTime()
         }
+        
+        log(content: message,
+            type: .info)
     }
     
     deinit {
