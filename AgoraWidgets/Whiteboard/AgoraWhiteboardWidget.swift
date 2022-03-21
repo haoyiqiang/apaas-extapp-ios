@@ -244,14 +244,20 @@ extension AgoraWhiteboardWidget {
     func handleOpenCourseware(info: AgoraBoardCoursewareInfo) {
         var appParam: WhiteAppParam?
         if let convert = info.convert,
-           convert {
+           convert,
+           let scenes = info.scenes {
+            // 动态ppt翻页
             appParam = WhiteAppParam.createSlideApp("/\(info.resourceUuid)",
-                                                    scenes: info.scenes.toNetless(),
+                                                    scenes: scenes.toNetless(),
                                                     title: info.resourceName)
-        } else {
+        } else if let scenes = info.scenes {
+            // pptx、pdf
             appParam = WhiteAppParam.createDocsViewerApp("/\(info.resourceUuid)",
-                                                         scenes: info.scenes.toNetless(),
+                                                         scenes: scenes.toNetless(),
                                                          title: info.resourceName)
+        } else {
+            appParam = WhiteAppParam.createMediaPlayerApp(info.resourceUrl,
+                                                          title: info.resourceName)
         }
         
         guard let param = appParam else {
@@ -345,7 +351,7 @@ extension AgoraWhiteboardWidget {
             dt.globalState = state
         }
         
-        self.onNonTeacherFirstLogin()
+        self.onIfTeacherFirstLogin()
         
         if let boxState = room.state.windowBoxState,
            let widgetState = boxState.toWidget(){
@@ -406,9 +412,8 @@ extension AgoraWhiteboardWidget {
         }
     }
     
-    func onNonTeacherFirstLogin() {
-        guard let `room` = room,
-              !dt.globalState.teacherFirstLogin else {
+    func onIfTeacherFirstLogin() {
+        guard let `room` = room else {
             return
         }
         
@@ -447,13 +452,19 @@ extension AgoraWhiteboardWidget {
             self.sendMessage(signal: .BoardGrantDataChanged([self.info.localUserInfo.userUuid]))
         }
         
-        dt.localGranted = true
-        onLocalGrantedChangedForBoardHandle(localGranted: true,
-                                            completion: { [weak self] in
-                                                guard let `self` = self else {
-                                                    return
-                                                }
-                                                self.isTeacher ? teacherCompletion() : studentCompletion()
-                                            })
+        if !dt.globalState.teacherFirstLogin {
+            dt.localGranted = true
+            onLocalGrantedChangedForBoardHandle(localGranted: true,
+                                                completion: { [weak self] in
+                                                    guard let `self` = self else {
+                                                        return
+                                                    }
+                                                    self.isTeacher ? teacherCompletion() : studentCompletion()
+                                                })
+        } else if isTeacher {
+            dt.localGranted = true
+            onLocalGrantedChangedForBoardHandle(localGranted: true,
+                                                completion: nil)
+        }
     }
 }

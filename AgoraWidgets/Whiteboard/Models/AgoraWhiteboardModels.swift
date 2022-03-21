@@ -301,15 +301,18 @@ enum AgoraBoardStepChangeType: Convertable {
 struct AgoraBoardCoursewareInfo: Convertable {
     var resourceUuid: String
     var resourceName: String
-    var scenes: [AgoraBoardWhiteScene]
+    var resourceUrl: String
+    var scenes: [AgoraBoardWhiteScene]?
     var convert: Bool?
     
     init(resourceName: String,
          resourceUuid: String,
-         scenes: [AgoraBoardWhiteScene],
+         resourceUrl: String,
+         scenes: [AgoraBoardWhiteScene]?,
          convert: Bool?) {
         self.resourceName = resourceName
         self.resourceUuid = resourceUuid
+        self.resourceUrl = resourceUrl
         self.scenes = scenes
         self.convert = convert
     }
@@ -317,6 +320,7 @@ struct AgoraBoardCoursewareInfo: Convertable {
     init(publicCourseware: AgoraBoardPublicCourseware) {
         self.init(resourceName: publicCourseware.resourceName,
                   resourceUuid: publicCourseware.resourceUuid,
+                  resourceUrl: publicCourseware.url,
                   scenes: publicCourseware.taskProgress.convertedFileList,
                   convert: publicCourseware.conversion.canvasVersion)
     }

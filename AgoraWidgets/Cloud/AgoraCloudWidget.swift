@@ -120,7 +120,7 @@ extension AgoraCloudWidget: UITableViewDataSource, UITableViewDelegate {
         guard let coursewareInfo = vm.getSelectedInfo(index: indexPath.row) else {
             return
         }
-        sendMessage(signal: .OpenCoursewares(coursewareInfo))
+        sendMessage(signal: .OpenCourseware(coursewareInfo))
     }
 }
 

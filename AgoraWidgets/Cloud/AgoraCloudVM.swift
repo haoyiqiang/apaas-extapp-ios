@@ -44,6 +44,7 @@ class AgoraCloudVM: NSObject {
         let config = dataList[index]
         return AgoraCloudWhiteScenesInfo(resourceName: config.resourceName,
                                          resourceUuid: config.resourceUuid,
+                                         resourceUrl: config.resourceURL,
                                          scenes: config.scenes,
                                          convert: config.convert)
     }

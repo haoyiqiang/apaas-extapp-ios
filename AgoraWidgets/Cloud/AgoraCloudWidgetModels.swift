@@ -8,11 +8,11 @@
 import Foundation
 // MARK: - Message
 enum AgoraCloudInteractionSignal: Convertable {
-    case OpenCoursewares(AgoraCloudWhiteScenesInfo)
+    case OpenCourseware(AgoraCloudWhiteScenesInfo)
     case CloseCloud
     
     private enum CodingKeys: CodingKey {
-        case OpenCoursewares
+        case OpenCourseware
         case CloseCloud
     }
     
@@ -22,8 +22,8 @@ enum AgoraCloudInteractionSignal: Convertable {
         if let _ = try? container.decodeNil(forKey: .CloseCloud) {
             self = .CloseCloud
         } else if let value = try? container.decode(AgoraCloudWhiteScenesInfo.self,
-                                                    forKey: .OpenCoursewares) {
-            self = .OpenCoursewares(value)
+                                                    forKey: .OpenCourseware) {
+            self = .OpenCourseware(value)
         } else {
             throw DecodingError.dataCorrupted(
                 .init(
@@ -40,9 +40,9 @@ enum AgoraCloudInteractionSignal: Convertable {
         switch self {
         case .CloseCloud:
             try container.encodeNil(forKey: .CloseCloud)
-        case .OpenCoursewares(let x):
+        case .OpenCourseware(let x):
             try container.encode(x,
-                                 forKey: .OpenCoursewares)
+                                 forKey: .OpenCourseware)
         }
     }
     
@@ -79,6 +79,7 @@ struct AgoraCloudConvertedFile: Convertable {
 struct AgoraCloudWhiteScenesInfo: Convertable {
     public let resourceName: String
     public let resourceUuid: String
+    public let resourceUrl: String
     public let scenes: [AgoraCloudConvertedFile]?
     public let convert: Bool?
 }
@@ -95,7 +96,7 @@ struct AgoraCloudCourseware: Convertable {
     /// 原始文件的大小 单位是字节
     var size: Double
     /// 原始文件的更新时间
-    var updateTime: Double
+    var updateTime: Int64
     
     var convert: Bool?
     
@@ -105,7 +106,7 @@ struct AgoraCloudCourseware: Convertable {
          scenes: [AgoraCloudConvertedFile]?,
          ext: String,
          size: Double,
-         updateTime: Double,
+         updateTime: Int64,
          convert: Bool?) {
         self.resourceName = resourceName
         self.resourceUuid = resourceUuid
@@ -134,7 +135,7 @@ struct AgoraCloudCourseware: Convertable {
                   ext: fileItem.ext,
                   size: fileItem.size,
                   updateTime: fileItem.updateTime,
-                  convert: fileItem.convert ?? false)
+                  convert: fileItem.conversion?.canvasVersion ?? false)
     }
     
     init(publicCourseware: AgoraCloudPublicCourseware) {
@@ -144,7 +145,7 @@ struct AgoraCloudCourseware: Convertable {
                   scenes: publicCourseware.taskProgress.convertedFileList,
                   ext: publicCourseware.ext,
                   size: Double(publicCourseware.size),
-                  updateTime: Double(publicCourseware.updateTime),
+                  updateTime: publicCourseware.updateTime,
                   convert: publicCourseware.conversion.convert)
     }
 }
