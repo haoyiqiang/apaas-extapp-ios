@@ -346,7 +346,17 @@ extension AgoraWhiteboardWidget {
         // undo和redo只有在disableSerialization为false时生效
         room.disableSerialization(false)
 
-        self.onIfTeacherFirstLogin(state: state.globalState as? AgoraWhiteboardGlobalState)
+        // 暂时删除teacherFirstLogin字段判断
+//        self.onIfTeacherFirstLogin(state: state.globalState as? AgoraWhiteboardGlobalState)
+        if let globalState = state.globalState as? AgoraWhiteboardGlobalState {
+            dt.globalState = globalState
+        }
+        
+        if isTeacher {
+           dt.localGranted = true
+           onLocalGrantedChangedForBoardHandle(localGranted: true,
+                                               completion: nil)
+       }
         
         if let boxState = room.state.windowBoxState,
            let widgetState = boxState.toWidget(){
