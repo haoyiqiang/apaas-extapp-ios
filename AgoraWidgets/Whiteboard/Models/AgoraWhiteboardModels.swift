@@ -321,8 +321,8 @@ struct AgoraBoardCoursewareInfo: Convertable {
         self.init(resourceName: publicCourseware.resourceName,
                   resourceUuid: publicCourseware.resourceUuid,
                   resourceUrl: publicCourseware.url,
-                  scenes: publicCourseware.taskProgress.convertedFileList,
-                  convert: publicCourseware.conversion.canvasVersion)
+                  scenes: publicCourseware.taskProgress?.convertedFileList,
+                  convert: publicCourseware.conversion?.canvasVersion)
     }
 }
 
@@ -350,9 +350,9 @@ struct AgoraBoardPublicCourseware: Convertable {
     let size: Int64
     let url: String
     let updateTime: Int64
-    let taskUuid: String
-    let conversion: AgoraBoardPublicConversion
-    let taskProgress: AgoraBoardTaskProgress
+    let taskUuid: String?
+    let conversion: AgoraBoardPublicConversion?
+    let taskProgress: AgoraBoardTaskProgress?
 }
 
 struct AgoraBoardPublicConversion: Convertable {

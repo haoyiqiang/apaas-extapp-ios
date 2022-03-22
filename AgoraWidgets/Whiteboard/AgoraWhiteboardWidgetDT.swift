@@ -11,7 +11,7 @@ import Whiteboard
 
 protocol AGBoardWidgetDTDelegate: NSObjectProtocol {
     func onLocalGrantedChangedForBoardHandle(localGranted: Bool,
-                                             completion: (() -> Void)?)
+                                             completion: ((Bool) -> Void)?)
         
     func onScenePathChanged(path: String)
     func onGrantUsersChanged(grantUsers: [String])

@@ -60,10 +60,12 @@ struct AgoraWhiteboardExtraInfo : Convertable {
         let defaultCoursewareDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory,
                                                                        .userDomainMask,
                                                                        true)[0].appending("AgoraDownload")
-        let length = AgoraWidgetsFit.scale(30)
+        let length = UIDevice.current.isPad ? 34 : 32
+        let left = UIDevice.current.isPad ? 15 : 12
+        let bottom = UIDevice.current.isPad ? 20 : 15
         let defaultCollectorStyles = ["position":"fixed",
-                                      "left":"13px",
-                                      "bottom":"16px",
+                                      "left":"\(left)px",
+                                      "bottom":"\(bottom)px",
                                       "width":"\(length)px",
                                       "height":"\(length)px"]
         return AgoraWhiteboardExtraInfo(useMultiViews: true,

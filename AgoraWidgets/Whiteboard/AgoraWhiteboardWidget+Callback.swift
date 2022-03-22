@@ -155,7 +155,7 @@ extension AgoraWhiteboardWidget: AGBoardWidgetDTDelegate {
     }
     
     func onLocalGrantedChangedForBoardHandle(localGranted: Bool,
-                                             completion: (() -> Void)?) {
+                                             completion: ((Bool) -> Void)?) {
         log(.info,
             content: "local granted: \(localGranted)")
         
@@ -169,6 +169,7 @@ extension AgoraWhiteboardWidget: AGBoardWidgetDTDelegate {
                             if let error = error {
                                 self.log(.error,
                                          content: "setWritable error: \(error.localizedDescription)")
+                                completion?(false)
                             } else {
                                 self.room?.disableCameraTransform(!isWritable)
                                 self.ifUseLocalCameraConfig()
@@ -178,8 +179,8 @@ extension AgoraWhiteboardWidget: AGBoardWidgetDTDelegate {
                                     self.room?.setMemberState(self.dt.baseMemberState)
                                     self.initMemberStateFlag = true
                                 }
+                                completion?(isWritable)
                             }
-                            completion?()
                           })
     }
     

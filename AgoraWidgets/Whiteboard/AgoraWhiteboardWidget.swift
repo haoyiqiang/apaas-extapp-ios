@@ -308,7 +308,7 @@ extension AgoraWhiteboardWidget {
                 room.nextPage { [weak self] success in
                     if success {
                         self?.log(.info,
-                                  content: "add page successfullt")
+                                  content: "add page successfully")
                     }
                 }
             } else {
@@ -345,13 +345,8 @@ extension AgoraWhiteboardWidget {
         
         // undo和redo只有在disableSerialization为false时生效
         room.disableSerialization(false)
-        
-        if let state = state.globalState as? AgoraWhiteboardGlobalState {
-            // 发送初始授权状态的消息
-            dt.globalState = state
-        }
-        
-        self.onIfTeacherFirstLogin()
+
+        self.onIfTeacherFirstLogin(state: state.globalState as? AgoraWhiteboardGlobalState)
         
         if let boxState = room.state.windowBoxState,
            let widgetState = boxState.toWidget(){
@@ -412,7 +407,7 @@ extension AgoraWhiteboardWidget {
         }
     }
     
-    func onIfTeacherFirstLogin() {
+    func onIfTeacherFirstLogin(state: AgoraWhiteboardGlobalState?) {
         guard let `room` = room else {
             return
         }
@@ -455,16 +450,22 @@ extension AgoraWhiteboardWidget {
         if !dt.globalState.teacherFirstLogin {
             dt.localGranted = true
             onLocalGrantedChangedForBoardHandle(localGranted: true,
-                                                completion: { [weak self] in
-                                                    guard let `self` = self else {
+                                                completion: { [weak self] success in
+                                                    guard let `self` = self,
+                                                          success else {
                                                         return
                                                     }
                                                     self.isTeacher ? teacherCompletion() : studentCompletion()
                                                 })
-        } else if isTeacher {
-            dt.localGranted = true
-            onLocalGrantedChangedForBoardHandle(localGranted: true,
-                                                completion: nil)
+        } else {
+            if let globalState = state {
+                dt.globalState = globalState
+            }
+            if isTeacher {
+               dt.localGranted = true
+               onLocalGrantedChangedForBoardHandle(localGranted: true,
+                                                   completion: nil)
+           }
         }
     }
 }
