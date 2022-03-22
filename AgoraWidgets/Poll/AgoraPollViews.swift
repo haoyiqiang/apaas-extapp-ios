@@ -151,10 +151,10 @@ class AgoraPollOptionCell: UITableViewCell {
         let labelRight: CGFloat = group.poll_option_label_right_space
 
         optionLabel.mas_makeConstraints { make in
-            make?.top.equalTo()(labelTop)
+            make?.top.equalTo()(0)
             make?.left.equalTo()(labelLeft)
             make?.right.equalTo()(-labelRight)
-            make?.bottom.equalTo()(-labelBottom)
+            make?.bottom.equalTo()(-0)
         }
         
         sepLine.mas_makeConstraints { make in
@@ -200,6 +200,8 @@ class AgoraPollResultCell: UITableViewCell {
         resultLabel.textColor = textColor
         resultLabel.font = font
         resultLabel.textAlignment = .right
+        resultLabel.adjustsFontSizeToFitWidth = true
+        resultLabel.sizeToFit()
         
         resultProgressView.layer.cornerRadius = 1.5
         resultProgressView.trackTintColor = UIColor(hexString: "#F9F9FC")
@@ -214,16 +216,17 @@ class AgoraPollResultCell: UITableViewCell {
         let group = AgoraFrameGroup()
         
         resultLabel.mas_makeConstraints { (make) in
-            make?.top.equalTo()(group.poll_result_label_vertical_space)
+            make?.top.equalTo()(0)
             make?.right.equalTo()(-group.poll_result_label_horizontal_space)
             make?.width.equalTo()(group.poll_result_value_label_width)
+            make?.bottom.equalTo()(0)
         }
         
         titleLabel.mas_makeConstraints { make in
-            make?.top.equalTo()(group.poll_result_label_vertical_space)
+            make?.top.equalTo()(0)
             make?.left.equalTo()(group.poll_result_label_horizontal_space)
             make?.right.equalTo()(resultLabel.mas_left)
-            make?.bottom.equalTo()(-group.poll_result_label_vertical_space)
+            make?.bottom.equalTo()(0)
         }
         
         resultProgressView.mas_makeConstraints { make in

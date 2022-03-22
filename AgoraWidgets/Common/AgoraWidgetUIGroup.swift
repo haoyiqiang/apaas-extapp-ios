@@ -72,13 +72,13 @@ class AgoraFrameGroup {
     }
     
     var poll_result_value_label_width: CGFloat {
-        return 40
+        return 50
     }
- // cloud
+    
+    // cloud
     var cloud_bg_corner_radius: CGFloat = 6
     var cloud_search_bar_corner_radius: CGFloat = 4
     var cloud_search_bar_border_width: CGFloat = 1
-
 }
 
 class AgoraFontGroup {
@@ -91,7 +91,7 @@ class AgoraFontGroup {
     var poll_label_font: UIFont {
         return UIFont.systemFont(ofSize: 9)
     }
- // cloud
+    
+    // cloud
     var cloud_label_font = UIFont.systemFont(ofSize: 12)
-
 }
