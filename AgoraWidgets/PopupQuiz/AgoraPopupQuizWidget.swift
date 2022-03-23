@@ -157,6 +157,7 @@ private extension AgoraPopupQuizWidget {
                                      action: #selector(doButtonPressed(_:)),
                                      for: .touchUpInside)
         
+        view.backgroundColor = .clear
         view.layer.shadowColor = UIColor(hexString: "#2F4192")?.cgColor
         view.layer.shadowOffset = CGSize(width: 0,
                                          height: 2)

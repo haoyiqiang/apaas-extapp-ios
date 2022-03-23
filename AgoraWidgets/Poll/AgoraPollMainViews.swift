@@ -46,6 +46,8 @@ class AgoraPollReceiverView: UIView {
         layer.cornerRadius = 4
         layer.masksToBounds = true
         
+        backgroundColor = .white
+        
         addSubviews([headerView,
                      titleLabel,
                      tableView,
@@ -78,6 +80,8 @@ class AgoraPollReceiverView: UIView {
                                  y: tableViewY,
                                  width: neededSize.width,
                                  height: tableViewHeight)
+        
+        print("---poll hegith table: \(tableViewHeight)")
         
         let submitButtonWidth: CGFloat = 70
         let submitButtonHeight: CGFloat = 22

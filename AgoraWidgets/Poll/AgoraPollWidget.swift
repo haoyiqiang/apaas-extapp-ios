@@ -25,6 +25,7 @@ import Armin
             receiverView.state = state
             
             if state == .finished {
+                updateViewFrame()
                 receiverView.tableView.reloadData()
             }
         }
@@ -138,7 +139,7 @@ private extension AgoraPollWidget {
                                             action: #selector(doButtonPressed(_:)),
                                             for: .touchUpInside)
         
-        view.backgroundColor = .white
+        view.backgroundColor = .clear
         view.layer.shadowColor = UIColor(hexString: "#2F4192")?.cgColor
         view.layer.shadowOffset = CGSize(width: 0,
                                          height: 2)
@@ -376,6 +377,9 @@ extension AgoraPollWidget: UITableViewDataSource, UITableViewDelegate {
                    heightForRowAt indexPath: IndexPath) -> CGFloat {
         if state == .finished,
            let list = resultList {
+            
+            print("---poll hegith cell: \(list.items[indexPath.row].height)")
+            
             return list.items[indexPath.row].height
         } else if let list = optionList {
             return list.items[indexPath.row].height
