@@ -41,7 +41,7 @@
 - (void)setupSubViews
 {
     self.sendButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.sendButton setTitle:[@"ChatSendText" ag_localizedIn:@"AgoraWidgets"]
+    [self.sendButton setTitle:[@"fcr_hyphenate_im_send" ag_localizedIn:@"AgoraWidgets"]
                      forState:UIControlStateNormal];
     [self addSubview:self.sendButton];
     self.sendButton.backgroundColor = [UIColor colorWithRed:53/255.0 green:123/255.0 blue:246/255.0 alpha:1.0];

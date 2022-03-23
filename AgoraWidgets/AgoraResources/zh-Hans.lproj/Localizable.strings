@@ -11,7 +11,7 @@ fcr_rtm_im_quiz = "提问";
 fcr_rtm_im_no_message = "还没有消息";
 fcr_rtm_im_send = "发送";
 fcr_rtm_im_input_placeholder = "请输入消息";
-ChatSilencedPlaceholderText = "禁言中";
+fcr_rtm_im_silence_holder = "禁言中";
 fcr_rtm_im_mute_mode = "禁言模式开启";
 fcr_rtm_im_unmute_mode = "禁言模式关闭";
 fcr_rtm_im_silenced_placeholder = "禁言中";
@@ -22,6 +22,7 @@ fcr_rtm_im_title = "聊天";
 fcr_rtm_im_no_message = "还没有消息";
 
 // Hyphenate
+fcr_hyphenate_im_send = "发送";
 fcr_hyphenate_im_chat = "聊天";
 fcr_hyphenate_im_announcement= "公告";
 fcr_hyphenate_im_input_placeholder = "请输入消息";
