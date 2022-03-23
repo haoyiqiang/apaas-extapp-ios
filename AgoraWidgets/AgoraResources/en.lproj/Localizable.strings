@@ -11,7 +11,7 @@ fcr_rtm_im_no_message = "No Message";
 fcr_rtm_im_quiz = "Quiz";
 fcr_rtm_im_send = "Send";
 fcr_rtm_im_input_placeholder = "Input";
-ChatSilencedPlaceholderText = "Banned to chat";
+fcr_rtm_im_silence_holder = "Banned to chat";
 fcr_rtm_im_mute_mode = "Turn on mute mode";
 fcr_rtm_im_unmute_mode = "Turn off mute mode";
 fcr_rtm_im_silenced_placeholder = "Banned to chat";
@@ -22,6 +22,7 @@ fcr_rtm_im_title = "Chat";
 fcr_rtm_im_no_message = "No Message";
 
 // Hyphenate
+fcr_hyphenate_im_send = "Send";
 fcr_hyphenate_im_chat = "Chat";
 fcr_hyphenate_im_announcement = "Notice";
 fcr_hyphenate_im_input_placeholder = "Input";

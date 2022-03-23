@@ -37,7 +37,7 @@ class AgoraRtmIMSendBar: UIView {
     
     func isMute(_ isMute: Bool) {
         if isMute {
-            infoLabel.text = "ChatSilencedPlaceholderText".ag_localizedIn("AgoraWidgets")
+            infoLabel.text = "fcr_rtm_im_silence_holder".ag_localizedIn("AgoraWidgets")
         } else {
             infoLabel.text = "fcr_rtm_im_input_placeholder".ag_localizedIn("AgoraWidgets")
         }
