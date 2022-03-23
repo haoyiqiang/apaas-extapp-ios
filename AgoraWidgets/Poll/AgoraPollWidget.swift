@@ -377,9 +377,6 @@ extension AgoraPollWidget: UITableViewDataSource, UITableViewDelegate {
                    heightForRowAt indexPath: IndexPath) -> CGFloat {
         if state == .finished,
            let list = resultList {
-            
-            print("---poll hegith cell: \(list.items[indexPath.row].height)")
-            
             return list.items[indexPath.row].height
         } else if let list = optionList {
             return list.items[indexPath.row].height

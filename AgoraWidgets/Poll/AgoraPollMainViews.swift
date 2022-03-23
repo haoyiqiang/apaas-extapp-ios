@@ -81,8 +81,6 @@ class AgoraPollReceiverView: UIView {
                                  width: neededSize.width,
                                  height: tableViewHeight)
         
-        print("---poll hegith table: \(tableViewHeight)")
-        
         let submitButtonWidth: CGFloat = 70
         let submitButtonHeight: CGFloat = 22
         let submitButtonX = (neededSize.width - submitButtonWidth) * 0.5
