@@ -185,7 +185,7 @@ private extension AgoraCloudTopView {
         searchBar.layer.borderWidth = ui.frame.cloud_search_bar_border_width
         searchBar.textField?.font = ui.font.cloud_label_font
         searchBar.textField?.backgroundColor = ui.color.cloud_header_2_bg_color
-        searchBar.textField?.clearButtonMode = .never
+        searchBar.textField?.clearButtonMode = .whileEditing
         searchBar.textField?.delegate = self
         
         addSubview(contentView2)
@@ -261,13 +261,13 @@ private extension AgoraCloudTopView {
         
         refreshButton.mas_makeConstraints { make in
             make?.centerY.equalTo()(self.contentView2)
-            make?.left.equalTo()(self.contentView2)?.offset()(21)
+            make?.left.equalTo()(self.contentView2)?.offset()(15)
             make?.height.equalTo()(26)
             make?.width.equalTo()(26)
         }
         
         pathNameLabel.mas_makeConstraints { make in
-            make?.left.equalTo()(refreshButton.mas_right)?.offset()(10)
+            make?.left.equalTo()(refreshButton.mas_right)?.offset()(4)
             make?.centerY.equalTo()(self.contentView2)
         }
         
