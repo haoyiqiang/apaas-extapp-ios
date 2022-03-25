@@ -74,15 +74,15 @@ class AgoraWhiteboardWidgetDT {
                     localGranted = true
                     delegate?.onLocalGrantedChangedForBoardHandle(localGranted: true,
                                                                   completion: nil)
-                } else {
+                } else if globalState.teacherFirstLogin {
                     localGranted = false
                     delegate?.onLocalGrantedChangedForBoardHandle(localGranted: false,
                                                                   completion: nil)
                 }
             }
-            
-            delegate?.onGrantUsersChanged(grantUsers: globalState.grantUsers)
-            
+            if globalState.teacherFirstLogin {
+                delegate?.onGrantUsersChanged(grantUsers: globalState.grantUsers)
+            }
         }
     }
     
@@ -164,50 +164,55 @@ class AgoraWhiteboardWidgetDT {
     func getWKConfig() -> WKWebViewConfiguration {
         let blueColor = "#75C0FF"
         let whiteColor = "#fff"
-        let testColor = "#CC00FF"
-        
-        // tab style
-        let tabBGStyle = """
-                         var style = document.createElement('style');
-                         style.innerHTML = '.telebox-titlebar { background: \(blueColor); }';
-                         document.head.appendChild(style);
-                         """
-        
-        let tabTitleStyle = """
-                            var style = document.createElement('style');
-                            style.innerHTML = '.telebox-title { color: \(whiteColor); }';
-                            document.head.appendChild(style);
-                            """
-        
-        let footViewBGStyle = """
-                              var style = document.createElement('style');
-                              style.innerHTML = '.netless-app-docs-viewer-footer { background: \(blueColor); }';
-                              document.head.appendChild(style);
-                              """
-        
-        let footViewPageLabelStyle = """
-                                     var style = document.createElement('style');
-                                     style.innerHTML = '.netless-app-docs-viewer-page-number { color: \(whiteColor); }';
-                                     document.head.appendChild(style);
-                                     """
-        
-        let footViewPageButtonStyle = """
-                                      var style = document.createElement('style');
-                                      style.innerHTML = '.netless-window-manager-wrapper .telebox-title, .netless-window-manager-wrapper .netless-app-docs-viewer-footer { color: \(whiteColor); }';
-                                      document.head.appendChild(style);
-                                      """
-        let boardStyles = [tabBGStyle,
-                           tabTitleStyle,
-                           footViewBGStyle,
-                           footViewPageLabelStyle,
-                           footViewPageButtonStyle]
+
+        let boardStyles = """
+                          var style = document.createElement('style');
+                          style.innerHTML = `
+                          /* tab titlebar background color */
+                          .netless-window-manager-wrapper .telebox-titlebar {
+                            background: \(blueColor);
+                          }
+                          /* tab title text color */
+                          .netless-window-manager-wrapper .telebox-title {
+                            color: \(whiteColor);
+                          }
+                          /* tab titlebar minimize button color */
+                          .telebox-titlebar-icon-minimize {
+                            background-image: url("data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28"><path fill="\(whiteColor)" d="M9 13h10v1.6H9z"/></svg>')}")
+                          }
+                          /* tab titlebar maximize button color */
+                          .telebox-titlebar-icon-maximize {
+                            background-image: url("data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28"><path fill="\(whiteColor)" d="M20.481 17.1h1.2v4.581H17.1v-1.2h3.381V17.1zm-14.1905-.009h1.2v3.381h3.3809v1.2h-4.581v-4.581zM17.1 6.1905h4.581v4.5809h-1.2v-3.381H17.1v-1.2zm-10.7008.1087h4.7985v1.2H7.5992v3.5985h-1.2V6.2992z"/></svg>')}")
+                          }
+                          /* tab titlebar close button color */
+                          .telebox-titlebar-icon-close {
+                            background-image: url("data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28"><path stroke="\(whiteColor)" stroke-width="1.4" d="M8.353 20.3321L20.332 8.353M20.3322 20.3321L8.353 8.353"/></svg>')}")
+                          }
+                          /* foot view background color */
+                          .netless-window-manager-wrapper .netless-app-docs-viewer-footer,
+                          .netless-window-manager-wrapper .netless-app-slide-footer {
+                            background: \(blueColor);
+                          }
+                          /* foot view text color */
+                          .netless-window-manager-wrapper .netless-app-docs-viewer-page-number,
+                          .netless-window-manager-wrapper .netless-app-slide-page-number-input {
+                            color: \(whiteColor);
+                          }
+                          /* foot view number input text color */
+                          .netless-window-manager-wrapper .netless-app-docs-viewer-footer,
+                          .netless-window-manager-wrapper .netless-app-slide-footer {
+                            color: \(whiteColor);
+                          }
+                          `
+                          document.head.appendChild(style);
+                          """
         
         let wkConfig = WKWebViewConfiguration()
-#if arch(arm64)
+    #if arch(arm64)
         wkConfig.setValue("TRUE", forKey: "allowUniversalAccessFromFileURLs")
-#else
+    #else
         wkConfig.setValue("\(1)", forKey: "allowUniversalAccessFromFileURLs")
-#endif
+    #endif
         if #available(iOS 11.0, *),
            let handler = self.schemeHandler {
             wkConfig.setURLSchemeHandler(handler,
@@ -215,12 +220,10 @@ class AgoraWhiteboardWidgetDT {
         }
         
         let ucc = WKUserContentController()
-        for boardStyle in boardStyles {
-            let userScript = WKUserScript(source: boardStyle,
-                                          injectionTime: .atDocumentEnd,
-                                          forMainFrameOnly: true)
-            ucc.addUserScript(userScript)
-        }
+        let userScript = WKUserScript(source: boardStyles,
+                                      injectionTime: .atDocumentEnd,
+                                      forMainFrameOnly: true)
+        ucc.addUserScript(userScript)
         wkConfig.userContentController = ucc
         return wkConfig
     }
