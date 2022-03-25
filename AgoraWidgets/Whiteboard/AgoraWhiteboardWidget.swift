@@ -347,16 +347,7 @@ extension AgoraWhiteboardWidget {
         room.disableSerialization(false)
 
         // 暂时删除teacherFirstLogin字段判断
-//        self.onIfTeacherFirstLogin(state: state.globalState as? AgoraWhiteboardGlobalState)
-        if let globalState = state.globalState as? AgoraWhiteboardGlobalState {
-            dt.globalState = globalState
-        }
-        
-        if isTeacher {
-           dt.localGranted = true
-           onLocalGrantedChangedForBoardHandle(localGranted: true,
-                                               completion: nil)
-       }
+        self.onIfTeacherFirstLogin(state: state.globalState as? AgoraWhiteboardGlobalState)
         
         if let boxState = room.state.windowBoxState,
            let widgetState = boxState.toWidget(){
