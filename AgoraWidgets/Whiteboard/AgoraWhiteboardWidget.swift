@@ -86,7 +86,7 @@ struct InitCondition {
                 handleStepChange(changeType: changeType)
             case .ClearBoard:
                 // 清屏，保留ppt
-                room?.cleanScene(true)
+                room?.cleanScene(false)
             case .OpenCourseware(let courseware):
                 handleOpenCourseware(info: courseware)
             default:
@@ -436,7 +436,20 @@ extension AgoraWhiteboardWidget {
             }
         }
         
-        let studentCompletion: (() -> Void) = {
+        let studentCompletion: (() -> Void) = { [weak self] in
+            guard let `self` = self,
+            let `room` = self.room else {
+                return
+            }
+            var state = self.room?.globalState as? AgoraWhiteboardGlobalState
+            if state == nil {
+                state = AgoraWhiteboardGlobalState()
+            }
+            // 收回权限
+            state!.grantUsers.append(self.info.localUserInfo.userUuid)
+
+            room.setGlobalState(state!)
+            
             // 打开新课件
             if let list = self.dt.coursewareList {
                 for item in list {
