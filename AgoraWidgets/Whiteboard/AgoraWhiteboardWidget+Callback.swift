@@ -15,10 +15,6 @@ extension AgoraWhiteboardWidget: WhiteRoomCallbackDelegate {
             return
         }
         
-        if let memberState = modifyState.memberState {
-            return
-        }
-        
         if let boxState = modifyState.windowBoxState,
            let widgetState = boxState.toWidget(){
             sendMessage(signal: .WindowStateChanged(widgetState))
