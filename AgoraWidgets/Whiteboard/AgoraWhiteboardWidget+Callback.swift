@@ -9,6 +9,8 @@ import Whiteboard
 
 extension AgoraWhiteboardWidget: WhiteRoomCallbackDelegate {
     public func fireRoomStateChanged(_ modifyState: WhiteRoomState!) {
+        log(.info,
+            content: modifyState.description)
         guard let `room` = room else {
             return
         }
