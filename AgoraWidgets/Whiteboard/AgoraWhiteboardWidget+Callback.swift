@@ -30,12 +30,10 @@ extension AgoraWhiteboardWidget: WhiteRoomCallbackDelegate {
                 room.scalePpt(toFit: .continuous)
                 room.scaleIframeToFit()
             }
-            return
         }
         
         if let state = modifyState.globalState as? AgoraWhiteboardGlobalState {
             dt.globalState = state
-            return
         }
         
         if let sceneState = modifyState.sceneState {
@@ -64,14 +62,12 @@ extension AgoraWhiteboardWidget: WhiteRoomCallbackDelegate {
             dt.page = AgoraBoardPageInfo(index: sceneState.index,
                                          count: sceneState.scenes.count)
             ifUseLocalCameraConfig()
-            return
         }
         
         if let cameraState = modifyState.cameraState,
            dt.localGranted {
             // 如果本地被授权，则是本地自己设置的摄像机视角
             dt.localCameraConfigs[room.sceneState.scenePath] = cameraState.toWidget()
-            return
         }
     }
     
