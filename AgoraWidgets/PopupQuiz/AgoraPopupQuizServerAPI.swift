@@ -40,9 +40,13 @@ class AgoraPopupQuizServerAPI: NSObject {
         let url = host + "/edu/apps/\(appId)/v2/rooms/\(roomId)/widgets/popupQuizs/\(selectorId)/users/\(userId)"
         let parameters = ["selectedItems": answerList]
         
+        let header = ["x-agora-token" : token,
+                      "x-agora-uid" : userId]
+        
         let task = ArRequestTask(event: event,
                                  type: .http(.put, url: url),
                                  timeout: .medium,
+                                 header: header,
                                  parameters: parameters)
         
         armin.request(task: task,
