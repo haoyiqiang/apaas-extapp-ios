@@ -21,11 +21,10 @@ extension AgoraWhiteboardWidget: WhiteRoomCallbackDelegate {
         }
         
         // 老师离开
-        if let broadcastState = modifyState.broadcastState {
-            if broadcastState.broadcasterId == nil {
-                room.scalePpt(toFit: .continuous)
-                room.scaleIframeToFit()
-            }
+        if let broadcastState = modifyState.broadcastState,
+           broadcastState.broadcasterId == nil {
+            room.scalePpt(toFit: .continuous)
+            room.scaleIframeToFit()
         }
         
         if let state = modifyState.globalState as? AgoraWhiteboardGlobalState {
