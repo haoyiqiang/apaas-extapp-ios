@@ -83,7 +83,6 @@ struct AgoraWhiteboardExtraInfo : Convertable {
 }
 
 @objcMembers public class AgoraWhiteboardGlobalState: WhiteGlobalState {
-    var materialList: [AgoraWhiteBoardTask]?
     var currentSceneIndex: Int = 0
     var grantUsers = Array<String>()
     var teacherFirstLogin: Bool = false

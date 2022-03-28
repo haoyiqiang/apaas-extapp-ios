@@ -408,23 +408,21 @@ extension AgoraWhiteboardWidget {
     }
     
     func onIfTeacherFirstLogin(state: AgoraWhiteboardGlobalState?) {
-        guard let `room` = room else {
+        guard let `room` = room,
+              let `state` = state else {
             return
         }
+        dt.globalState = state
         
         let teacherCompletion: (() -> Void) = { [weak self] in
             guard let `self` = self else {
                 return
             }
-            let newState = AgoraWhiteboardGlobalState()
-            newState.materialList = self.dt.globalState.materialList
-            newState.currentSceneIndex = self.dt.globalState.currentSceneIndex
-            // 收回权限
-            newState.grantUsers = Array<String>()
-            // 设置globalState
-            newState.teacherFirstLogin = true
+
+            state.grantUsers = Array<String>()
+            state.teacherFirstLogin = true
             
-            room.setGlobalState(newState)
+            room.setGlobalState(state)
             
             // 关闭当前所有课件
             room.removeScenes("/")
@@ -437,18 +435,12 @@ extension AgoraWhiteboardWidget {
         }
         
         let studentCompletion: (() -> Void) = { [weak self] in
-            guard let `self` = self,
-            let `room` = self.room else {
-                return
-            }
-            var state = self.room?.globalState as? AgoraWhiteboardGlobalState
-            if state == nil {
-                state = AgoraWhiteboardGlobalState()
-            }
-            // 收回权限
-            state!.grantUsers.append(self.info.localUserInfo.userUuid)
-
-            room.setGlobalState(state!)
+            guard let `self` = self else {
+                      return
+                  }
+            state.grantUsers.append(self.info.localUserInfo.userUuid)
+            
+            room.setGlobalState(state)
             
             // 打开新课件
             if let list = self.dt.coursewareList {
@@ -457,10 +449,10 @@ extension AgoraWhiteboardWidget {
                 }
             }
             
-            self.sendMessage(signal: .BoardGrantDataChanged([self.info.localUserInfo.userUuid]))
+            self.sendMessage(signal: .BoardGrantDataChanged(state.grantUsers))
         }
         
-        if !dt.globalState.teacherFirstLogin {
+        if !state.teacherFirstLogin {
             dt.localGranted = true
             onLocalGrantedChangedForBoardHandle(localGranted: true,
                                                 completion: { [weak self] success in
@@ -470,15 +462,10 @@ extension AgoraWhiteboardWidget {
                                                     }
                                                     self.isTeacher ? teacherCompletion() : studentCompletion()
                                                 })
-        } else {
-            if let globalState = state {
-                dt.globalState = globalState
-            }
-            if isTeacher {
-               dt.localGranted = true
-               onLocalGrantedChangedForBoardHandle(localGranted: true,
-                                                   completion: nil)
-           }
+        } else if isTeacher {
+            dt.localGranted = true
+            onLocalGrantedChangedForBoardHandle(localGranted: true,
+                                                completion: nil)
         }
     }
 }

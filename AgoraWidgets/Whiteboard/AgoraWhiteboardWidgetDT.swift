@@ -122,12 +122,10 @@ class AgoraWhiteboardWidgetDT {
         }
     }
     
-    func makeGlobalState(materialList: [AgoraWhiteBoardTask]? = nil,
-                         currentSceneIndex: Int? = nil,
+    func makeGlobalState(currentSceneIndex: Int? = nil,
                          grantUsers: Array<String>? = nil,
                          teacherFirstLogin: Bool? = nil) -> AgoraWhiteboardGlobalState {
         let newState = AgoraWhiteboardGlobalState()
-        newState.materialList = materialList ?? globalState.materialList
         newState.currentSceneIndex = currentSceneIndex ?? globalState.currentSceneIndex
         newState.grantUsers = grantUsers ?? globalState.grantUsers
         newState.teacherFirstLogin = teacherFirstLogin ?? globalState.teacherFirstLogin
