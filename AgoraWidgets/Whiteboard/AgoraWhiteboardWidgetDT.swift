@@ -70,11 +70,12 @@ class AgoraWhiteboardWidgetDT {
             // 授权相关
             if localUserInfo.userRole != "teacher" {
                 // 若为学生，涉及localGranted
-                if globalState.grantUsers.contains(localUserInfo.userUuid),
-                   !localGranted {
-                    localGranted = true
-                    delegate?.onLocalGrantedChangedForBoardHandle(localGranted: true,
-                                                                  completion: nil)
+                if globalState.grantUsers.contains(localUserInfo.userUuid) {
+                    if !localGranted {
+                        localGranted = true
+                        delegate?.onLocalGrantedChangedForBoardHandle(localGranted: true,
+                                                                      completion: nil)
+                    }
                 } else if globalState.teacherFirstLogin {
                     localGranted = false
                     delegate?.onLocalGrantedChangedForBoardHandle(localGranted: false,
