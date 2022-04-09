@@ -19,7 +19,6 @@ fcr_rtm_im_mute_chat = "禁言";
 fcr_rtm_im_student = "学生";
 fcr_rtm_im_teacher = "老师";
 fcr_rtm_im_title = "聊天";
-fcr_rtm_im_no_message = "还没有消息";
 
 // Hyphenate
 fcr_hyphenate_im_send = "发送";

@@ -22,7 +22,7 @@ class AgoraRtmIMSendBar: UIView {
     
     private var infoLabel: UILabel!
     
-    private var emojiButton: UIButton!
+//    private var sendButton: UIButton!
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -75,13 +75,19 @@ private extension AgoraRtmIMSendBar {
         infoLabel.text = "fcr_rtm_im_input_placeholder".ag_localizedIn("AgoraWidgets")
         addSubview(infoLabel)
         
-        emojiButton = UIButton(type: .custom)
-        emojiButton.setImage(UIImage.ag_imageNamed("ic_rtm_keyboard_emoji",
-                                                   in: "AgoraWidgets"), for: .normal)
-        emojiButton.addTarget(self,
-                              action: #selector(onClickSendMessage),
-                              for: .touchUpInside)
-        addSubview(emojiButton)
+//        sendButton = UIButton(type: .custom)
+//        sendButton.setTitleColor(.white,
+//                                 for: .normal)
+//        sendButton.clipsToBounds = true
+//        sendButton.layer.cornerRadius = 15
+//        sendButton.setTitle("fcr_rtm_im_send".ag_localizedIn("AgoraWidgets"),
+//                            for: .normal)
+//        sendButton.titleLabel?.font = .systemFont(ofSize: 14)
+//        sendButton.backgroundColor = UIColor(hex: 0x357BF6)
+//        sendButton.addTarget(self,
+//                             action: #selector(onClickSendMessage),
+//                             for: .touchUpInside)
+//        addSubview(sendButton)
     }
     
     func createConstraint() {
@@ -89,13 +95,14 @@ private extension AgoraRtmIMSendBar {
             make?.left.right().top().equalTo()(0)
             make?.height.equalTo()(1)
         }
-        emojiButton.mas_makeConstraints { make in
-            make?.width.height().equalTo()(34)
-            make?.left.equalTo()(7)
-            make?.centerY.equalTo()(0)
-        }
+//        sendButton.mas_makeConstraints { make in
+//            make?.top.equalTo()(self)?.offset()(2)
+//            make?.bottom.equalTo()(self)?.offset()(-2)
+//            make?.width.equalTo()(80)
+//            make?.right.equalTo()(-2)
+//        }
         infoLabel.mas_makeConstraints { make in
-            make?.left.equalTo()(emojiButton.mas_right)?.offset()(2)
+            make?.centerX.equalTo()(0)
             make?.centerY.equalTo()(0)
         }
     }

@@ -19,7 +19,6 @@ fcr_rtm_im_mute_chat = "mute chat";
 fcr_rtm_im_student = "Student";
 fcr_rtm_im_teacher = "Teacher";
 fcr_rtm_im_title = "Chat";
-fcr_rtm_im_no_message = "No Message";
 
 // Hyphenate
 fcr_hyphenate_im_send = "Send";

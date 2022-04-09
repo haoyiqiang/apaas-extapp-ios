@@ -80,7 +80,7 @@ extension AgoraRtmIMMessageListView: UITableViewDelegate, UITableViewDataSource 
 // MARK: - Creations
 private extension AgoraRtmIMMessageListView {
     func createViews() {
-        emptyImage = UIImageView(image: UIImage.ag_imageNamed("fcr_rtm_im_no_message",
+        emptyImage = UIImageView(image: UIImage.ag_imageNamed("ic_rtm_no_message",
                                                               in: "AgoraWidgets"))
         addSubview(emptyImage)
         
@@ -117,7 +117,7 @@ private extension AgoraRtmIMMessageListView {
         }
         emptyLabel.mas_makeConstraints { make in
             make?.centerX.equalTo()(emptyImage)
-            make?.top.equalTo()(emptyImage.mas_bottom)?.offset()(3)
+            make?.top.equalTo()(emptyImage.mas_bottom)?.offset()(7)
         }
         tableView.mas_makeConstraints { make in
             make?.left.right().top().bottom().equalTo()(0)
