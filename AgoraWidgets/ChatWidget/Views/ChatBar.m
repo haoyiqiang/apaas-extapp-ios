@@ -40,6 +40,10 @@
     return self;
 }
 
+- (void)hideInputButton:(BOOL)hide {
+    self.inputButton.hidden = YES;
+}
+
 - (void)setupSubViews
 {
     self.backgroundColor = [UIColor colorWithRed:236/255.0 green:236/255.0 blue:241/255.0 alpha:1.0];

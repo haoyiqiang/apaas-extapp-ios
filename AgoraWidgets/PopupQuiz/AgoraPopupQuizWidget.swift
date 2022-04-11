@@ -91,6 +91,10 @@ import UIKit
             shouldStartTime()
         }
         
+        if message == "hideSubmit" {
+            contentView.button.isHidden = true
+        }
+        
         log(content: message,
             type: .info)
     }

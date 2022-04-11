@@ -123,6 +123,8 @@ static const NSString* kChatRoomId = @"chatroomId";
     } else if ([message isEqualToString:@"hideAnnouncement"]) {
         self.chatTopView.announcementButton.hidden = true;
         self.chatTopView.selLine.hidden = true;
+    } else if ([message isEqualToString:@"hideInput"]) {
+        self.chatView.chatBar.hidden = true;
     } else {
         NSData *data = [message dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data

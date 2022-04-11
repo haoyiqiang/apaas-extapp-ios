@@ -171,6 +171,11 @@ private extension AgoraRtmIMWidget {
                 make?.height.equalTo()(0)
             }
         }
+        
+        if let inputHidden = dict["hideInput"] as? Bool,
+           inputHidden == true {
+            sendBar.isHidden = true
+        }
     }
 }
 // MARK: - AgoraRtmIMInputViewDelegate

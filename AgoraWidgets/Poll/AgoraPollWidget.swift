@@ -119,6 +119,10 @@ import Armin
                                            logTube: self)
         }
         
+        if message == "hideSubmit" {
+            receiverView.submitButton.isHidden = true
+        }
+        
         log(content: message,
             type: .info)
     }

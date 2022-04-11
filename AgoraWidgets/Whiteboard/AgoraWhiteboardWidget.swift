@@ -197,6 +197,7 @@ extension AgoraWhiteboardWidget {
         }
         log(.info,
             content: "start join")
+        roomConfig.timeout = 10
         sdk.joinRoom(with: roomConfig,
                      callbacks: self) { [weak self] (success, room, error) in
             DispatchQueue.main.async {
