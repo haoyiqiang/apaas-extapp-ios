@@ -90,6 +90,8 @@ class AgoraWhiteboardWidgetDT {
     
     var reconnectTime: Int = 0
     
+    var isJoining: Bool = false
+    
     // from properties
     var localCameraConfigs = [String: AgoraWhiteBoardCameraConfig]()
 

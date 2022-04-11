@@ -95,7 +95,24 @@ extension AgoraWhiteboardWidget: WhiteRoomCallbackDelegate {
 extension AgoraWhiteboardWidget: WhiteCommonCallbackDelegate {
     public func throwError(_ error: Error) {
         log(.error,
-            content: "\(error.localizedDescription)")
+            content: "WhiteCommonCallbackDelegate: throwError \(error.localizedDescription)")
+        
+        // TODO: temperately add retry for netless unknown error while joining room
+        guard dt.isJoining else {
+            return
+        }
+        
+        DispatchQueue.main.async {
+            AgoraWidgetLoading.removeLoading(in: self.view)
+        }
+        
+        dt.isJoining = false
+        if  dt.reconnectTime < 100 {
+            dt.reconnectTime += 1
+            joinWhiteboard()
+        } else {
+            dt.reconnectTime = 0
+        }
     }
     
     public func logger(_ dict: [AnyHashable : Any]) {

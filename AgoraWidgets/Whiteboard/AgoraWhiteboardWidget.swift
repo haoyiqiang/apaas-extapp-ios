@@ -197,7 +197,7 @@ extension AgoraWhiteboardWidget {
         }
         log(.info,
             content: "start join")
-        roomConfig.timeout = 10
+        dt.isJoining = true
         sdk.joinRoom(with: roomConfig,
                      callbacks: self) { [weak self] (success, room, error) in
             DispatchQueue.main.async {
@@ -206,11 +206,12 @@ extension AgoraWhiteboardWidget {
             guard let `self` = self else {
                 return
             }
+            self.dt.isJoining = false
             guard success, error == nil ,
                   let whiteRoom = room else {
                 self.log(.error,
                          content: "join room error :\(error?.localizedDescription)")
-                self.dt.reconnectTime += 2
+                self.dt.reconnectTime += 1
                 self.sendMessage(signal: .BoardPhaseChanged(.Disconnected))
                 return
             }
