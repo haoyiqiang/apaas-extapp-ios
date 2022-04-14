@@ -16,3 +16,4 @@ git push originGithub --tags
 
 pod spec lint ${SDK_Name}.podspec --allow-warnings --verbose
 pod trunk push ${SDK_Name}.podspec --allow-warnings --verbose
+pod trunk info ${SDK_Name}
