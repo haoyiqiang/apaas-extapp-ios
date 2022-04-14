@@ -186,7 +186,19 @@ extension AgoraWhiteboardWidget {
     }
     
     func joinWhiteboard() {
-        let ratio = view.bounds.height / view.bounds.width
+        view.superview?.layoutIfNeeded()
+        
+        let width = view.bounds.width
+        let height = view.bounds.height 
+        
+        var ratio: CGFloat
+        
+        if width < 1 || height < 1 {
+            ratio = (16.0 / 9.0)
+        } else {
+            ratio = height / width
+        }
+        
         guard let sdk = whiteSDK,
               let roomConfig = dt.getWhiteRoomConfigToJoin(ratio: ratio) else {
             return
