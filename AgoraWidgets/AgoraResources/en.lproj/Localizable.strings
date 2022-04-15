@@ -77,3 +77,6 @@ fcr_poll_input_option = "Please input option";
 
 // countdown
 fcr_countdown_timer_title = "Countdown";
+
+// netless
+fcr_netless_loading = "Loading";

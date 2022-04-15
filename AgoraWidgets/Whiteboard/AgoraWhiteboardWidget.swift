@@ -193,7 +193,9 @@ extension AgoraWhiteboardWidget {
         }
         
         DispatchQueue.main.async {
-            AgoraWidgetLoading.addLoading(in: self.view)
+            AgoraWidgetLoading.addLoading(in: self.view,
+                                          msg: GetWidgetLocalizableString(object: self,
+                                                                          key: "fcr_netless_loading"))
         }
         log(.info,
             content: "start join")

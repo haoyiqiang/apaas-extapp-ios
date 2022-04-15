@@ -77,3 +77,6 @@ fcr_poll_input_option = "请输入选项";
 
 // Countdown
 fcr_countdown_timer_title = "倒计时";
+
+// netless
+fcr_netless_loading = "加载中";
