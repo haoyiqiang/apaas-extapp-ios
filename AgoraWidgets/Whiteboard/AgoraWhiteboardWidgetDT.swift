@@ -124,20 +124,15 @@ class AgoraWhiteboardWidgetDT {
     }
     
     func setUpGrantedUsers() {
-        guard localUserInfo.userRole != "teacher" else {
-            return
-        }
-        if let grant = propsExtra?.grantedUsers {
-            // 若为学生，涉及localGranted
-            if grant.contains {$0.key == localUserInfo.userUuid} {
-                localGranted = true
-            } else {
-                localGranted = false
-            }
-            grantedUsers = grant.map({return $0.key})
-        } else {
-            localGranted = false
-        }
+        grantedUsers = propsExtra?.grantedUsers?.map({return $0.key}) ?? [String]()
+        
+        if localUserInfo.userRole != "teacher",
+           let grant = propsExtra?.grantedUsers,
+           grant.contains {$0.key == localUserInfo.userUuid} {
+               localGranted = true
+           } else {
+               localGranted = false
+           }
     }
     
     func updateMemberState(state: AgoraBoardMemberState) {
