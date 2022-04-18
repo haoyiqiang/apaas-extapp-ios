@@ -153,28 +153,32 @@ extension AgoraWhiteboardWidget: AGBoardWidgetDTDelegate {
             content: "local granted: \(localGranted)")
         
         self.room?.setViewMode(localGranted ? .freedom : .broadcaster)
-        
+        guard let _ = room else {
+            return
+        }
+        dt.isSettingWritable = true
         room?.setWritable(localGranted,
                           completionHandler: {[weak self] isWritable, error in
-                            guard let `self` = self else {
-                                return
-                            }
-                            if let error = error {
-                                self.log(.error,
-                                         content: "setWritable error: \(error.localizedDescription)")
-                                completion?(false)
-                            } else {
-                                self.room?.disableCameraTransform(!isWritable)
-                                self.ifUseLocalCameraConfig()
-                                self.room?.disableDeviceInputs(!localGranted)
-                                if !self.initMemberStateFlag,
-                                   isWritable {
-                                    self.room?.setMemberState(self.dt.baseMemberState)
-                                    self.initMemberStateFlag = true
-                                }
-                                completion?(isWritable)
-                            }
-                          })
+            guard let `self` = self else {
+                return
+            }
+            self.dt.isSettingWritable = false
+            if let error = error {
+                self.log(.error,
+                         content: "setWritable error: \(error.localizedDescription)")
+                completion?(false)
+            } else {
+                self.room?.disableCameraTransform(!isWritable)
+                self.ifUseLocalCameraConfig()
+                self.room?.disableDeviceInputs(!localGranted)
+                if !self.initMemberStateFlag,
+                   isWritable {
+                    self.room?.setMemberState(self.dt.baseMemberState)
+                    self.initMemberStateFlag = true
+                }
+                completion?(isWritable)
+            }
+        })
     }
     
     func onOpenPublicCoursewares(list: Array<AgoraBoardCoursewareInfo>) {
@@ -182,7 +186,7 @@ extension AgoraWhiteboardWidget: AGBoardWidgetDTDelegate {
             self.handleOpenCourseware(info: item)
         }
     }
-
+    
     func onPageIndexChanged(index: Int) {
         log(.info,
             content: "page index changed: \(index)")

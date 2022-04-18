@@ -73,13 +73,17 @@ class AgoraWhiteboardWidgetDT {
     
     var isJoining: Bool = false
     
+    var isSettingWritable = false
+    
     // from properties
     var localCameraConfigs = [String: AgoraWhiteBoardCameraConfig]()
 
     var localGranted: Bool = false {
         didSet {
-            delegate?.onLocalGrantedChangedForBoardHandle(localGranted: localGranted,
-                                                          completion: nil)
+            if !isSettingWritable {
+                delegate?.onLocalGrantedChangedForBoardHandle(localGranted: localGranted,
+                                                              completion: nil)
+            }
         }
     }
     
