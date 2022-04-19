@@ -80,8 +80,8 @@ struct InitCondition {
                 handleMemberState(state: agoraWhiteboardMemberState)
             case .AudioMixingStateChanged(let agoraBoardAudioMixingData):
                 handleAudioMixing(data: agoraBoardAudioMixingData)
-            case .BoardGrantDataChanged(let list):
-                handleBoardGrant(list:list)
+            case .UpdateGrantedUsers(let type):
+                handleBoardGrant(type: type)
             case .BoardPageChanged(let changeType):
                 handlePageChange(changeType: changeType)
             case .BoardStepChanged(let changeType):
@@ -299,21 +299,42 @@ extension AgoraWhiteboardWidget {
                                             errorCode: data.errorCode)
     }
     
-    func handleBoardGrant(list: Array<String>?) {
-        var granedtUsers = [String: Bool]()
-        if let uidList = list {
-            for id in uidList {
-                granedtUsers[id] = true
+    func handleBoardGrant(type: AgoraBoardGrantUsersChangeType) {
+        let key = "grantedUsers"
+        
+        switch type {
+        case .add(let array):
+            guard array.count > 0 else {
+                return
+            }
+            var granedtUsers = [String: Bool]()
+            for id in array {
+                let key = "\(key).\(id)"
+                granedtUsers[key] = true
+            }
+            updateRoomProperties(granedtUsers,
+                                 cause: nil) { [weak self] in
+                self?.log(.info,
+                          content: "add granted users: \(granedtUsers)")
+            } failure: { [weak self] (error) in
+                self?.log(.error,
+                          content: "add granted users: \(granedtUsers)")
+            }
+        case .delete(let array):
+            guard array.count > 0 else {
+                return
+            }
+            var keyPaths = [String]()
+            for id in array {
+                keyPaths.append("\(key).\(id)")
+            }
+            deleteRoomProperties(keyPaths,
+                                 cause: nil) { [weak self] in
+                self?.log(.info,
+                          content: "delete granted users: \(keyPaths)")
             }
         }
-        updateRoomProperties(["grantedUsers": granedtUsers],
-                             cause: nil) { [weak self] in
-            self?.log(.info,
-                      content: "granted users: \(list ?? [])")
-        } failure: { [weak self] (error) in
-            self?.log(.error,
-                      content: "granted users: \(list ?? [])")
-        }
+
     }
     
     func handlePageChange(changeType: AgoraBoardPageChangeType) {

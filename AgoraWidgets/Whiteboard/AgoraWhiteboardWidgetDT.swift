@@ -126,8 +126,10 @@ class AgoraWhiteboardWidgetDT {
     func setUpGrantedUsers() {
         grantedUsers = propsExtra?.grantedUsers?.map({return $0.key}) ?? [String]()
         
-        if localUserInfo.userRole != "teacher",
-           let grant = propsExtra?.grantedUsers,
+        guard localUserInfo.userRole != "teacher" else {
+            return
+        }
+        if let grant = propsExtra?.grantedUsers,
            grant.contains {$0.key == localUserInfo.userUuid} {
                localGranted = true
            } else {

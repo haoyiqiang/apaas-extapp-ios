@@ -144,7 +144,7 @@ extension AgoraWhiteboardWidget: AGBoardWidgetDTDelegate {
     func onGrantedUsersChanged(grantedUsers: [String]) {
         log(.info,
             content: "granted users changed: \(grantedUsers)")
-        sendMessage(signal: .BoardGrantDataChanged(grantedUsers))
+        sendMessage(signal: .GetBoardGrantedUsers(grantedUsers))
     }
     
     func onLocalGrantedChangedForBoardHandle(localGranted: Bool,

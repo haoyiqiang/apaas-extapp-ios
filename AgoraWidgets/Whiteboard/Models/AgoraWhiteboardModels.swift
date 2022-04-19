@@ -13,7 +13,8 @@ enum AgoraBoardInteractionSignal: Convertable {
     case JoinBoard
     case BoardPhaseChanged(AgoraBoardRoomPhase)
     case MemberStateChanged(AgoraBoardMemberState)
-    case BoardGrantDataChanged(Array<String>?)
+    case GetBoardGrantedUsers([String])
+    case UpdateGrantedUsers(AgoraBoardGrantUsersChangeType)
     case AudioMixingStateChanged(AgoraBoardAudioMixingData)
     case BoardAudioMixingRequest(AgoraBoardAudioMixingRequestData)
     case BoardPageChanged(AgoraBoardPageChangeType)
@@ -21,12 +22,14 @@ enum AgoraBoardInteractionSignal: Convertable {
     case ClearBoard
     case OpenCourseware(AgoraBoardCoursewareInfo)
     case WindowStateChanged(AgoraBoardWindowState)
+    case CloseBoard
     
     private enum CodingKeys: CodingKey {
         case JoinBoard
         case BoardPhaseChanged
         case MemberStateChanged
-        case BoardGrantDataChanged
+        case GetBoardGrantedUsers
+        case UpdateGrantedUsers
         case AudioMixingStateChanged
         case BoardAudioMixingRequest
         case BoardPageChanged
@@ -34,6 +37,7 @@ enum AgoraBoardInteractionSignal: Convertable {
         case ClearBoard
         case OpenCourseware
         case WindowStateChanged
+        case CloseBoard
     }
     
     init(from decoder: Decoder) throws {
@@ -50,9 +54,12 @@ enum AgoraBoardInteractionSignal: Convertable {
         } else if let value = try? container.decode(AgoraBoardAudioMixingData.self,
                                                     forKey: .AudioMixingStateChanged) {
             self = .AudioMixingStateChanged(value)
-        } else if let value = try? container.decode(Array<String>?.self,
-                                                    forKey: .BoardGrantDataChanged) {
-            self = .BoardGrantDataChanged(value)
+        } else if let value = try? container.decode([String].self,
+                                                    forKey: .GetBoardGrantedUsers) {
+            self = .GetBoardGrantedUsers(value)
+        } else if let value = try? container.decode(AgoraBoardGrantUsersChangeType.self,
+                                                    forKey: .UpdateGrantedUsers) {
+            self = .UpdateGrantedUsers(value)
         } else if let value = try? container.decode(AgoraBoardPageChangeType.self,
                                                     forKey: .BoardPageChanged) {
             self = .BoardPageChanged(value)
@@ -67,6 +74,8 @@ enum AgoraBoardInteractionSignal: Convertable {
         } else if let value = try? container.decode(AgoraBoardWindowState.self,
                                                     forKey: .WindowStateChanged) {
             self = .WindowStateChanged(value)
+        } else if let _ = try? container.decodeNil(forKey: .CloseBoard) {
+            self = .CloseBoard
         } else {
             throw DecodingError.dataCorrupted(
                 .init(
@@ -89,9 +98,12 @@ enum AgoraBoardInteractionSignal: Convertable {
         case .MemberStateChanged(let x):
             try container.encode(x,
                                  forKey: .MemberStateChanged)
-        case .BoardGrantDataChanged(let x):
+        case .GetBoardGrantedUsers(let x):
             try container.encode(x,
-                                 forKey: .BoardGrantDataChanged)
+                                 forKey: .GetBoardGrantedUsers)
+        case .UpdateGrantedUsers(let x):
+            try container.encode(x,
+                                 forKey: .UpdateGrantedUsers)
         case .AudioMixingStateChanged(let x):
             try container.encode(x,
                                  forKey: .AudioMixingStateChanged)
@@ -112,7 +124,9 @@ enum AgoraBoardInteractionSignal: Convertable {
         case .WindowStateChanged(let x):
             try container.encode(x,
                                  forKey: .WindowStateChanged)
-    }
+        case .CloseBoard:
+            try container.encodeNil(forKey: .CloseBoard)
+        }
     }
     
     func toMessageString() -> String? {
@@ -239,6 +253,44 @@ enum AgoraBoardPageChangeType: Convertable {
             try container.encode(value, forKey: .index)
         case .count(let value):
             try container.encode(value, forKey: .count)
+        }
+    }
+}
+
+// grant
+enum AgoraBoardGrantUsersChangeType: Convertable {
+    case add([String])
+    case delete([String])
+    
+    private enum CodingKeys: CodingKey {
+        case add
+        case delete
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let x = try? container.decode([String].self,
+                                         forKey: .add) {
+            self = .add(x)
+        } else if let x = try? container.decode([String].self,
+                                                forKey: .delete) {
+            self = .delete(x)
+        } else {
+            throw DecodingError.typeMismatch(AgoraBoardStepChangeType.self,
+                                             DecodingError.Context(codingPath: decoder.codingPath,
+                                                                   debugDescription: "Wrong type for AgoraBoardGrantUsersChangeType"))
+        }
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .add(let x):
+            try container.encode(x,
+                                 forKey: .add)
+        case .delete(let x):
+            try container.encode(x,
+                                 forKey: .delete)
         }
     }
 }
