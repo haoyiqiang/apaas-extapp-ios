@@ -50,7 +50,7 @@ private extension AgoraStreamWindowWidget {
     func initData() {
         let streamId = String(info.widgetId.split(separator: "-")[1])
         
-        guard let propsDic = info.roomProperties as? Dictionary<String, String>,
+        guard let propsDic = info.roomProperties as? Dictionary<String, Any>,
               let info = AgoraStreamWindowExtraInfo.decode(propsDic),
               streamId != "" else {
             return

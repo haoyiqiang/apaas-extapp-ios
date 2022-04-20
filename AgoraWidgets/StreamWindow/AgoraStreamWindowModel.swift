@@ -55,5 +55,12 @@ struct AgoraStreamWindowRenderInfo: Convertable {
 }
 
 struct AgoraStreamWindowExtraInfo : Convertable {
+    // 组件是否为全屏状态
+    var contain: Bool
+    // 该大窗的用户id
     var userUuid: String
+    // 组件纵向层级
+    var zIndex: Int
+    // 操作者的用户id
+    var `operator`: String
 }
