@@ -39,7 +39,7 @@ import UIKit
     }
     
     // Origin Data
-    private var baseInfo: AgoraAppBaseInfo?
+    private var baseInfo: AgoraWidgetRequestKeys?
     
     private var roomData: AgoraPopupQuizRoomPropertiesData?
     private var userData: AgoraPopupQuizUserPropertiesData?
@@ -80,7 +80,7 @@ import UIKit
     public override func onMessageReceived(_ message: String) {
         super.onMessageReceived(message)
         
-        if let info = message.toAppBaseInfo() {
+        if let info = message.toRequestKeys() {
             baseInfo = info
             initServerAPI()
         }

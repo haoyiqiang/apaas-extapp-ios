@@ -17,7 +17,7 @@ import Armin
     // Origin Data
     private var roomData: AgoraPollRoomPropertiesData?
     private var userData: AgoraPollUserPropertiesData?
-    private var baseInfo: AgoraAppBaseInfo?
+    private var baseInfo: AgoraWidgetRequestKeys?
     
     // View Data
     private var state: AgoraPollViewState = .unselected {
@@ -112,7 +112,7 @@ import Armin
     public override func onMessageReceived(_ message: String) {
         super.onMessageReceived(message)
         
-        if let baseInfo = message.toAppBaseInfo() {
+        if let baseInfo = message.toRequestKeys() {
             serverAPI = AgoraPollServerAPI(baseInfo: baseInfo,
                                            roomId: info.roomInfo.roomUuid,
                                            uid: info.localUserInfo.userUuid,

@@ -35,7 +35,7 @@ import Darwin
         log(content: "onMessageReceived:\(message)",
             type: .info)
         
-        if let baseInfo = message.toAppBaseInfo() {
+        if let baseInfo = message.toRequestKeys() {
             serverApi = AgoraCloudServerAPI(baseInfo: baseInfo,
                                             uid: info.localUserInfo.userUuid)
             // init private data

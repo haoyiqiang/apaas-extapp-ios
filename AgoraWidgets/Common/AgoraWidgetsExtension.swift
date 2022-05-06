@@ -8,7 +8,7 @@
 import CommonCrypto
 import Foundation
 
-struct AgoraAppBaseInfo {
+struct AgoraWidgetRequestKeys {
     let agoraAppId: String
     let token: String
     let host: String
@@ -95,15 +95,15 @@ extension String {
         return arr
     }
     
-    func toAppBaseInfo() -> AgoraAppBaseInfo? {
+    func toRequestKeys() -> AgoraWidgetRequestKeys? {
         guard let dic = self.toDic(),
               let baseInfoDic = dic["keys"] as? [String: String],
               let appId = baseInfoDic["agoraAppId"] as? String,
               let token = baseInfoDic["token"] as? String,
               let host = baseInfoDic["host"] as? String else {
-                  return nil
-              }
-        return AgoraAppBaseInfo(agoraAppId: appId,
+            return nil
+        }
+        return AgoraWidgetRequestKeys(agoraAppId: appId,
                                 token: token,
                                 host: host)
     }

@@ -14,11 +14,11 @@ class AgoraPollServerAPI: NSObject {
     
     private var armin: Armin
     
-    private let baseInfo: AgoraAppBaseInfo
+    private let baseInfo: AgoraWidgetRequestKeys
     private let roomId: String
     private let uid: String
     
-    init(baseInfo: AgoraAppBaseInfo,
+    init(baseInfo: AgoraWidgetRequestKeys,
          roomId: String,
          uid: String,
          logTube: ArLogTube) {

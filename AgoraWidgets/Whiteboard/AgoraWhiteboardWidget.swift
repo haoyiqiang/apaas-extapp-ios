@@ -9,6 +9,7 @@ import AgoraWidget
 import Whiteboard
 import AgoraLog
 import Masonry
+import Armin
 
 struct InitCondition {
     var configComplete = false
@@ -39,6 +40,8 @@ struct InitCondition {
             }
         }
     }
+    
+    private var serverAPI: AgoraWhiteBoardServerAPI?
     
     // MARK: - AgoraBaseWidget
     public override init(widgetInfo: AgoraWidgetInfo) {
@@ -71,6 +74,10 @@ struct InitCondition {
     public override func onMessageReceived(_ message: String) {
         log(.info,
             content: "onMessageReceived:\(message)")
+        
+        if let keys = message.toRequestKeys() {
+            initServerAPI(keys: keys)
+        }
         
         if let signal = message.toBoardSignal() {
             switch signal {
@@ -202,6 +209,9 @@ extension AgoraWhiteboardWidget {
             ratio = height / width
         }
         
+        log(.info,
+            content: "ratio: \(ratio)")
+        
         guard let sdk = whiteSDK,
               let roomConfig = dt.getWhiteRoomConfigToJoin(ratio: ratio) else {
             return
@@ -238,6 +248,8 @@ extension AgoraWhiteboardWidget {
             
             self.dt.reconnectTime = 0
             self.initCondition.needJoin = false
+            
+            self.ifNeedSetWindowAttributes()
         }
     }
     
@@ -460,5 +472,52 @@ extension AgoraWhiteboardWidget {
             // 如果本地被授权，则是本地自己设置的摄像机视角
             dt.localCameraConfigs[room.sceneState.scenePath] = cameraState.toWidget()
         }
+    }
+    
+    
+    func initServerAPI(keys: AgoraWidgetRequestKeys) {
+        serverAPI = AgoraWhiteBoardServerAPI(host: keys.host,
+                                             appId: keys.agoraAppId,
+                                             token: keys.token,
+                                             roomId: info.roomInfo.roomUuid,
+                                             userId: info.localUserInfo.userUuid,
+                                             logTube: self)
+    }
+    
+    func ifNeedSetWindowAttributes() {
+        guard let `serverAPI` = serverAPI,
+              let `room` = room,
+              let userProperties = info.localUserProperties,
+              let isNeedSet = userProperties["initial"] as? Bool,
+              isNeedSet == true else {
+            return
+        }
+        
+        serverAPI.getWindowAttributes { [weak self, weak room] (json) in
+            room?.setWindowManagerWithAttributes(json)
+        }
+    }
+}
+
+extension AgoraWhiteboardWidget: ArLogTube {
+    public func log(info: String,
+                    extra: String?) {
+        log(content: info,
+            extra: extra,
+            type: .info)
+    }
+    
+    public func log(warning: String,
+                    extra: String?) {
+        log(content: warning,
+            extra: extra,
+            type: .info)
+    }
+    
+    public func log(error: ArError,
+                    extra: String?) {
+        log(content: error.localizedDescription,
+            extra: extra,
+            type: .info)
     }
 }

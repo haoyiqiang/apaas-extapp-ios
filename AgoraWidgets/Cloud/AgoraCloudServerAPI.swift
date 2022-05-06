@@ -13,7 +13,7 @@ class AgoraCloudServerAPI: NSObject {
     
     private var armin: Armin!
     
-    private let baseInfo: AgoraAppBaseInfo
+    private let baseInfo: AgoraWidgetRequestKeys
     private let uid: String
     
     private var currentRequesting: Bool = false
@@ -32,7 +32,7 @@ class AgoraCloudServerAPI: NSObject {
         return path
     }()
     
-    init(baseInfo: AgoraAppBaseInfo,
+    init(baseInfo: AgoraWidgetRequestKeys,
          uid: String) {
         self.baseInfo = baseInfo
         self.uid = uid
