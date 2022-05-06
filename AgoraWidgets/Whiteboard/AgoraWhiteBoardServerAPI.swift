@@ -11,7 +11,12 @@ import Armin
 class AgoraWhiteBoardServerAPI: AgoraWidgetServerAPI {
     func getWindowAttributes(success: JsonCompletion? = nil,
                              failure: FailureCompletion? = nil) {
-        let event = ArRequestEvent(name: "pop-up-quiz-submit")
+        guard let roomId = roomId.split(separator: "-").first else {
+            failure?(NSError(domain: "roomId error: \(roomId)",
+                             code: -1))
+            return
+        }
+        
         let url = host + "/edu/apps/\(appId)/v2/rooms/\(roomId)/widgets/netlessBoard/windowManager"
         
         let header = ["x-agora-token": token,
@@ -22,7 +27,14 @@ class AgoraWhiteBoardServerAPI: AgoraWidgetServerAPI {
                 method: .get,
                 header: header,
                 isRetry: true) { (json) in
-            success?(json)
+            guard let data = json["data"] as? [String: Any] else {
+                failure?(NSError(domain: "data nil",
+                                 code: -1,
+                                 userInfo: nil))
+                return
+            }
+            
+            success?(data)
         } failure: { (error) in
             failure?(error)
         }
