@@ -120,6 +120,8 @@
 @property (nonatomic, strong) NSMutableArray<NSString*>* msgsToDel;
 // 图片放大
 @property (nonatomic,strong) UIImageView* fullImageView;
+// 全员禁言按钮
+@property (nonatomic,strong) UIButton* muteAllButton;
 @end
 
 @implementation ChatView
@@ -132,6 +134,13 @@
         [self setupSubViews];
     }
     return self;
+}
+
+- (void)dealloc
+{
+    if(self.chatManager.user.role == 1) {
+        [self.chatManager removeObserver:self forKeyPath:@"isAllMuted"];
+    }
 }
 
 - (void)setupSubViews
@@ -160,7 +169,7 @@
     
     self.chatBar = [[ChatBar alloc] init];
     self.chatBar.delegate = self;
-    self.chatBar.layer.cornerRadius = 4;
+    self.chatBar.layer.cornerRadius = 15;
     [self addSubview:self.chatBar];
     [self bringSubviewToFront:self.chatBar];
     [self sendSubviewToBack:self.tableView];
@@ -170,8 +179,10 @@
             make.bottom.equalTo(self).offset(-40);
     }];
     [self.chatBar mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.left.width.equalTo(self);
-        make.height.equalTo(@40);
+        make.left.equalTo(self).offset(10);
+        make.bottom.equalTo(self).offset(-5);
+        make.right.equalTo(self).offset(-10);
+        make.height.equalTo(@30);
     }];
 }
 
@@ -282,6 +293,56 @@
         _msgsToDel = [NSMutableArray<NSString*> array];
     }
     return _msgsToDel;
+}
+
+- (UIButton*)muteAllButton
+{
+    if(!_muteAllButton) {
+        _muteAllButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        _muteAllButton.layer.cornerRadius = 15;
+        _muteAllButton.layer.borderWidth = 1;
+        _muteAllButton.imageEdgeInsets = UIEdgeInsetsMake(3, 3, 3, 3);
+        _muteAllButton.contentMode = UIViewContentModeScaleAspectFit;
+        _muteAllButton.layer.borderColor = [UIColor colorWithRed:236/255.0 green:236/255.0 blue:241/255.0 alpha:1.0].CGColor;
+        _muteAllButton.backgroundColor = [UIColor colorWithRed:249/255.0 green:249/255.0 blue:252/255.0 alpha:1.0];
+        [_muteAllButton setImage:[UIImage ag_image:@"icon_mute"] forState:UIControlStateNormal];
+        [_muteAllButton setImage:[UIImage ag_image:@"icon_unmute"] forState:UIControlStateSelected];
+        [_muteAllButton addTarget:self action:@selector(muteAction) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _muteAllButton;
+}
+
+- (void)muteAction
+{
+    [self.chatManager muteAllMembers:!self.muteAllButton.isSelected
+    ];
+}
+
+- (void)setChatManager:(ChatManager *)chatManager
+{
+    _chatManager = chatManager;
+    if(_chatManager.userConfig.role != 2){
+        // 老师
+        [self addSubview:self.muteAllButton];
+        [self.chatBar mas_updateConstraints:^(MASConstraintMaker *make) {
+            make.right.equalTo(self).offset(-50);
+        }];
+        [self.muteAllButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.width.height.equalTo(@30);
+            make.centerY.equalTo(self.chatBar);
+            make.right.equalTo(self).offset(-10);
+        }];
+        [_chatManager addObserver:self forKeyPath:@"isAllMuted" options:NSKeyValueObservingOptionNew context:nil];
+    }
+    
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
+                        change:(NSDictionary *)change context:(void *)context {
+    if (object == self.chatManager) {
+        self.muteAllButton.selected = self.chatManager.isAllMuted;
+        return;
+    }
 }
 
 #pragma mark - UITableViewDelegate

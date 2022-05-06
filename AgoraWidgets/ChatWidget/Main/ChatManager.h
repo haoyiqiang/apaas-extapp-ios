@@ -55,6 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)updateAvatar:(NSString*)avatarUrl;
 // 更新昵称
 - (void)updateNickName:(NSString*)nickName;
+// 全员禁言
+- (void)muteAllMembers:(BOOL)muteAll;
 @property (nonatomic) BOOL isAllMuted;
 @property (nonatomic) BOOL isMuted;
 @property (nonatomic,strong) ChatUserConfig* user;
