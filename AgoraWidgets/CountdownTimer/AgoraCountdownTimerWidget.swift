@@ -74,10 +74,12 @@ import Masonry
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
                                                        cause: [String : Any]?,
-                                                       keyPaths: [String]) {
+                                                       keyPaths: [String],
+                                                       operatorUser: AgoraWidgetUserInfo?) {
         super.onWidgetRoomPropertiesUpdated(properties,
                                             cause: cause,
-                                            keyPaths: keyPaths)
+                                            keyPaths: keyPaths,
+                                            operatorUser: operatorUser)
         updateRoomData()
         updateViewData()
         shouldStartTime()

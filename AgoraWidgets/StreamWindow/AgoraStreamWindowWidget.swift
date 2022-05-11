@@ -32,7 +32,8 @@ import AgoraWidget
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
                                                        cause: [String : Any]?,
-                                                       keyPaths: [String]) {
+                                                       keyPaths: [String],
+                                                       operatorUser: AgoraWidgetUserInfo?) {
         guard renderInfo == nil else {
             return
         }

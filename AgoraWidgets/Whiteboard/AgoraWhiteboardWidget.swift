@@ -106,7 +106,8 @@ struct InitCondition {
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
                                                        cause: [String : Any]?,
-                                                       keyPaths: [String]) {
+                                                       keyPaths: [String],
+                                                       operatorUser: AgoraWidgetUserInfo?) {
         guard let wbProperties = properties.toObj(AgoraWhiteboardPropExtra.self) else {
             return
         }
@@ -117,7 +118,8 @@ struct InitCondition {
     
     public override func onWidgetRoomPropertiesDeleted(_ properties: [String : Any]?,
                                                        cause: [String : Any]?,
-                                                       keyPaths: [String]) {
+                                                       keyPaths: [String],
+                                                       operatorUser: AgoraWidgetUserInfo?) {
         log(.info,
             content: "onWidgetRoomPropertiesDeleted:\(keyPaths)")
         guard let wbProperties = properties?.toObj(AgoraWhiteboardPropExtra.self) else {

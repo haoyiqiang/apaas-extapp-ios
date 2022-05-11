@@ -101,10 +101,12 @@ import UIKit
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
                                                        cause: [String : Any]?,
-                                                       keyPaths: [String]) {
+                                                       keyPaths: [String],
+                                                       operatorUser: AgoraWidgetUserInfo?) {
         super.onWidgetRoomPropertiesUpdated(properties,
                                             cause: cause,
-                                            keyPaths: keyPaths)
+                                            keyPaths: keyPaths,
+                                            operatorUser: operatorUser)
         updateRoomData()
         updateViewData()
         updateViewFrame()
@@ -117,10 +119,12 @@ import UIKit
     
     public override func onWidgetUserPropertiesUpdated(_ properties: [String : Any],
                                                        cause: [String : Any]?,
-                                                       keyPaths: [String]) {
+                                                       keyPaths: [String],
+                                                       operatorUser: AgoraWidgetUserInfo?) {
         super.onWidgetUserPropertiesUpdated(properties,
                                             cause: cause,
-                                            keyPaths: keyPaths)
+                                            keyPaths: keyPaths,
+                                            operatorUser: operatorUser)
         
         updateUserData()
         
