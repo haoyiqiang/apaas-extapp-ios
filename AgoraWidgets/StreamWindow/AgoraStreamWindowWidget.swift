@@ -34,10 +34,11 @@ import AgoraWidget
                                                        cause: [String : Any]?,
                                                        keyPaths: [String],
                                                        operatorUser: AgoraWidgetUserInfo?) {
-        guard renderInfo == nil else {
-            return
+        if renderInfo == nil {
+            initData()
+        } else {
+            updateExtra(properties: properties)
         }
-        initData()
     }
 }
 
@@ -58,11 +59,19 @@ private extension AgoraStreamWindowWidget {
         }
         
         let renderInfo = AgoraStreamWindowRenderInfo(userUuid: info.userUuid,
-                                                     streamId: streamId)
+                                                     streamId: streamId,
+                                                     zIndex: info.zIndex)
         self.renderInfo = renderInfo
         log(content: "[StreamWindow Widget]:send render info",
             extra: "userUuid:\(info.userUuid),streamId:\(streamId)",
             type: .info)
         sendMessage(.RenderInfo(renderInfo))
+    }
+    
+    func updateExtra(properties: [String : Any]) {
+        guard let index = properties["zIndex"] as? Int else {
+            return
+        }
+        sendMessage(.ViewZIndex(index))
     }
 }

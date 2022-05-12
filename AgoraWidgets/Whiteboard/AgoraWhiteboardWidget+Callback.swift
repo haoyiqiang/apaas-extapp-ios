@@ -152,7 +152,7 @@ extension AgoraWhiteboardWidget: AGBoardWidgetDTDelegate {
         log(.info,
             content: "local granted: \(localGranted)")
         
-        self.room?.setViewMode(localGranted ? .freedom : .broadcaster)
+        self.room?.setViewMode(.broadcaster)
         guard let _ = room else {
             return
         }

@@ -9,9 +9,11 @@ import Foundation
 
 enum AgoraStreamWindowInteractionSignal: Convertable {
     case RenderInfo(AgoraStreamWindowRenderInfo)
+    case ViewZIndex(Int)
     
     private enum CodingKeys: CodingKey {
         case RenderInfo
+        case ViewZIndex
     }
     
     init(from decoder: Decoder) throws {
@@ -20,6 +22,9 @@ enum AgoraStreamWindowInteractionSignal: Convertable {
         if let value = try? container.decode(AgoraStreamWindowRenderInfo.self,
                                              forKey: .RenderInfo) {
             self = .RenderInfo(value)
+        } else if let value = try? container.decode(Int.self,
+                                                    forKey: .ViewZIndex) {
+            self = .ViewZIndex(value)
         } else {
             throw DecodingError.dataCorrupted(
                 .init(
@@ -37,6 +42,9 @@ enum AgoraStreamWindowInteractionSignal: Convertable {
         case .RenderInfo(let x):
             try container.encode(x,
                                  forKey: .RenderInfo)
+        case .ViewZIndex(let x):
+            try container.encode(x,
+                                 forKey: .ViewZIndex)
         }
     }
     
@@ -52,15 +60,12 @@ enum AgoraStreamWindowInteractionSignal: Convertable {
 struct AgoraStreamWindowRenderInfo: Convertable {
     var userUuid: String
     var streamId: String
+    var zIndex: Int?
 }
 
 struct AgoraStreamWindowExtraInfo : Convertable {
     // 该大窗的用户id
     var userUuid: String
-    // 组件是否为全屏状态(屏幕共享不含)
-    var contain: Bool?
     // 组件纵向层级(屏幕共享不含)
     var zIndex: Int?
-    // 操作者的用户id(屏幕共享不含)
-    var `operator`: String?
 }
