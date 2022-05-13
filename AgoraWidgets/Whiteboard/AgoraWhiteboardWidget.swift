@@ -195,6 +195,8 @@ extension AgoraWhiteboardWidget {
         WhiteDisplayerState.setCustomGlobalStateClass(AgoraWhiteboardGlobalState.self)
         
         initCondition.needInit = false
+        
+        registerApp()
     }
     
     func joinWhiteboard() {
@@ -269,6 +271,27 @@ extension AgoraWhiteboardWidget {
     func getLocalCameraConfig() -> AgoraWhiteBoardCameraConfig? {
         let path = dt.scenePath.translatePath()
         return dt.localCameraConfigs[path]
+    }
+    
+    func registerApp() {
+        guard let bundle = Bundle.ag_compentsBundleNamed("AgoraWidgets"),
+              let javascriptPath = bundle.path(forResource: "app-talkative",
+                                               ofType: "js"),
+              let javascriptString = try? String(contentsOfFile: javascriptPath,
+                                                 encoding: .utf8) else {
+            return
+        }
+        let appParams = WhiteRegisterAppParams(javascriptString: javascriptString,
+                                               kind: "Talkative",
+                                               appOptions: [:],
+                                               variable: "NetlessAppTalkative.default")
+        whiteSDK?.registerApp(with: appParams,
+                              completionHandler: { [weak self] error in
+            if let error = error {
+                self?.log(.error,
+                          content: error.localizedDescription)
+            }
+        })
     }
     
     // MARK: - message handle

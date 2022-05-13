@@ -48,7 +48,7 @@ Pod::Spec.new do |spec|
   
   spec.subspec "Resources" do |ss|
       ss.resource_bundles = {
-        "AgoraWidgets" => ["AgoraWidgets/AgoraResources/**/*.{xcassets,strings,gif,mp3}"]
+        "AgoraWidgets" => ["AgoraWidgets/AgoraResources/**/*.{xcassets,strings,gif,mp3,js}"]
       }
   end
 end
