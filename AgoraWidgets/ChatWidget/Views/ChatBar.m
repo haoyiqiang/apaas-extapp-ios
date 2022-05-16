@@ -18,7 +18,7 @@
 #define SENDBUTTON_HEIGHT 30
 #define SENDBUTTON_WIDTH 40
 #define INPUT_WIDTH 120
-#define EMOJIBUTTON_WIDTH 30
+#define EMOJIBUTTON_WIDTH 20
 
 @interface ChatBar ()<InputingViewDelegate,UIImagePickerControllerDelegate>
 @property (nonatomic,strong) UIButton* inputButton;
@@ -50,6 +50,7 @@
     self.inputButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal] ;
     self.inputButton.backgroundColor = [UIColor clearColor];
+    self.inputButton.titleLabel.font = [UIFont systemFontOfSize:12];
     [self.inputButton setTitleColor:[UIColor colorWithRed:125/255.0 green:135/255.0 blue:152/255.0 alpha:1.0] forState:UIControlStateNormal];
     [self.inputButton addTarget:self action:@selector(InputAction) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:self.inputButton];
@@ -104,15 +105,15 @@
     
     NSInteger imageWidth = 20;
         
-    self.inputButton.frame = CGRectMake(10,0,self.bounds.size.width - EMOJIBUTTON_WIDTH*2 - 5,
+    self.inputButton.frame = CGRectMake(10,0,self.bounds.size.width - EMOJIBUTTON_WIDTH*2 - 10,
                                                self.bounds.size.height);
     
-    self.imageButton.frame = CGRectMake(self.bounds.size.width - EMOJIBUTTON_WIDTH-5,
+    self.imageButton.frame = CGRectMake(self.bounds.size.width - EMOJIBUTTON_WIDTH-10,
                                             (self.bounds.size.height-imageWidth)/2,
                                         imageWidth,
                                         imageWidth);
     
-    self.emojiButton.frame = CGRectMake(self.bounds.size.width - EMOJIBUTTON_WIDTH * 2-5,
+    self.emojiButton.frame = CGRectMake(self.bounds.size.width - EMOJIBUTTON_WIDTH * 2-10,
                                         (self.bounds.size.height-imageWidth)/2,
                                         imageWidth,
                                         imageWidth);
@@ -154,16 +155,19 @@
         [self.inputButton setTitle:[@"fcr_hyphenate_im_all_mute" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal];
         [self.inputButton setEnabled:NO];
         self.emojiButton.enabled = NO;
+        self.imageButton.enabled = NO;
         
     }else{
         if(self.isMuted){
             [self.inputButton setTitle:[@"fcr_hyphenate_im_mute" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal];
             [self.inputButton setEnabled:NO];
             self.emojiButton.enabled = NO;
+            self.imageButton.enabled = NO;
         }else{
             [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal];
             [self.inputButton setEnabled:YES];
             self.emojiButton.enabled = YES;
+            self.imageButton.enabled = YES;
         }
     }
 }

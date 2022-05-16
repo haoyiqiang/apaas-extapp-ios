@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "icon_unmute.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
