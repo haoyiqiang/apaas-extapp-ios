@@ -165,37 +165,38 @@ class AgoraWhiteboardWidgetDT {
     
     func getWKConfig() -> WKWebViewConfiguration {
         let blueColor = "#75C0FF"
-        let whiteColor = "#fff"
+        let whiteColor = "#FFFFFF"
+        let blackColor = "#000000"
         let testColor = "#CC00FF"
         
         // tab style
         let tabBGStyle = """
                          var style = document.createElement('style');
-                         style.innerHTML = '.telebox-titlebar { background: \(blueColor); }';
+                         style.innerHTML = '.telebox-titlebar { background: \(whiteColor); }';
                          document.head.appendChild(style);
                          """
         
         let tabTitleStyle = """
                             var style = document.createElement('style');
-                            style.innerHTML = '.telebox-title { color: \(whiteColor); }';
+                            style.innerHTML = '.telebox-title { color: \(blackColor); }';
                             document.head.appendChild(style);
                             """
         
         let footViewBGStyle = """
                               var style = document.createElement('style');
-                              style.innerHTML = '.netless-app-docs-viewer-footer { background: \(blueColor); }';
+                              style.innerHTML = '.netless-app-docs-viewer-footer { background: \(whiteColor); }';
                               document.head.appendChild(style);
                               """
         
         let footViewPageLabelStyle = """
                                      var style = document.createElement('style');
-                                     style.innerHTML = '.netless-app-docs-viewer-page-number { color: \(whiteColor); }';
+                                     style.innerHTML = '.netless-app-docs-viewer-page-number { color: \(blackColor); }';
                                      document.head.appendChild(style);
                                      """
         
         let footViewPageButtonStyle = """
                                       var style = document.createElement('style');
-                                      style.innerHTML = '.netless-window-manager-wrapper .telebox-title, .netless-window-manager-wrapper .netless-app-docs-viewer-footer { color: \(whiteColor); }';
+                                      style.innerHTML = '.netless-window-manager-wrapper .telebox-title, .netless-window-manager-wrapper .netless-app-docs-viewer-footer { color: \(blackColor); }';
                                       document.head.appendChild(style);
                                       """
         let boardStyles = [tabBGStyle,
