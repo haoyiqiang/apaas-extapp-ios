@@ -544,8 +544,22 @@ extension AgoraWhiteboardWidget {
         }
         
         serverAPI.getWindowAttributes { [weak self, weak room] (json) in
-            room?.setWindowManagerWithAttributes(json)
+            guard let `self` = self else {
+                return
+            }
+            if self.dt.localGranted {
+                room?.setWindowManagerWithAttributes(json)
+            } else {
+                room?.setWritable(true,
+                                  completionHandler: { complete, error in
+                    room?.setWindowManagerWithAttributes(json)
+                })
+            }
+        } failure: { [weak self] error in
+            self?.log(.error,
+                      content: "getWindowAttributes error :\(error.localizedDescription)")
         }
+
     }
 }
 
