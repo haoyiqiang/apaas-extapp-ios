@@ -61,17 +61,29 @@ struct InitCondition {
     }
     
     public override func onLoad() {
+        super.onLoad()
+        
         if let wbProperties = info.roomProperties?.toObj(AgoraWhiteboardPropExtra.self) {
             dt.propsExtra = wbProperties
         }
+        
+        log(.info,
+            content: "on load room properties:\(info.roomProperties?.description)")
+        
+        log(.info,
+            content: "on load local user properties:\(info.localUserProperties?.description)")
     }
     
     // MARK: widget callback
     public override func onLocalUserInfoUpdated(_ localUserInfo: AgoraWidgetUserInfo) {
+        super.onLocalUserInfoUpdated(localUserInfo)
+        
         dt.localUserInfo = localUserInfo
     }
     
     public override func onMessageReceived(_ message: String) {
+        super.onMessageReceived(message)
+        
         log(.info,
             content: "onMessageReceived:\(message)")
         
@@ -108,11 +120,18 @@ struct InitCondition {
                                                        cause: [String : Any]?,
                                                        keyPaths: [String],
                                                        operatorUser: AgoraWidgetUserInfo?) {
+        super.onWidgetRoomPropertiesUpdated(properties,
+                                            cause: cause,
+                                            keyPaths: keyPaths,
+                                            operatorUser: operatorUser)
+        
+        log(.info,
+            content: "onWidgetRoomPropertiesUpdated:\(properties)")
+        
         guard let wbProperties = properties.toObj(AgoraWhiteboardPropExtra.self) else {
             return
         }
-        log(.info,
-            content: "onWidgetRoomPropertiesUpdated:\(properties)")
+        
         dt.propsExtra = wbProperties
     }
     
@@ -120,12 +139,19 @@ struct InitCondition {
                                                        cause: [String : Any]?,
                                                        keyPaths: [String],
                                                        operatorUser: AgoraWidgetUserInfo?) {
+        super.onWidgetRoomPropertiesDeleted(properties,
+                                            cause: cause,
+                                            keyPaths: keyPaths,
+                                            operatorUser: operatorUser)
+        
         log(.info,
             content: "onWidgetRoomPropertiesDeleted:\(keyPaths)")
+        
         guard let wbProperties = properties?.toObj(AgoraWhiteboardPropExtra.self) else {
             dt.propsExtra = nil
             return
         }
+        
         dt.propsExtra = wbProperties
     }
     
@@ -498,7 +524,6 @@ extension AgoraWhiteboardWidget {
             dt.localCameraConfigs[room.sceneState.scenePath] = cameraState.toWidget()
         }
     }
-    
     
     func initServerAPI(keys: AgoraWidgetRequestKeys) {
         serverAPI = AgoraWhiteBoardServerAPI(host: keys.host,
