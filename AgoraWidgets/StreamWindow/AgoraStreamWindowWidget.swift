@@ -27,18 +27,18 @@ import AgoraWidget
     }
     
     public override func onLoad() {
-        initData()
+//        initData()
     }
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
                                                        cause: [String : Any]?,
                                                        keyPaths: [String],
                                                        operatorUser: AgoraWidgetUserInfo?) {
-        if renderInfo == nil {
-            initData()
-        } else {
+//        if renderInfo == nil {
+//            initData()
+//        } else {
             updateExtra(properties: properties)
-        }
+//        }
     }
 }
 
