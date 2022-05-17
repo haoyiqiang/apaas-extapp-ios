@@ -158,7 +158,7 @@ extension AgoraWhiteboardWidget: AGBoardWidgetDTDelegate {
         }
         dt.isSettingWritable = true
         room?.setWritable(localGranted,
-                          completionHandler: {[weak self] isWritable, error in
+                          completionHandler: { [weak self] isWritable, error in
             guard let `self` = self else {
                 return
             }

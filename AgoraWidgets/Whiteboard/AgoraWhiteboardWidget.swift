@@ -547,19 +547,35 @@ extension AgoraWhiteboardWidget {
             guard let `self` = self else {
                 return
             }
-            if self.dt.localGranted {
-                room?.setWindowManagerWithAttributes(json)
-            } else {
-                room?.setWritable(true,
-                                  completionHandler: { complete, error in
-                    room?.setWindowManagerWithAttributes(json)
-                })
+            
+            guard let `room` = room else {
+                self.log(info: "room is nil before set window manager with attributes",
+                         extra: nil)
+                return
             }
+            
+            self.setWindowAttributes(room: room,
+                                     json: json)
         } failure: { [weak self] error in
             self?.log(.error,
-                      content: "getWindowAttributes error :\(error.localizedDescription)")
+                      content: "getWindowAttributes error: \(error.localizedDescription)")
+            self?.ifNeedSetWindowAttributes()
         }
-
+    }
+    
+    func setWindowAttributes(room: WhiteRoom,
+                             json: [String: Any]) {
+        if room.isWritable {
+            self.log(info: "set window manager with attributes",
+                     extra: nil)
+            
+            room.setWindowManagerWithAttributes(json)
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                self?.setWindowAttributes(room: room,
+                                          json: json)
+            }
+        }
     }
 }
 
