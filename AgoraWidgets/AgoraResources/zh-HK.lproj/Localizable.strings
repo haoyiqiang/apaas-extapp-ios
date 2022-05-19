@@ -1,0 +1,82 @@
+/* 
+  Localizable.strings
+ 
+  Copyright © 2020 Agora. All rights reserved.
+*/
+
+// RTM
+fcr_rtm_im_mute_tag_text = "已禁言";
+fcr_rtm_im_message = "消息";
+fcr_rtm_im_quiz = "提問";
+fcr_rtm_im_no_message = "還沒有消息";
+fcr_rtm_im_send = "發送";
+fcr_rtm_im_input_placeholder = "請輸入消息";
+fcr_rtm_im_silence_holder = "禁言中";
+fcr_rtm_im_mute_mode = "禁言模式開啟";
+fcr_rtm_im_unmute_mode = "禁言模式關閉";
+fcr_rtm_im_silenced_placeholder = "禁言中";
+fcr_rtm_im_mute_chat = "禁言";
+fcr_rtm_im_student = "學生";
+fcr_rtm_im_teacher = "老師";
+fcr_rtm_im_title = "聊天";
+fcr_rtm_im_no_message = "還沒有消息";
+
+// Hyphenate
+fcr_hyphenate_im_send = "發送";
+fcr_hyphenate_im_chat = "聊天";
+fcr_hyphenate_im_announcement= "公告";
+fcr_hyphenate_im_input_placeholder = "請輸入消息";
+fcr_hyphenate_im_teacher = "老師";
+fcr_hyphenate_im_assistant= "助教";
+fcr_hyphenate_im_no_message = "還沒有消息";
+fcr_hyphenate_im_no_announcement = "暫無公告";
+fcr_hyphenate_im_all_mute = "全員禁言中";
+fcr_hyphenate_im_mute = "您已被老師禁言，請謹慎發言";
+fcr_hyphenate_im_login_faild = "登錄失敗";
+fcr_hyphenate_im_join_faild = "登錄失敗";
+fcr_hyphenate_im_send_faild_by_mute = "禁言中，發送失敗";
+fcr_hyphenate_im_send_faild_by_sensitive = "發送內容包含敏感詞，發送失敗";
+fcr_hyphenate_im_login_on_other_device = "賬戶在其他設備登錄";
+fcr_hyphenate_im_logout_forced = "賬戶被強製退出";
+fcr_hyphenate_im_teacher_remove_message = "老師刪除了一條消息";
+fcr_hyphenate_im_teacher_mute_all = "已開啟全體學生禁言";
+fcr_hyphenate_im_teacher_unmute_all = "已關閉全體學生禁言";
+fcr_hyphenate_im_recall = "撤回";
+fcr_hyphenate_im_recall_a_message = "撤回一條消息";
+fcr_hyphenate_im_muted_by_teacher = "您被{xxx}老師禁止發言了";
+fcr_hyphenate_im_unmuted_by_teacher = "您被{xxx}老師允許發言了";
+fcr_hyphenate_im_photo_permission_disabled = "獲取相冊圖片權限失敗";
+fcr_hyphenate_im_image_too_large = "圖片太大，請選擇其他圖片";
+
+// Cloud
+fcr_cloud_file_name = "文件名";
+fcr_cloud_search = "搜索";
+fcr_cloud_public_resource = "公共資源";
+fcr_cloud_private_resource = "我的雲盤";
+fcr_cloud_total_item = "共{xxx}項";
+
+// AnswerSelector
+fcr_popup_quiz = "答题器";
+fcr_popup_quiz_post = "提交答案";
+fcr_popup_quiz_change = "修改答案";
+fcr_popup_quiz_submission = "已答题人数";
+fcr_popup_quiz_accuracy = "正確率";
+fcr_popup_quiz_correct = "正確答案";
+fcr_popup_quiz_my_answer = "我的答案";
+fcr_popup_quiz_start_again = "重新開始";
+fcr_popup_quiz_answer_time = "答题用时";
+
+// poll
+fcr_poll_title = "投票";
+fcr_poll_submit = "投票";
+fcr_poll_multi = "多選";
+fcr_poll_single = "單選";
+fcr_poll_start = "開始投票";
+fcr_poll_input_placeholder = "請輸入投票內容";
+fcr_poll_input_option = "請輸入選項";
+
+// Countdown
+fcr_countdown_timer_title = "倒計時";
+
+// netless
+fcr_netless_loading = "加載中";
