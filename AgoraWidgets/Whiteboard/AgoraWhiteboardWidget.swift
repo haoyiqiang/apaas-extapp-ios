@@ -274,9 +274,7 @@ extension AgoraWhiteboardWidget {
     
     func handleMemberState(state: AgoraBoardMemberState) {
         dt.updateMemberState(state: state)
-        if let curState = dt.currentMemberState {
-            room?.setMemberState(curState)
-        }
+        room?.setMemberState(dt.currentMemberState)
     }
     
     func handleAudioMixing(data: AgoraBoardAudioMixingData) {
@@ -355,7 +353,6 @@ extension AgoraWhiteboardWidget {
             sendMessage(signal: .WindowStateChanged(widgetState))
         }
         
-        dt.currentMemberState = dt.baseMemberState
         // 发送初始画笔状态的消息
         var colorArr = Array<Int>()
         dt.baseMemberState.strokeColor?.forEach { number in

@@ -86,7 +86,7 @@ class AgoraWhiteboardWidgetDT {
         }
     }
     
-    var currentMemberState: WhiteMemberState?
+    lazy var currentMemberState: WhiteMemberState = self.baseMemberState
     
     var reconnectTime: Int = 0
     
@@ -135,7 +135,7 @@ class AgoraWhiteboardWidgetDT {
     
     func updateMemberState(state: AgoraBoardMemberState) {
         if let tool = state.activeApplianceType {
-            currentMemberState?.currentApplianceName = tool.toNetless()
+            currentMemberState.currentApplianceName = tool.toNetless()
         }
         
         if let colors = state.strokeColor {
@@ -143,19 +143,19 @@ class AgoraWhiteboardWidgetDT {
             colors.forEach { color in
                 stateColors.append(NSNumber(value: color))
             }
-            currentMemberState?.strokeColor = stateColors
+            currentMemberState.strokeColor = stateColors
         }
         
         if let strokeWidth = state.strokeWidth {
-            currentMemberState?.strokeWidth = NSNumber(value: strokeWidth)
+            currentMemberState.strokeWidth = NSNumber(value: strokeWidth)
         }
         
         if let textSize = state.textSize {
-            currentMemberState?.textSize = NSNumber(value: textSize)
+            currentMemberState.textSize = NSNumber(value: textSize)
         }
         
         if let shape = state.shapeType {
-            currentMemberState?.shapeType = shape.toNetless()
+            currentMemberState.shapeType = shape.toNetless()
         }
     }
     
