@@ -40,7 +40,8 @@ class AgoraWidgetLogger: NSObject {
     private var traceId: String
     var isPrintOnConsole: Bool = false
     
-    init(widgetId: String) {
+    init(widgetId: String,
+         logId: String) {
         let folderPath = GetWidgetLogFolder()
         
         logger = AgoraLogger(folderPath: folderPath,
@@ -49,8 +50,8 @@ class AgoraWidgetLogger: NSObject {
         logger.setPrintOnConsoleType(.none)
         
         let timeStamp = "\(Date().timeIntervalSince1970.intValue)"
-        let deviceId = UIDevice.current.identifierForVendor?.uuidString
-        traceId = "\(timeStamp)\(deviceId)".agora_md5()
+        
+        traceId = "\(timeStamp)\(logId)".agora_md5()
     }
     
     fileprivate func log(content: String,

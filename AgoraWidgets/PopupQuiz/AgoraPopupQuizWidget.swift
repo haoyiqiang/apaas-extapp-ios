@@ -54,7 +54,8 @@ import UIKit
     }
     
     public override init(widgetInfo: AgoraWidgetInfo) {
-        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId)
+        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId,
+                                       logId: widgetInfo.localUserInfo.userUuid)
         #if DEBUG
         logger.isPrintOnConsole = true
         #endif

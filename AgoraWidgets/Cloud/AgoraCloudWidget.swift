@@ -21,7 +21,8 @@ import Darwin
     public override init(widgetInfo: AgoraWidgetInfo) {
         self.vm = AgoraCloudVM(extra: widgetInfo.extraInfo)
         
-        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId)
+        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId,
+                                       logId: widgetInfo.localUserInfo.userUuid)
         #if DEBUG
         logger.isPrintOnConsole = true
         #endif

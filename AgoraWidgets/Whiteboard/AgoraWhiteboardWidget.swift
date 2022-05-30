@@ -48,7 +48,8 @@ struct InitCondition {
         self.dt = AgoraWhiteboardWidgetDT(extra: AgoraWhiteboardExtraInfo.fromExtraDic(widgetInfo.extraInfo),
                                           localUserInfo: widgetInfo.localUserInfo)
         
-        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId)
+        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId,
+                                       logId: widgetInfo.localUserInfo.userUuid)
         #if DEBUG
         logger.isPrintOnConsole = true
         #endif
