@@ -10,8 +10,6 @@ import AgoraWidget
 @objcMembers public class AgoraStreamWindowWidget: AgoraBaseWidget, AgoraWidgetLogTube {
     var logger: AgoraWidgetLogger
     
-    var renderInfo: AgoraStreamWindowRenderInfo?
-    
     override init(widgetInfo: AgoraWidgetInfo) {
         let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId,
                                        logId: widgetInfo.localUserInfo.userUuid)
@@ -27,52 +25,25 @@ import AgoraWidget
             type: .info)
     }
     
-    public override func onLoad() {
-//        initData()
-    }
-    
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
                                                        cause: [String : Any]?,
                                                        keyPaths: [String],
                                                        operatorUser: AgoraWidgetUserInfo?) {
-//        if renderInfo == nil {
-//            initData()
-//        } else {
-            updateExtra(properties: properties)
-//        }
-    }
-}
-
-private extension AgoraStreamWindowWidget {
-    func sendMessage(_ signal: AgoraStreamWindowInteractionSignal) {
-        if let message = signal.toMessageString() {
-            sendMessage(message)
-        }
-    }
-    
-    func initData() {
-        let streamId = String(info.widgetId.split(separator: "-")[1])
+        super.onWidgetRoomPropertiesUpdated(properties,
+                                            cause: cause,
+                                            keyPaths: keyPaths,
+                                            operatorUser: operatorUser)
         
-        guard let propsDic = info.roomProperties as? Dictionary<String, Any>,
-              let info = AgoraStreamWindowExtraInfo.decode(propsDic),
-              streamId != "" else {
+        guard let zIndex = properties["zIndex"] as? Int else {
             return
         }
         
-        let renderInfo = AgoraStreamWindowRenderInfo(userUuid: info.userUuid,
-                                                     streamId: streamId,
-                                                     zIndex: info.zIndex)
-        self.renderInfo = renderInfo
-        log(content: "[StreamWindow Widget]:send render info",
-            extra: "userUuid:\(info.userUuid),streamId:\(streamId)",
-            type: .info)
-        sendMessage(.RenderInfo(renderInfo))
-    }
-    
-    func updateExtra(properties: [String : Any]) {
-        guard let index = properties["zIndex"] as? Int else {
+        let messageDic = ["zIndex": zIndex]
+        
+        guard let message = messageDic.jsonString() else {
             return
         }
-        sendMessage(.ViewZIndex(index))
+        
+        sendMessage(message)
     }
 }
