@@ -34,6 +34,10 @@ class AgoraColorGroup {
     var cloud_file_name_label_color: UIColor = UIColor(hex: 0x7B88A0)!
     var cloud_sep_line_color: CGColor = UIColor(hex: 0xEEEEF7)!.cgColor
     var cloud_search_bar_border_color: CGColor = UIColor(hex: 0xD7D7E6)!.cgColor
+    
+    // webView
+    var web_title_color = UIColor(hex: 0x191919)
+    var web_border_color: CGColor = UIColor(hex: 0xE3E3EC)!.cgColor
 }
 
 class AgoraFrameGroup {
@@ -42,6 +46,9 @@ class AgoraFrameGroup {
     init() {
         self.mode = Mode
     }
+    
+    // common
+    var border_width: CGFloat = 1
     
     // Poll
     // title
@@ -78,7 +85,12 @@ class AgoraFrameGroup {
     // cloud
     var cloud_bg_corner_radius: CGFloat = 6
     var cloud_search_bar_corner_radius: CGFloat = 4
-    var cloud_search_bar_border_width: CGFloat = 1
+    
+    // webView
+    var web_button_spacing: CGFloat = 12
+    var web_button_length: CGFloat = 20
+    var web_title_side_gap: CGFloat = 15
+    var web_corner_radius: CGFloat = 4
 }
 
 class AgoraFontGroup {
@@ -94,4 +106,7 @@ class AgoraFontGroup {
     
     // cloud
     var cloud_label_font = UIFont.systemFont(ofSize: 12)
+    
+    // webView
+    var web_title_font = UIFont.systemFont(ofSize: 12)
 }

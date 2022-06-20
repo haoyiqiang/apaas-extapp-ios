@@ -33,6 +33,7 @@ class AgoraCloudVM: NSObject {
     
     func updatePrivate(_ files: [AgoraCloudCourseware]?) {
         privateFiles = files ?? [AgoraCloudCourseware]()
+        handleCurrentCoursewares()
     }
     
     func getSelectedInfo(index: Int) -> AgoraCloudWhiteScenesInfo? {
@@ -45,6 +46,7 @@ class AgoraCloudVM: NSObject {
         return AgoraCloudWhiteScenesInfo(resourceName: config.resourceName,
                                          resourceUuid: config.resourceUuid,
                                          resourceUrl: config.resourceURL,
+                                         ext: config.ext,
                                          scenes: config.scenes,
                                          convert: config.convert)
     }

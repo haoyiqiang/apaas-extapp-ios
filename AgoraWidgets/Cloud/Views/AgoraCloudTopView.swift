@@ -182,7 +182,7 @@ private extension AgoraCloudTopView {
         searchBar.backgroundColor = ui.color.cloud_header_2_bg_color
         searchBar.cornerRadius = ui.frame.cloud_search_bar_corner_radius
         searchBar.layer.borderColor = ui.color.cloud_search_bar_border_color
-        searchBar.layer.borderWidth = ui.frame.cloud_search_bar_border_width
+        searchBar.layer.borderWidth = ui.frame.border_width
         searchBar.textField?.font = ui.font.cloud_label_font
         searchBar.textField?.backgroundColor = ui.color.cloud_header_2_bg_color
         searchBar.textField?.clearButtonMode = .whileEditing

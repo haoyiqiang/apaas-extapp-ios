@@ -80,6 +80,7 @@ struct AgoraCloudWhiteScenesInfo: Convertable {
     public let resourceName: String
     public let resourceUuid: String
     public let resourceUrl: String
+    public let ext: String
     public let scenes: [AgoraCloudConvertedFile]?
     public let convert: Bool?
 }
@@ -279,6 +280,8 @@ class AgoraCloudCellInfo: NSObject {
         case "mp4", "3gp", "mgp", "mpeg", "3g2", "avi", "flv", "wmv", "h264",
             "m4v", "mj2", "mov", "ogg", "ogv", "rm", "qt", "vob", "webm":
             return "format-video"
+        case "alf":
+            return "format-alf"
         default:
             return "format-unknown"
         }

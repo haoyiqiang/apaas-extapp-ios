@@ -77,3 +77,6 @@ fcr_poll_input_option = "请输入选项";
 
 // Countdown
 fcr_countdown_timer_title = "倒计时";
+
+// webView
+fcr_online_courseware_label_online_courseware = "在线课件";

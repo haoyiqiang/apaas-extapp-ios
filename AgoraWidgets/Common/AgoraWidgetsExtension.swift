@@ -213,6 +213,25 @@ extension TimeInterval {
     }
 }
 
+extension CGRect {
+    func syncFrameFromDisplayFrame(superView: UIView) -> CGRect {
+        let MEDx = superView.width - self.width
+        let MEDy = superView.height - self.height
+        
+        let xaxis = (MEDx == 0) ? 0: (self.origin.x / MEDx)
+        let yaxis = (MEDy == 0) ? 0: (self.origin.y / MEDy)
+        
+        let displayWidth = (superView.width == 0) ? 0 : (self.width / superView.width)
+        let displayHeight = (superView.height == 0) ? 0 : (self.height / superView.height)
+        
+        let syncFrame = CGRect(x: xaxis,
+                               y: yaxis,
+                               width: displayWidth,
+                               height: displayHeight)
+        return syncFrame
+    }
+}
+
 // MARK: - resource
 public func GetWidgetImage(object: NSObject,
                            _ name: String) -> UIImage? {

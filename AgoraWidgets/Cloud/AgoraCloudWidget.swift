@@ -115,7 +115,7 @@ extension AgoraCloudWidget: UITableViewDataSource, UITableViewDelegate {
     
     // MARK: UITableViewDelegate
     public func tableView(_ tableView: UITableView,
-                   didSelectRowAt indexPath: IndexPath) {
+                          didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath,
                               animated: true)
         guard let coursewareInfo = vm.getSelectedInfo(index: indexPath.row) else {
@@ -162,7 +162,7 @@ private extension AgoraCloudWidget {
         guard let `serverApi` = serverApi else {
             return
         }
-        serverApi.requestResourceInUser(pageNo: 0,
+        serverApi.requestResourceInUser(pageNo: 1,
                                         pageSize: 10,
                                         resourceName: resourceName) { [weak self] (resp) in
             guard let `self` = self else {

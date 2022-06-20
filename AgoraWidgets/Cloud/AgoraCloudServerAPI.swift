@@ -53,7 +53,7 @@ class AgoraCloudServerAPI: NSObject {
         }
         currentRequesting = true
         
-        let path = "/edu/apps/\(baseInfo.agoraAppId)/v2/users/\(uid)/resources/page"
+        let path = "/edu/apps/\(baseInfo.agoraAppId)/v3/users/\(uid)/resources/page"
         let urlString = baseInfo.host + path
         
         let event = ArRequestEvent(name: "CloudServerApi")
