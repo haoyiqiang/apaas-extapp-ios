@@ -85,6 +85,7 @@ class AgoraFrameGroup {
     // cloud
     var cloud_bg_corner_radius: CGFloat = 6
     var cloud_search_bar_corner_radius: CGFloat = 4
+    var cloud_search_bar_border_width: CGFloat = 1
     
     // webView
     var web_button_spacing: CGFloat = 12

@@ -147,7 +147,7 @@ struct AgoraCloudCourseware: Convertable {
                   ext: publicCourseware.ext,
                   size: Double(publicCourseware.size),
                   updateTime: publicCourseware.updateTime,
-                  convert: publicCourseware.conversion.convert)
+                  convert: publicCourseware.conversion.canvasVersion)
     }
 }
 
@@ -187,7 +187,7 @@ struct AgoraCloudPublicConversion: Convertable {
     let preview: Bool
     let scale: Int64
     let outputFormat: String
-    let convert: Bool?
+    let canvasVersion: Bool?
 }
 
 struct AgoraCloudTaskProgress: Convertable {

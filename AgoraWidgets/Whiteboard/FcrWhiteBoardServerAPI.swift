@@ -1,5 +1,5 @@
 //
-//  AgoraWhiteBoardServerAPI.swift
+//  FcrWhiteBoardServerAPI.swift
 //  AgoraWidgets
 //
 //  Created by Cavan on 2022/5/6.
@@ -8,7 +8,7 @@
 import Foundation
 import Armin
 
-class AgoraWhiteBoardServerAPI: AgoraWidgetServerAPI {
+class FcrWhiteBoardServerAPI: AgoraWidgetServerAPI {
     func getWindowAttributes(success: JsonCompletion? = nil,
                              failure: FailureCompletion? = nil) {
         guard let roomId = roomId.split(separator: "-").first else {

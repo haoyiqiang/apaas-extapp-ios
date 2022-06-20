@@ -1,0 +1,823 @@
+//
+//  FcrBoardMainWindow.swift
+//  AgoraWidgets
+//
+//  Created by Cavan on 2022/6/6.
+//
+
+import Foundation
+import Whiteboard
+
+class FcrBoardMainWindow: NSObject {
+    private weak var whiteSDK: WhiteSDK?
+    
+    private var whiteRoom: WhiteRoom {
+        didSet {
+            let extra = ["whiteRoom": whiteRoom.description]
+            
+            log(content: "reset whiteRoom object",
+                extra: extra.agDescription,
+                type: .info)
+            
+            setUpNetless()
+        }
+    }
+    
+    private var currentScenePath: String?
+    
+    private var memberState: WhiteMemberState
+    
+    private(set) var hasOperationPrivilege: Bool
+    
+    weak var delegate: FcrBoardMainWindowDelegate?
+    
+    weak var logTube: FcrBoardLogTube?
+    
+    let contentView: UIView
+    
+    init(whiteView: WhiteBoardView,
+         whiteSDK: WhiteSDK,
+         whiteRoom: WhiteRoom,
+         hasOperationPrivilege: Bool) {
+        self.contentView = whiteView
+        self.whiteRoom = whiteRoom
+        self.whiteSDK = whiteSDK
+        self.hasOperationPrivilege = hasOperationPrivilege
+        self.memberState = WhiteMemberState()
+        self.memberState.currentApplianceName = WhiteApplianceNameKey.ApplianceClicker
+        super.init()
+        
+        let extra = ["whiteView": whiteView.description,
+                     "whiteRoom": whiteRoom.description,
+                     "hasOperationPrivilege": hasOperationPrivilege.agDescription,
+                     "memberState": memberState.agDescription]
+        
+        log(content: "init mainWindow",
+            extra: extra.agDescription,
+            type: .info)
+        
+        setUpNetless()
+    }
+}
+
+extension FcrBoardMainWindow {
+    func getPageInfo() -> FcrBoardPageInfo {
+        guard let pageState = whiteRoom.state.pageState else {
+            return FcrBoardPageInfo(showIndex: 0,
+                                    count: 1)
+        }
+        
+        log(content: "get page state",
+            extra: pageState.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "state.pageState")
+        
+        let info = FcrBoardPageInfo(showIndex: UInt16(pageState.index),
+                                    count: UInt16(pageState.length))
+        
+        log(content: "get page state",
+            extra: info.agDescription,
+            type: .info)
+        
+        return info
+    }
+    
+    /// 获取窗口属性（课件信息）
+    func getAttributes(result: @escaping (([AnyHashable: Any]) -> Void)) {
+        whiteRoom.getWindowManagerAttributes { attributes in
+            result(attributes)
+        }
+    }
+    
+    /// 设置窗口属性（课件信息）
+    func setAttributes(_ attributes:[AnyHashable: Any]) {
+        whiteRoom.setWindowManagerWithAttributes(attributes)
+    }
+    
+    func setMediaState(stateCode: Int,
+                       errorCode: Int) {
+        guard let audioMixer = whiteSDK?.audioMixer else {
+            return
+        }
+        audioMixer.setMediaState(stateCode,
+                                 errorCode: errorCode)
+    }
+    
+    func registerH5SubWindow(config: FcrBoardH5RegisterWindowConfig) -> FcrBoardError? {
+        guard let whiteSDK = whiteSDK else {
+            return FcrBoardError.sdkNil
+        }
+        
+        var appParams: WhiteRegisterAppParams?
+        if config.resource.isValidUrl {
+            appParams = WhiteRegisterAppParams(url: config.resource,
+                                               kind: "Talkative",
+                                               appOptions: [:])
+        } else if let bundle = Bundle.ag_compentsBundleNamed("AgoraWidgets"),
+                  let javascriptPath = bundle.path(forResource: "app-talkative",
+                                                   ofType: "js"),
+                  let javascriptString = try? String(contentsOfFile: javascriptPath,
+                                                     encoding: .utf8) {
+            appParams = WhiteRegisterAppParams(javascriptString: javascriptString,
+                                                   kind: "Talkative",
+                                                   appOptions: [:],
+                                                   variable: "NetlessAppTalkative.default")
+        }
+        
+        guard let appParams = appParams else {
+            log(content: "register H5 subWindow params error",
+                extra: config.agDescription,
+                type: .error)
+            return FcrBoardError(code: -1,
+                                 message: "registerH5SubWindow params error")
+        }
+        
+        whiteSDK.registerApp(with: appParams,
+                             completionHandler: { [weak self] error in
+            if let e = error {
+                self?.log(content: "register H5 subWindow error",
+                          extra: error.debugDescription,
+                          type: .error)
+                return
+            }
+            self?.log(content: "register H5 subWindow successfully",
+                      extra: config.agDescription,
+                      type: .info)
+        })
+        return nil
+    }
+    
+    func getAllWindowsSnapshotImageList(combinedCount: UInt8,
+                                        imageFolder: String,
+                                        imageListPath: @escaping (([String]) -> Void)) {
+        let combined = Int(combinedCount)
+        var combinedImageList = [String]()
+        
+        let extra = ["combinedCount": "\(combinedCount)",
+                     "imageFolder": imageFolder]
+        
+        log(content: "get all windows snapshot image list",
+            extra: extra.agDescription,
+            type: .info)
+        
+        log(content: "get entire scenes",
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "getEntireScenes")
+        
+        // Step1: 获取所有白板scene的scenePath
+        whiteRoom.getEntireScenes({ [weak self] scenesMap in
+            let key = "/"
+            guard let `self` = self,
+                  let sceneList = scenesMap[key],
+                  sceneList.count > 0 else {
+                return
+            }
+            
+            var paths = [String]()
+            
+            for scene in sceneList {
+                paths.append("\(key)\(scene.name)")
+            }
+            
+            let netlessExtra = ["whiteScenePaths": sceneList.agDescription]
+            
+            self.log(content: "white scene paths",
+                     extra: extra.agDescription,
+                     type: .info,
+                     fromClass: WhiteRoom.self,
+                     funcName: "getEntireScenes")
+            
+            let listCount = (paths.count / combined) + 1
+            for loopCount in 0 ..< listCount {
+                // Step2: 在所有paths中，每combinedCount个白板笔记图片执行一次处理
+                let prefixCount = (combined <= paths.count) ? combined : paths.count
+                
+                let subList = Array(paths.prefix(prefixCount))
+                paths.removeFirst(prefixCount)
+                // Step2: 获取白板图片并处理
+                self.combineWhiteSceneImages(folder: imageFolder,
+                                             fileName: "\(loopCount + 1).jpg",
+                                             scenePaths: subList) { imageFilePath in
+                    if let `imageFilePath` = imageFilePath {
+                        combinedImageList.append(imageFilePath)
+                    }
+                    
+                    if loopCount == (listCount - 1) {
+                        imageListPath(combinedImageList)
+                        return
+                    }
+                }
+            }
+        })
+    }
+    
+    func updateOperationPrivilege(hasPrivilege: Bool,
+                                  success: @escaping () -> Void,
+                                  failure: @escaping (Error) -> Void) {
+        let extra = ["hasPrivilege": hasPrivilege.agDescription]
+        
+        log(content: "update operation privilege",
+            extra: extra.agDescription,
+            type: .info)
+        
+        let netlessExtra = ["writable": hasPrivilege.agDescription]
+        
+        log(content: "set writable",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "setWritable")
+        
+        whiteRoom.setWritable(hasPrivilege) { [weak self] (isSuccess,
+                                                           error) in
+            // Failure
+            guard let `self` = self else {
+                let error = NSError.defaultError()
+                failure(error)
+                return
+            }
+            
+            let netlessExtra = ["isSuccess": isSuccess.agDescription,
+                                "error": StringIsEmpty(error?.localizedDescription)]
+            
+            let logType: FcrBoardLogType = (error == nil ? .info : .error)
+            
+            self.log(content: "set writable callback",
+                     extra: extra.agDescription,
+                     type: logType,
+                     fromClass: WhiteRoom.self,
+                     funcName: "setWritableCallback")
+            
+            guard isSuccess,
+                  error == nil else {
+                
+                let `error` = NSError.create(error)
+                
+                let extra = ["error": error.localizedDescription]
+                
+                failure(error)
+                
+                self.log(content: "update operation privilege failure",
+                         extra: extra.agDescription,
+                         type: .error)
+                
+                return
+            }
+            
+            // Success
+            let disable = !hasPrivilege
+            self.whiteRoom.disableDeviceInputs(disable)
+            
+            let extra = ["disable": disable.agDescription]
+            
+            self.log(content: "disable device inputs",
+                     extra: extra.agDescription,
+                     type: .info,
+                     fromClass: WhiteRoom.self,
+                     funcName: "disableDeviceInputs")
+            
+            self.log(content: "update operation privilege success",
+                     type: .info)
+            
+            success()
+        }
+    }
+    
+    func addPage() -> FcrBoardError? {
+        self.log(content: "add page",
+                 type: .info)
+        
+        self.log(content: "add page",
+                 type: .info,
+                 fromClass: WhiteRoom.self,
+                 funcName: "addPage")
+
+        whiteRoom.addPage()
+        return nil
+    }
+    
+    func removePage() -> FcrBoardError? {
+        let extra = ["currentScenePath": StringIsEmpty(currentScenePath)]
+        
+        log(content: "remove page",
+            extra: extra.agDescription,
+            type: .info)
+        
+        guard let scenePath = currentScenePath else {
+            return FcrBoardError(code: -1,
+                                 message: "currentScenePath nil")
+        }
+        
+        log(content: "remove page",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "removeScenes")
+        
+        whiteRoom.removeScenes(scenePath)
+        return nil
+    }
+    
+    func setPageIndex(index: UInt16) {
+        var extra = ["index": index.agDescription]
+        
+        log(content: "set page index",
+            extra: extra.agDescription,
+            type: .info)
+        
+        log(content: "set page index",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "setSceneIndex")
+        
+        whiteRoom.setSceneIndex(UInt(index)) { [weak self] (isSuccess,
+                                                            error) in
+            guard let `self` = self else {
+                return
+            }
+            
+            if let `error` = error {
+                extra["error"] = error.localizedDescription
+            }
+            
+            let isResult = (isSuccess ? "success" : "failure")
+            let content = ("set scene index " + isResult)
+            
+            let logType: FcrBoardLogType = (isSuccess ? .info : .error)
+            
+            self.log(content: content,
+                     extra: extra.agDescription,
+                     type:  logType,
+                     fromClass: WhiteRoom.self,
+                     funcName: "setSceneIndexCallback")
+        }
+    }
+    
+    func undo() -> FcrBoardError? {
+        log(content: "undo",
+            type: .info)
+        
+        log(content: "undo",
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "undo")
+        
+        whiteRoom.undo()
+        
+        return nil
+    }
+    
+    func redo() -> FcrBoardError? {
+        log(content: "redo",
+            type: .info)
+        
+        log(content: "redo",
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "undo")
+        
+        whiteRoom.redo()
+        return nil
+    }
+    
+    func clean() -> FcrBoardError? {
+        log(content: "clean",
+            type: .info)
+        
+        let retain = true
+        whiteRoom.cleanScene(retain)
+        
+        let extra = ["retain": retain.agDescription]
+        
+        log(content: "clean",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "undo")
+        return nil
+    }
+    
+    func createSubWindow(config: FcrBoardSubWindowConfig) {
+        var extra = ["config": config.agDescription]
+        
+        log(content: "create sub window",
+            extra: extra.agDescription,
+            type: .info)
+        
+        let scenes = config.pageList.toNetlessValue
+        
+        var whiteParam: WhiteAppParam
+        
+        if config.resourceHasAnimation {
+            whiteParam = WhiteAppParam.createSlideApp("/\(config.resourceUuid)",
+                                                      scenes: scenes,
+                                                      title: config.title)
+        } else {
+            whiteParam = WhiteAppParam.createDocsViewerApp("/\(config.resourceUuid)",
+                                                           scenes: scenes,
+                                                           title: config.title)
+        }
+        
+        whiteRoom.addApp(whiteParam) { [weak self] (subWindowId) in
+            let extra = ["subWindowId": subWindowId]
+            
+            self?.log(content: "addAppCallback",
+                      extra: extra.agDescription,
+                      type: .info)
+        }
+        
+        let appParams = ["dir": config.resourceUuid,
+                         "scenes": scenes.agDescription,
+                         "title": config.title]
+        
+        extra = ["appParams": appParams.agDescription]
+        
+        log(content: "add app",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "addApp")
+    }
+    
+    func createMediaSubWindow(config: FcrBoardMediaSubWindowConfig) {
+        var extra = ["config": config.agDescription]
+        
+        log(content: "create media sub window",
+            extra: extra.agDescription,
+            type: .info)
+        
+        let whiteParam = WhiteAppParam.createMediaPlayerApp(config.resourceUrl,
+                                                            title: config.title)
+        
+        whiteRoom.addApp(whiteParam) { [weak self] (subWindowId) in
+            let extra = ["subWindowId": subWindowId]
+            
+            self?.log(content: "addAppCallback",
+                      extra: extra.agDescription,
+                      type: .info)
+        }
+        
+        let appParams = ["src": config.resourceUrl,
+                         "title": config.title]
+        
+        extra = ["appParams": appParams.agDescription]
+        
+        log(content: "add app",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "addApp")
+    }
+    
+    func createH5SubWindow(config: FcrBoardH5SubWindowConfig) {
+        var extra = ["config": config.agDescription]
+        
+        log(content: "create H5 sub window",
+            extra: extra.agDescription,
+            type: .info)
+        
+        let options = WhiteAppOptions()
+        options.title = config.title
+        let attrs = ["src": config.resourceUrl]
+        let whiteParam = WhiteAppParam(kind: "Talkative",
+                                       options: options,
+                                       attrs: attrs)
+        
+        whiteRoom.addApp(whiteParam) { [weak self] (subWindowId) in
+            let extra = ["subWindowId": subWindowId]
+            
+            self?.log(content: "addAppCallback",
+                      extra: extra.agDescription,
+                      type: .info)
+        }
+        
+        let appParams = ["src": config.resourceUrl,
+                         "title": config.title]
+        
+        extra = ["appParams": appParams.agDescription]
+        
+        log(content: "add app",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "addApp")
+        
+    }
+    
+    func selectTool(type: FcrBoardToolType) {
+        var extra = ["type": type.agDescription]
+        
+        log(content: "select tool",
+            extra: extra.agDescription,
+            type: .info)
+        
+        memberState.currentApplianceName = type.toNetlessValue
+        whiteRoom.setMemberState(memberState)
+        
+        extra = ["memberState": memberState.agDescription]
+        
+        log(content: "set member state",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "setMemberState")
+    }
+    
+    func inputText(fontSize: UInt16,
+                   color: FcrColor) {
+        var extra = ["fontSize": fontSize.agDescription,
+                     "color": color.agDescription]
+        
+        log(content: "input text",
+            extra: extra.agDescription,
+            type: .info)
+        
+        memberState.currentApplianceName = .ApplianceText
+        memberState.strokeColor = color.toNetlessValue
+        memberState.strokeWidth = NSNumber.init(value: fontSize)
+        whiteRoom.setMemberState(memberState)
+        
+        extra = ["memberState": memberState.agDescription]
+        
+        log(content: "set member state",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "setMemberState")
+    }
+    
+    func drawShape(type: FcrBoardDrawShape,
+                   lineWidth: UInt16,
+                   color: FcrColor) {
+        var extra = ["lineWidth": lineWidth.agDescription,
+                     "color": color.agDescription,
+                     "type": type.agDescription]
+        
+        log(content: "draw shape",
+            extra: extra.agDescription,
+            type: .info)
+        
+        if let value = type.toNetlessValue {
+            memberState.currentApplianceName = value
+        }
+        
+        if let value = type.toNetlessType {
+            memberState.shapeType = value
+        }
+        
+        memberState.strokeColor = color.toNetlessValue
+        memberState.strokeWidth = NSNumber.init(value: lineWidth)
+        whiteRoom.setMemberState(memberState)
+        
+        extra = ["memberState": memberState.agDescription]
+        
+        log(content: "set member state",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "setMemberState")
+    }
+}
+
+// MARK: - private
+private extension FcrBoardMainWindow {
+    func log(content: String,
+             extra: String? = nil,
+             type: FcrBoardLogType,
+             fromClass: AnyClass? = nil,
+             funcName: String = #function,
+             line: Int = #line) {
+        var classType: AnyClass
+        
+        if let `fromClass` = fromClass {
+            classType = fromClass
+        } else {
+            classType = self.classForCoder
+        }
+        
+        logTube?.onBoardLog(content: content,
+                            extra: extra,
+                            type: type,
+                            fromClass: classType,
+                            funcName: funcName,
+                            line: line)
+    }
+    
+    func setUpNetless() {
+        let disableSerialization = false
+        let viewMode: WhiteViewMode = .broadcaster
+        
+        whiteRoom.setMemberState(memberState)
+        whiteRoom.disableSerialization(disableSerialization)
+        whiteRoom.setViewMode(.broadcaster)
+        whiteRoom.disableCameraTransform(true)
+        
+        log(content: "set member state",
+            extra: memberState.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "setMemberState")
+        
+        log(content: "disable serialization",
+            extra: disableSerialization.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "disableSerialization")
+        
+        log(content: "set view mode",
+            extra: memberState.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "setViewMode")
+    }
+    
+    func combineWhiteSceneImages(folder: String,
+                                 fileName: String,
+                                 scenePaths: [String],
+                                 combinedPath: @escaping ((String?) -> Void)) {
+        // folder create
+        if !FileManager.default.fileExists(atPath: folder,
+                                           isDirectory: nil) {
+            try? FileManager.default.createDirectory(atPath: folder,
+                                                     withIntermediateDirectories: true,
+                                                     attributes: nil)
+        }
+        
+        var imageList = [UIImage]()
+        
+        for (index, scenePath) in scenePaths.enumerated() {
+            // Step1: 获取图片
+            self.whiteRoom.getSceneSnapshotImage(scenePath,
+                                                 completion: { [weak self] image in
+                guard let `self` = self,
+                      let image = image else {
+                    return
+                }
+                
+                let netlessExtra = ["scenePath": scenePath]
+                
+                self.log(content: "get single white scene path successfully",
+                         extra: netlessExtra.agDescription,
+                         type: .info,
+                         fromClass: WhiteRoom.self,
+                         funcName: "getSceneSnapshotImage")
+                
+                imageList.append(image)
+                if index == (scenePaths.count - 1) {
+                    DispatchQueue.global().async {
+                        // Step2: 合成长图
+                        let combinedImage = self.combineImages(imageList)
+                        // Step3: 保存图片至指定文件夹
+                        let filePath = folder.appendingPathComponent(fileName)
+                        let combinedfilePath = self.saveImage(filePath: filePath,
+                                                              image: combinedImage)
+                        combinedPath(combinedfilePath)
+                        return
+                    }
+                }
+            })
+        }
+    }
+    
+    func combineImages(_ imageList: [UIImage]) -> UIImage? {
+        var width: CGFloat = 0
+        var height: CGFloat = 0
+        
+        for image in imageList {
+            width = (image.size.width > width) ? image.size.width : width
+            height += image.size.height
+        }
+        
+        UIGraphicsBeginImageContext(CGSize(width: width,
+                                           height: height))
+        var imageY: CGFloat = 0
+        
+        for image in imageList {
+            image.draw(at: CGPoint(x: 0,
+                                   y: imageY))
+            imageY += image.size.height
+        }
+        
+        let drawImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return drawImage
+    }
+    
+    func saveImage(filePath: String,
+                   image: UIImage?) -> String? {
+        guard let image = image,
+              let data = image.jpegData(compressionQuality: 0.5) else {
+            return nil
+        }
+        let extra = ["filePath": filePath]
+        log(content: "save snapshot combined image",
+            extra: extra.agDescription,
+            type: .info)
+        
+        let fileUrl = URL(fileURLWithPath: filePath)
+        try? data.write(to: fileUrl)
+        return filePath
+    }
+}
+
+// MARK: - FcrBoardMainWindowNeedObserve
+extension FcrBoardMainWindow: FcrBoardMainWindowNeedObserve {
+    func onRoomStateChanged(_ modifyState: WhiteRoomState) {
+        if let scenePath = modifyState.sceneState?.scenePath {
+            let extra = ["scenePath": scenePath]
+            log(content: "on room state changed",
+                extra: extra.agDescription,
+                type: .info)
+            
+            currentScenePath = scenePath
+        }
+        
+        if let pageState = modifyState.pageState {
+            let extra = ["pageState": pageState.agDescription]
+            log(content: "on room state changed",
+                extra: extra.agDescription,
+                type: .info)
+            
+            delegate?.onPageInfoUpdated(info: pageState.toFcr)
+        }
+    }
+    
+    func onCanRedoStepsUpdate(_ canRedoSteps: Int) {
+        var extra = ["canRedoSteps": canRedoSteps.agDescription]
+        
+        log(content: "on can redo steps update",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteSDK.self,
+            funcName: "fireCanRedoStepsUpdate")
+        
+        let enable = (canRedoSteps > 0)
+        
+        extra = ["enable": enable.agDescription]
+        
+        log(content: "on redo state updated",
+            extra: extra.agDescription,
+            type: .info)
+        
+        delegate?.onRedoStateUpdated(enable: enable)
+    }
+    
+    func onCanUndoStepsUpdate(_ canUndoSteps: Int) {
+        var extra = ["canUndoSteps": canUndoSteps.agDescription]
+        
+        log(content: "on can undo steps update",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteSDK.self,
+            funcName: "fireCanRedoStepsUpdate")
+        
+        let enable = (canUndoSteps > 0)
+        
+        extra = ["enable": enable.agDescription]
+        
+        log(content: "on undo state updated",
+            extra: extra.agDescription,
+            type: .info)
+        
+        delegate?.onUndoStateUpdated(enable: enable)
+    }
+    
+    func onStartAudioMixing(filePath: String,
+                            loopback: Bool,
+                            replace: Bool,
+                            cycle: Int) {
+        let extra = ["filePath": filePath,
+                     "loopback": loopback.agDescription,
+                     "replace": replace.agDescription,
+                     "cycle": cycle.agDescription]
+        
+        log(content: "on start audio mixing",
+            extra: extra.agDescription,
+            type: .info)
+        
+        delegate?.onStartAudioMixing(filePath: filePath,
+                                     loopback: loopback,
+                                     replace: replace,
+                                     cycle: cycle)
+    }
+    
+    func onStopAudioMixing() {
+        log(content: "on stop audio mixing",
+            type: .info)
+        
+        delegate?.onStopAudioMixing()
+    }
+    
+    func onAudioMixingPositionUpdated(position: Int) {
+        let extra = ["position": position.agDescription]
+        
+        log(content: "on stop audio mixing",
+            extra: extra.agDescription,
+            type: .info)
+        
+        delegate?.onAudioMixingPositionUpdated(position: position)
+    }
+}

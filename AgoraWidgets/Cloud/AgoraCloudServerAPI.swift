@@ -159,8 +159,6 @@ extension AgoraCloudServerAPI {
         let taskToken: String?
         // 【需要转换的文件才有】
         let taskProgress: AgoraCloudTaskProgress?
-        // 【需要转换的文件才有】,是否转换
-//        let convert: Bool?
         // 【需要转换的文件才有】需要转换的文件才有
         let conversion: Conversion?
     }
@@ -171,6 +169,5 @@ extension AgoraCloudServerAPI {
         let scale: Double
         let canvasVersion: Bool?
         let outputFormat: String
-//        let convert: Bool?
     }
 }

@@ -104,8 +104,8 @@ extension String {
             return nil
         }
         return AgoraWidgetRequestKeys(agoraAppId: appId,
-                                token: token,
-                                host: host)
+                                      token: token,
+                                      host: host)
     }
     
     func toSyncTimestamp() -> Int64? {
@@ -268,5 +268,23 @@ public func GetWidgetLogFolder() -> String {
 extension AgoraBaseWidget {
     var isTeacher: Bool {
         return info.localUserInfo.userRole == "teacher"
+    }
+}
+
+extension NSError {
+    static func create(_ error: Error?) -> Error {
+        if let `error` = error {
+            return error
+        } else {
+            return NSError.defaultError()
+        }
+    }
+}
+
+extension NSError {
+    static func defaultError() -> NSError {
+        let error = NSError(domain: "",
+                            code: -1)
+        return error
     }
 }

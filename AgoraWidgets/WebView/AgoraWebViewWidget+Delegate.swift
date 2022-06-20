@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import WebKit
 
 extension AgoraWebViewWidget: WKNavigationDelegate {
     public func webView(_ webView: WKWebView,
