@@ -279,6 +279,15 @@ private extension FcrBoardWidget {
         guard let `mainWindow` = mainWindow else {
             return
         }
+        switch PHPhotoLibrary.authorizationStatus() {
+        case .restricted, .denied, .limited, .notDetermined:
+            // 自定弹窗
+            self.sendMessage(signal: .OnBoardSaveResult(.noAlbumAuth))
+            return
+        default:
+            break
+        }
+        
         AgoraWidgetLoading.addLoading(in: view)
         mainWindow.getAllWindowsSnapshotImageList(combinedCount: 10,
                                                   imageFolder: dt.snapshotFolder) { [weak self] list in
@@ -373,26 +382,14 @@ private extension FcrBoardWidget {
             guard let `self` = self else {
                 return
             }
-            // 判断权限
-            switch PHPhotoLibrary.authorizationStatus() {
-            case .authorized:
-                for path in imagePathList {
-                    guard let image = UIImage(contentsOfFile: path) else {
-                        continue
-                    }
-                    UIImageWriteToSavedPhotosAlbum(image,
-                                                   self,
-                                                   #selector(self.didFinishSavingImage(image:error:contextInfo:)),
-                                                   nil)
+            for path in imagePathList {
+                guard let image = UIImage(contentsOfFile: path) else {
+                    continue
                 }
-            case .restricted, .denied, .limited:
-                // 自定弹窗，需要重新截图
-                self.sendMessage(signal: .PhotoAuth)
-                self.endSnaoshot()
-            default:
-                // 系统弹窗，需要重新截图
-                self.endSnaoshot()
-                break
+                UIImageWriteToSavedPhotosAlbum(image,
+                                               self,
+                                               #selector(self.didFinishSavingImage(image:error:contextInfo:)),
+                                               nil)
             }
         }
     }
@@ -400,7 +397,9 @@ private extension FcrBoardWidget {
     @objc func didFinishSavingImage(image: UIImage,
                                     error: NSError?,
                                     contextInfo: UnsafeRawPointer?) {
-        endSnaoshot()
+        try? FileManager.default.removeItem(atPath: dt.currentSnapshotFolder)
+        AgoraWidgetLoading.removeLoading(in: view)
+        
         if let error = error {
           log(content: "[FcrBoardWidget]: didFinishSavingImage error",
               extra: error.description,
@@ -410,12 +409,9 @@ private extension FcrBoardWidget {
         log(content: "[FcrBoardWidget]: didFinishSavingImage",
             extra: dt.currentSnapshotFolder,
             type: .info)
+        
+        self.sendMessage(signal: .OnBoardSaveResult(.savedToAlbum))
       }
-    
-    func endSnaoshot() {
-        try? FileManager.default.removeItem(atPath: dt.currentSnapshotFolder)
-        AgoraWidgetLoading.removeLoading(in: view)
-    }
     
     func sendMessage(signal: FcrBoardInteractionSignal) {
         guard let text = signal.toMessageString() else {
@@ -430,7 +426,9 @@ private extension FcrBoardWidget {
         guard let `mainWindow` = mainWindow else {
             return
         }
-        dt.hasOperationPrivilege = dt.isLocalTeacher()
+        if dt.isLocalTeacher() {
+            dt.hasOperationPrivilege = true
+        }
         let page = mainWindow.getPageInfo()
         dt.page = (index: Int(page.showIndex),
                    count: Int(page.count))
