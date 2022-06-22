@@ -74,6 +74,9 @@ enum FcrBoardDrawShape: Int, AgoraWidgetDescription {
         case .arrow:     return .ApplianceArrow
         case .rectangle: return .ApplianceRectangle
         case .ellipse:   return .ApplianceEllipse
+        case .triangle:  return .ApplianceShape
+        case .rhombus:  return .ApplianceShape
+        case .pentagram:  return .ApplianceShape
         default:         return nil
         }
     }

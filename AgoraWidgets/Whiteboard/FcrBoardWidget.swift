@@ -382,6 +382,7 @@ private extension FcrBoardWidget {
             guard let `self` = self else {
                 return
             }
+            self.dt.imageCountToSave = imagePathList.count
             for path in imagePathList {
                 guard let image = UIImage(contentsOfFile: path) else {
                     continue
@@ -397,18 +398,22 @@ private extension FcrBoardWidget {
     @objc func didFinishSavingImage(image: UIImage,
                                     error: NSError?,
                                     contextInfo: UnsafeRawPointer?) {
-        try? FileManager.default.removeItem(atPath: dt.currentSnapshotFolder)
-        AgoraWidgetLoading.removeLoading(in: view)
-        
         if let error = error {
-          log(content: "[FcrBoardWidget]: didFinishSavingImage error",
+          log(content: "[FcrBoardWidget]: save single image error",
               extra: error.description,
               type: .error)
+        } else {
+            log(content: "[FcrBoardWidget]: save single image successfully",
+                extra: dt.currentSnapshotFolder,
+                type: .info)
+        }
+        self.dt.imageCountToSave -= 1
+        guard self.dt.imageCountToSave == 0 else {
+            return
         }
 
-        log(content: "[FcrBoardWidget]: didFinishSavingImage",
-            extra: dt.currentSnapshotFolder,
-            type: .info)
+        try? FileManager.default.removeItem(atPath: dt.currentSnapshotFolder)
+        AgoraWidgetLoading.removeLoading(in: view)
         
         self.sendMessage(signal: .OnBoardSaveResult(.savedToAlbum))
       }
@@ -437,8 +442,9 @@ private extension FcrBoardWidget {
         if let usageExtra = info.roomProperties?.toObj(FcrBooardUsageOfExtra.self) {
             dt.grantedUsers = usageExtra.grantedUsers
         }
-        
+        // 发送页数，白板授权用户初始状态
         sendMessage(signal: .BoardPageChanged(.count(dt.page.count)))
+        sendMessage(signal: .GetBoardGrantedUsers(Array(dt.grantedUsers.keys)))
     }
 }
 

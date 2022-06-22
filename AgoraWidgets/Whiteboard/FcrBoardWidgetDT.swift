@@ -89,6 +89,8 @@ class FcrBoardWidgetDT {
         }
     }
     
+    var imageCountToSave: Int = 0
+    
     init(localUserInfo: AgoraWidgetUserInfo,
          roomName: String) {
         self.localUserInfo = localUserInfo
