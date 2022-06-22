@@ -23,8 +23,6 @@ class FcrBoardMainWindow: NSObject {
         }
     }
     
-    private var currentScenePath: String?
-    
     private var memberState: WhiteMemberState
     
     private(set) var hasOperationPrivilege: Bool
@@ -295,28 +293,42 @@ extension FcrBoardMainWindow {
                  funcName: "addPage")
 
         whiteRoom.addPage()
+        
         return nil
     }
     
     func removePage() -> FcrBoardError? {
-        let extra = ["currentScenePath": StringIsEmpty(currentScenePath)]
+        let extra = ["currentPage": getPageInfo().agDescription]
         
-        log(content: "remove page",
+        let content = "remove page"
+        
+        log(content: content,
             extra: extra.agDescription,
             type: .info)
         
-        guard let scenePath = currentScenePath else {
-            return FcrBoardError(code: -1,
-                                 message: "currentScenePath nil")
-        }
-        
-        log(content: "remove page",
+        log(content: content,
             extra: extra.agDescription,
             type: .info,
             fromClass: WhiteRoom.self,
-            funcName: "removeScenes")
+            funcName: "removePage")
         
-        whiteRoom.removeScenes(scenePath)
+        whiteRoom.removePage { [weak self] isSuccess in
+            var logType: FcrBoardLogType
+            var text: String
+            
+            if isSuccess {
+                logType = .info
+                text = content
+            } else {
+                logType = .error
+                text = content + " failure"
+            }
+            
+            self?.log(content: content,
+                      extra: extra.agDescription,
+                      type: logType)
+        }
+        
         return nil
     }
     
@@ -650,8 +662,7 @@ private extension FcrBoardMainWindow {
         
         for (index, scenePath) in scenePaths.enumerated() {
             // Step1: 获取图片
-            self.whiteRoom.getSceneSnapshotImage(scenePath,
-                                                 completion: { [weak self] image in
+            let completion: (UIImage?) -> () = { [weak self] (image) in
                 guard let `self` = self,
                       let image = image else {
                     return
@@ -666,19 +677,25 @@ private extension FcrBoardMainWindow {
                          funcName: "getSceneSnapshotImage")
                 
                 imageList.append(image)
-                if index == (scenePaths.count - 1) {
-                    DispatchQueue.global().async {
-                        // Step2: 合成长图
-                        let combinedImage = self.combineImages(imageList)
-                        // Step3: 保存图片至指定文件夹
-                        let filePath = folder.appendingPathComponent(fileName)
-                        let combinedfilePath = self.saveImage(filePath: filePath,
-                                                              image: combinedImage)
-                        combinedPath(combinedfilePath)
-                        return
-                    }
+                
+                guard index == (scenePaths.count - 1) else {
+                    return
                 }
-            })
+                
+                DispatchQueue.global().async {
+                    // Step2: 合成长图
+                    let combinedImage = self.combineImages(imageList)
+                    // Step3: 保存图片至指定文件夹
+                    let filePath = folder.appendingPathComponent(fileName)
+                    let combinedfilePath = self.saveImage(filePath: filePath,
+                                                          image: combinedImage)
+                    combinedPath(combinedfilePath)
+                    return
+                }
+            }
+            
+            whiteRoom.getSceneSnapshotImage(scenePath,
+                                            completion: completion)
         }
     }
     
@@ -726,23 +743,24 @@ private extension FcrBoardMainWindow {
 // MARK: - FcrBoardMainWindowNeedObserve
 extension FcrBoardMainWindow: FcrBoardMainWindowNeedObserve {
     func onRoomStateChanged(_ modifyState: WhiteRoomState) {
+        var extra = [String: String]()
+        
         if let scenePath = modifyState.sceneState?.scenePath {
-            let extra = ["scenePath": scenePath]
+            extra["scenePath"] = scenePath
             log(content: "on room state changed",
                 extra: extra.agDescription,
                 type: .info)
-            
-            currentScenePath = scenePath
         }
         
         if let pageState = modifyState.pageState {
-            let extra = ["pageState": pageState.agDescription]
-            log(content: "on room state changed",
-                extra: extra.agDescription,
-                type: .info)
+            extra["pageState"] = pageState.agDescription
             
             delegate?.onPageInfoUpdated(info: pageState.toFcr)
         }
+        
+        log(content: "on room state changed",
+            extra: extra.agDescription,
+            type: .info)
     }
     
     func onCanRedoStepsUpdate(_ canRedoSteps: Int) {

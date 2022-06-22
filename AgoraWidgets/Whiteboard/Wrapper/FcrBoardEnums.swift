@@ -9,9 +9,9 @@ import Foundation
 import Whiteboard
 
 enum FcrBoardLogType: Int {
-    case info = 1
+    case info    = 1
     case warning = 2
-    case error = 3
+    case error   = 3
 }
 
 enum FcrBoardRoomConnectionState: Int, AgoraWidgetDescription {
