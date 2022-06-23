@@ -178,6 +178,7 @@
             make.top.left.width.equalTo(self);
             make.bottom.equalTo(self).offset(-40);
     }];
+    
     [self.chatBar mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self).offset(10);
         make.bottom.equalTo(self).offset(-5);
@@ -206,6 +207,17 @@
 ////    self.tableView.frame = CGRectMake(0, 0, self.bounds.size.width,self.bounds.size.height - 40);
 ////    self.chatBar.frame = CGRectMake(0, self.bounds.size.height - 40, self.bounds.size.width, 40);
 //}
+
+- (void)hideMuteButton {
+    [self.chatBar mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self).offset(10);
+        make.bottom.equalTo(self).offset(-5);
+        make.right.equalTo(self).offset(-10);
+        make.height.equalTo(@30);
+    }];
+    
+    self.muteAllButton.hidden = YES;
+}
 
 #pragma mark - getter
 
@@ -321,7 +333,7 @@
 - (void)setChatManager:(ChatManager *)chatManager
 {
     _chatManager = chatManager;
-    if(_chatManager.userConfig.role != 2){
+    if(_chatManager.userConfig.role != 2 & self.muteAllButton.isHidden == NO){
         // 老师
         [self addSubview:self.muteAllButton];
         [self.chatBar mas_updateConstraints:^(MASConstraintMaker *make) {

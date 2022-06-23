@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,strong) ChatManager* chatManager;
 - (void)updateMsgs:(NSMutableArray<EMMessage*>*)msgArray;
 - (void)scrollToBottomRow;
+- (void)hideMuteButton;
 @end
 
 NS_ASSUME_NONNULL_END
