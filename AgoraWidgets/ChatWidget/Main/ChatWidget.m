@@ -363,7 +363,7 @@ static const NSString* kChatRoomId = @"chatroomId";
                 
                 break;
             case ChatRoomStateLoginFailed:
-                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_login_faild" ag_localizedIn:@"AgoraWidgets"] duration:2 finishHandler:^{
+                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_login_faild" agora_localized:@"AgoraWidgets"] duration:2 finishHandler:^{
                         
                 }];
                 break;
@@ -377,7 +377,7 @@ static const NSString* kChatRoomId = @"chatroomId";
                 
                 break;
             case ChatRoomStateJoinFail:
-                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_join_faild" ag_localizedIn:@"AgoraWidgets"] duration:2 finishHandler:^{
+                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_join_faild" agora_localized:@"AgoraWidgets"] duration:2 finishHandler:^{
                         
                 }];
                 break;

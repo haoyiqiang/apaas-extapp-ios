@@ -329,10 +329,10 @@ static BOOL isSDKInited = NO;
                         }
                     }else{
                         if(error.code == EMErrorMessageIncludeIllegalContent)
-                            [weakself.delegate exceptionDidOccur:[@"fcr_hyphenate_im_send_faild_by_sensitive" ag_localizedIn:@"AgoraWidgets"]];
+                            [weakself.delegate exceptionDidOccur:[@"fcr_hyphenate_im_send_faild_by_sensitive" agora_localized:@"AgoraWidgets"]];
                         else {
                             if(error.code == EMErrorUserMuted) {
-                                [weakself.delegate exceptionDidOccur:[@"fcr_hyphenate_im_send_faild_by_mute" ag_localizedIn:@"AgoraWidgets"]];
+                                [weakself.delegate exceptionDidOccur:[@"fcr_hyphenate_im_send_faild_by_mute" agora_localized:@"AgoraWidgets"]];
                                 if(!weakself.isAllMuted) {
                                     if(!weakself.isMuted) {
                                         weakself.isMuted = YES;
@@ -474,12 +474,12 @@ static BOOL isSDKInited = NO;
 
 - (void)userAccountDidLoginFromOtherDevice
 {
-    [self.delegate exceptionDidOccur:[@"fcr_hyphenate_im_login_on_other_device" ag_localizedIn:@"AgoraWidgets"]];
+    [self.delegate exceptionDidOccur:[@"fcr_hyphenate_im_login_on_other_device" agora_localized:@"AgoraWidgets"]];
 }
 
 - (void)userAccountDidForcedToLogout:(EMError *)aError
 {
-    [self.delegate exceptionDidOccur:[@"fcr_hyphenate_im_logout_forced" ag_localizedIn:@"AgoraWidgets"]];
+    [self.delegate exceptionDidOccur:[@"fcr_hyphenate_im_logout_forced" agora_localized:@"AgoraWidgets"]];
 }
 
 #pragma mark - EMChatManagerDelegate

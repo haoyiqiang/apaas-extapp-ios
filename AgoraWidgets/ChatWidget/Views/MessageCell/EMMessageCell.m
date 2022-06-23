@@ -112,7 +112,7 @@
     _roleTag.leftViewMode = UITextFieldViewModeAlways;
     _roleTag.rightView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 8, 0)];
     _roleTag.rightViewMode = UITextFieldViewModeAlways;
-    _roleTag.text = [@"fcr_hyphenate_im_teacher" ag_localizedIn:@"AgoraWidgets"];
+    _roleTag.text = [@"fcr_hyphenate_im_teacher" agora_localized:@"AgoraWidgets"];
     _roleTag.enabled = NO;
     [self.contentView addSubview:_roleTag];
     
@@ -262,7 +262,7 @@
         }
     }
     if(role.longValue == 1 || role.longValue == 3) {
-        self.roleTag.text = role.longValue == 1?[@"fcr_hyphenate_im_teacher" ag_localizedIn:@"AgoraWidgets"] : [@"fcr_hyphenate_im_assistant" ag_localizedIn:@"AgoraWidgets"];
+        self.roleTag.text = role.longValue == 1?[@"fcr_hyphenate_im_teacher" agora_localized:@"AgoraWidgets"] : [@"fcr_hyphenate_im_assistant" agora_localized:@"AgoraWidgets"];
         self.roleTag.hidden = NO;
     }else{
         self.roleTag.hidden = YES;

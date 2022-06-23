@@ -112,7 +112,7 @@ extension FcrBoardMainWindow {
             appParams = WhiteRegisterAppParams(url: config.resource,
                                                kind: "Talkative",
                                                appOptions: [:])
-        } else if let bundle = Bundle.ag_compentsBundleNamed("AgoraWidgets"),
+        } else if let bundle = Bundle.agora_bundle("AgoraWidgets"),
                   let javascriptPath = bundle.path(forResource: "app-talkative",
                                                    ofType: "js"),
                   let javascriptString = try? String(contentsOfFile: javascriptPath,

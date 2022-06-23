@@ -19,7 +19,7 @@ class AgoraRtmIMTopBar: UIView {
         
         titleLabel = UILabel()
         titleLabel.textColor = UIColor(hex: 0x191919)
-        titleLabel.text = "fcr_rtm_im_title".ag_localizedIn("AgoraWidgets")
+        titleLabel.text = "fcr_rtm_im_title".agora_localized("AgoraWidgets")
         titleLabel.font = UIFont.systemFont(ofSize: 13)
         addSubview(titleLabel)
         titleLabel.mas_makeConstraints { make in

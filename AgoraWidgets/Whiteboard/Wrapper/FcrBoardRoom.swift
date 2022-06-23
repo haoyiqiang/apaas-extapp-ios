@@ -197,7 +197,7 @@ private extension FcrBoardRoom {
     }
     
     func registerH5App() {
-        guard let bundle = Bundle.ag_compentsBundleNamed("AgoraWidgets"),
+        guard let bundle = Bundle.agora_bundle("AgoraWidgets"),
               let javascriptPath = bundle.path(forResource: "app-talkative",
                                                ofType: "js"),
               let javascriptString = try? String(contentsOfFile: javascriptPath,

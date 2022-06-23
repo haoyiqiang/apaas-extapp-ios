@@ -67,7 +67,7 @@ const static NSInteger TAG_BASE = 1000;
     }];
     
     self.chatButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.chatButton setTitle:[@"fcr_hyphenate_im_chat" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal];
+    [self.chatButton setTitle:[@"fcr_hyphenate_im_chat" agora_localized:@"AgoraWidgets"] forState:UIControlStateNormal];
     [self.chatButton setTitleColor:[UIColor colorWithRed:25/255.0 green:25/255.0 blue:25/255.0 alpha:1.0] forState:UIControlStateNormal];
     self.chatButton.tag = TAG_BASE;
     self.chatButton.titleLabel.font = [UIFont systemFontOfSize:12];
@@ -93,7 +93,7 @@ const static NSInteger TAG_BASE = 1000;
     }];
     
     self.announcementButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.announcementButton setTitle:[@"fcr_hyphenate_im_announcement" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal];
+    [self.announcementButton setTitle:[@"fcr_hyphenate_im_announcement" agora_localized:@"AgoraWidgets"] forState:UIControlStateNormal];
     self.announcementButton.tag = TAG_BASE + 1;
     self.announcementButton.titleLabel.font = [UIFont systemFontOfSize:12];
     [self.announcementButton addTarget:self action:@selector(clickAction:) forControlEvents:UIControlEventTouchUpInside];
