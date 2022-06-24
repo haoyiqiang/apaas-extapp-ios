@@ -19,13 +19,9 @@ class FcrWhiteBoardServerAPI: AgoraWidgetServerAPI {
         
         let url = host + "/edu/apps/\(appId)/v2/rooms/\(roomId)/widgets/netlessBoard/windowManager"
         
-        let header = ["x-agora-token": token,
-                      "x-agora-uid": userId]
-        
         request(event: "get-window-attributes",
                 url: url,
                 method: .get,
-                header: header,
                 isRetry: true) { (json) in
             guard let data = json["data"] as? [String: Any] else {
                 failure?(NSError(domain: "data nil",

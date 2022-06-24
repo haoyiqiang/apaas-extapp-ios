@@ -43,6 +43,16 @@ class AgoraWidgetServerAPI {
                  isRetry: Bool = false,
                  success: JsonCompletion? = nil,
                  failure: FailureCompletion? = nil) {
+        var tHeader = ["x-agora-token": token,
+                       "x-agora-uid": userId,
+                       "Authorization": "agora token=\"\(token)\""]
+        
+        if let `header` = header {
+            tHeader.merge(header) { _, new in
+                new
+            }
+        }
+        
         let event = ArRequestEvent(name: event)
         
         let requestType: ArRequestType = .http(method,

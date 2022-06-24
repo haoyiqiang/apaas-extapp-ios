@@ -60,7 +60,9 @@ class AgoraCloudServerAPI: NSObject {
         let type = ArRequestType.http(.get,
                                       url: urlString)
         let header = ["x-agora-token" : baseInfo.token,
-                      "x-agora-uid" : uid]
+                      "x-agora-uid" : uid,
+                      "Authorization": "agora token=\"\(baseInfo.token)\""]
+        
         var parameters: [String : Any] = ["pageNo" : pageNo,
                                           "pageSize" : pageSize]
         if let resourceStr = resourceName {

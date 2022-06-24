@@ -17,13 +17,9 @@ class AgoraPopupQuizServerAPI: AgoraWidgetServerAPI {
         let url = host + "/edu/apps/\(appId)/v2/rooms/\(roomId)/widgets/popupQuizs/\(selectorId)/users/\(userId)"
         let parameters = ["selectedItems": answerList]
         
-        let header = ["x-agora-token": token,
-                      "x-agora-uid": userId]
-        
         request(event: "pop-up-quiz-submit",
                 url: url,
                 method: .put,
-                header: header,
                 parameters: parameters) { _ in
             success?()
         } failure: { (error) in
