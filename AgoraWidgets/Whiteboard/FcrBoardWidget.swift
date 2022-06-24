@@ -17,20 +17,39 @@ struct FcrBoardInitCondition {
     
     var logger: AgoraWidgetLogger
     
-    private var dt: FcrBoardWidgetDT
     private var boardRoom: FcrBoardRoom?
     private var mainWindow: FcrBoardMainWindow?
 
-    var initCondition = FcrBoardInitCondition() {
+    private var initCondition = FcrBoardInitCondition() {
         didSet {
-            if initCondition.configComplete,
-               initCondition.needJoin {
-                joinWhiteboard()
+            guard initCondition.configComplete,
+                  initCondition.needJoin
+            else {
+                return
             }
+            joinWhiteboard()
         }
     }
     
     private var serverAPI: FcrWhiteBoardServerAPI?
+    
+    /**Data**/
+    private var currentSnapshotFolder: String = ""
+    private var snapshotFolder: String {
+        get {
+            let folderName = "\(info.roomInfo.roomName)_\(String.currentTimeString())"
+            let folder = NSSearchPathForDirectoriesInDomains(.cachesDirectory,
+                                                             .userDomainMask,
+                                                             true)[0].appendingPathComponent(folderName)
+            currentSnapshotFolder = folder
+            return folder
+        }
+    }
+    
+    private var imageCountToSave: Int = 0
+    
+    // 教师角色加入房间成功时设置，学生角色监听grantedUsers变化设置
+    private var hasOperationPrivilege: Bool = false
     
     override init(widgetInfo: AgoraWidgetInfo) {
         let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId,
@@ -40,24 +59,15 @@ struct FcrBoardInitCondition {
         #endif
         self.logger = logger
         
-        self.dt = FcrBoardWidgetDT(localUserInfo: widgetInfo.localUserInfo,
-                                   roomName: widgetInfo.roomInfo.roomName)
-        
         super.init(widgetInfo: widgetInfo)
-        
-        self.dt.delegate = self
     }
     
     public override func onLoad() {
         super.onLoad()
         
-        if let configExtra = info.roomProperties?.toObj(FcrBooardConfigOfExtra.self) {
-            dt.configExtra = configExtra
-        }
-        if let usageExtra = info.roomProperties?.toObj(FcrBooardUsageOfExtra.self) {
-            dt.grantedUsers = usageExtra.grantedUsers
-        }
-        log(content: "[FcrBoardWidget]: onLoad room properties",
+        analyzeBoardConfigFromRoomProperties()
+        
+        log(content: "onLoad room properties",
             extra: info.roomProperties?.description,
             type: .info)
     }
@@ -70,16 +80,13 @@ struct FcrBoardInitCondition {
                                             cause: cause,
                                             keyPaths: keyPaths,
                                             operatorUser: operatorUser)
-        log(content: "[FcrBoardWidget]: onWidgetRoomPropertiesUpdated",
+        log(content: "onWidgetRoomPropertiesUpdated",
             extra: properties.description,
             type: .info)
         
-        if let configExtra = properties.toObj(FcrBooardConfigOfExtra.self) {
-            dt.configExtra = configExtra
-        }
-        if let usageExtra = properties.toObj(FcrBooardUsageOfExtra.self) {
-            dt.grantedUsers = usageExtra.grantedUsers
-        }
+        analyzeBoardConfigFromRoomProperties()
+
+        analyzeGrantedUsersFromRoomProperties()
     }
     
     public override func onWidgetRoomPropertiesDeleted(_ properties: [String : Any]?,
@@ -90,19 +97,17 @@ struct FcrBoardInitCondition {
                                             cause: cause,
                                             keyPaths: keyPaths,
                                             operatorUser: operatorUser)
-        log(content: "[FcrBoardWidget]: onWidgetRoomPropertiesDeleted",
+        log(content: "onWidgetRoomPropertiesDeleted",
             extra: keyPaths.agDescription,
             type: .info)
         
-        if let usageExtra = properties?.toObj(FcrBooardUsageOfExtra.self) {
-            dt.grantedUsers = usageExtra.grantedUsers
-        }
+        analyzeGrantedUsersFromRoomProperties()
     }
     
     public override func onMessageReceived(_ message: String) {
         super.onMessageReceived(message)
         
-        log(content: "[FcrBoardWidget]: onMessageReceived",
+        log(content: "onMessageReceived",
             extra: message,
             type: .info)
         
@@ -207,11 +212,11 @@ private extension FcrBoardWidget {
             
             updateRoomProperties(granedtUsers,
                                  cause: nil) { [weak self] in
-                self?.log(content: "[FcrBoardWidget]: updateRoomProperties successfully",
+                self?.log(content: "updateRoomProperties successfully",
                           extra: granedtUsers.agDescription,
                           type: .info)
             } failure: { [weak self] (error) in
-                self?.log(content: "[FcrBoardWidget]: updateRoomProperties error",
+                self?.log(content: "updateRoomProperties error",
                           extra: granedtUsers.agDescription,
                           type: .error)
             }
@@ -225,11 +230,11 @@ private extension FcrBoardWidget {
             }
             deleteRoomProperties(keyPaths,
                                  cause: nil) { [weak self] in
-                self?.log(content: "[FcrBoardWidget]: deleteRoomProperties successfully",
+                self?.log(content: "deleteRoomProperties successfully",
                           extra: keyPaths.agDescription,
                           type: .info)
             } failure: { [weak self] (error) in
-                self?.log(content: "[FcrBoardWidget]: deleteRoomProperties unsuccessfully",
+                self?.log(content: "deleteRoomProperties unsuccessfully",
                           extra: keyPaths.agDescription,
                           type: .error)
             }
@@ -244,8 +249,9 @@ private extension FcrBoardWidget {
         case .index(let index):
             mainWindow.setPageIndex(index: UInt16(index < 0 ? 0 : index))
         case .count(let count):
-            var addFlag = (count >= dt.page.count)
-            let changeCount = abs(count - dt.page.count)
+            let pageCount = Int(mainWindow.getPageInfo().count)
+            var addFlag = (count >= pageCount)
+            let changeCount = abs(count - pageCount)
             for _ in (0 ..< changeCount) {
                 if addFlag {
                     mainWindow.addPage()
@@ -290,7 +296,7 @@ private extension FcrBoardWidget {
         
         AgoraWidgetLoading.addLoading(in: view)
         mainWindow.getAllWindowsSnapshotImageList(combinedCount: 10,
-                                                  imageFolder: dt.snapshotFolder) { [weak self] list in
+                                                  imageFolder: snapshotFolder) { [weak self] list in
             self?.saveImagesToPhotoLibrary(imagePathList: list)
         }
     }
@@ -326,7 +332,7 @@ private extension FcrBoardWidget {
     }
     
     func joinWhiteboard() {
-        guard let config = dt.configExtra else {
+        guard let config = info.roomProperties?.toObj(FcrBooardConfigOfExtra.self) else {
             return
         }
         
@@ -334,6 +340,7 @@ private extension FcrBoardWidget {
         let boardRegion = FcrBoardRegion(rawValue: config.boardRegion) ?? .cn
         boardRoom = FcrBoardRoom(appId: config.boardAppId,
                                  region: boardRegion)
+        boardRoom?.delegate = self
         
         view.superview?.layoutIfNeeded()
         
@@ -351,9 +358,10 @@ private extension FcrBoardWidget {
         let joinConfig = FcrBoardRoomJoinConfig(roomId: config.boardId,
                                                 roomToken: config.boardToken,
                                                 boardRatio: Float(ratio),
-                                                hasOperationPrivilege: dt.hasOperationPrivilege,
+                                                hasOperationPrivilege: isLocalTeacher(),
                                                 userId: info.localUserInfo.userUuid,
                                                 userName: info.localUserInfo.userName)
+        AgoraWidgetLoading.addLoading(in: view)
         boardRoom!.join(config: joinConfig,
                         superView: view) { [weak self] mainWindow in
             guard let `self` = self else {
@@ -382,7 +390,7 @@ private extension FcrBoardWidget {
             guard let `self` = self else {
                 return
             }
-            self.dt.imageCountToSave = imagePathList.count
+            self.imageCountToSave = imagePathList.count
             for path in imagePathList {
                 guard let image = UIImage(contentsOfFile: path) else {
                     continue
@@ -399,60 +407,136 @@ private extension FcrBoardWidget {
                                     error: NSError?,
                                     contextInfo: UnsafeRawPointer?) {
         if let error = error {
-          log(content: "[FcrBoardWidget]: save single image error",
+          log(content: "save single image error",
               extra: error.description,
               type: .error)
         } else {
-            log(content: "[FcrBoardWidget]: save single image successfully",
-                extra: dt.currentSnapshotFolder,
+            log(content: "save single image successfully",
+                extra: currentSnapshotFolder,
                 type: .info)
         }
-        self.dt.imageCountToSave -= 1
-        guard self.dt.imageCountToSave == 0 else {
+        imageCountToSave -= 1
+        guard imageCountToSave == 0 else {
             return
         }
 
-        try? FileManager.default.removeItem(atPath: dt.currentSnapshotFolder)
+        try? FileManager.default.removeItem(atPath: currentSnapshotFolder)
         AgoraWidgetLoading.removeLoading(in: view)
         
-        self.sendMessage(signal: .OnBoardSaveResult(.savedToAlbum))
+        sendMessage(signal: .OnBoardSaveResult(.savedToAlbum))
       }
     
     func sendMessage(signal: FcrBoardInteractionSignal) {
         guard let text = signal.toMessageString() else {
-            log(content: "[FcrBoardWidget]: signal encode error!",
+            log(content: "signal encode error!",
                 type: .error)
             return
         }
         sendMessage(text)
     }
     
+    private func analyzeBoardConfigFromRoomProperties() {
+        if let configExtra = info.roomProperties?.toObj(FcrBooardConfigOfExtra.self) {
+            initCondition.configComplete = true
+        }
+    }
+    
+    private func analyzeGrantedUsersFromRoomProperties() {
+        var grantedUsers = [String]()
+
+        if let usageExtra = info.roomProperties?.toObj(FcrBooardUsageOfExtra.self) {
+            grantedUsers = Array(usageExtra.grantedUsers.keys)
+        }
+        
+        // 为保证逻辑，若本地为老师，将老师uuid加入grantedUsers中
+        if isLocalTeacher(),
+           !grantedUsers.contains(info.localUserInfo.userUuid) {
+            grantedUsers.append(info.localUserInfo.userUuid)
+        }
+        
+        var newLocalPrivilege = true
+        if !isLocalTeacher(),
+           !grantedUsers.contains(info.localUserInfo.userUuid) {
+            newLocalPrivilege = false
+        }
+        
+        var privilegeNeedChanged = (newLocalPrivilege != hasOperationPrivilege)
+        
+        guard privilegeNeedChanged else {
+            sendMessage(signal: .GetBoardGrantedUsers(grantedUsers))
+            return
+        }
+        mainWindow?.updateOperationPrivilege(hasPrivilege: newLocalPrivilege,
+                                             success: { [weak self] in
+            guard let `self` = self else {
+                return
+            }
+            self.log(info: "updateOperationPrivilege",
+                     extra: "\(newLocalPrivilege)")
+            
+            self.hasOperationPrivilege = newLocalPrivilege
+            self.sendMessage(signal: .GetBoardGrantedUsers(grantedUsers))
+        }, failure: { [weak self] error in
+            guard let `self` = self else {
+                return
+            }
+            self.log(content: "updateOperationPrivilege unsuccessfully",
+                     extra: "\(newLocalPrivilege)",
+                     type: .error)
+        })
+        
+    }
+    
+    
     func setUpInitialState() {
         guard let `mainWindow` = mainWindow else {
             return
         }
-        if dt.isLocalTeacher() {
-            dt.hasOperationPrivilege = true
+        if isLocalTeacher() {
+            hasOperationPrivilege = true
         }
-        let page = mainWindow.getPageInfo()
-        dt.page = (index: Int(page.showIndex),
-                   count: Int(page.count))
-        ifNeedSetWindowAttributes()
         
-        if let usageExtra = info.roomProperties?.toObj(FcrBooardUsageOfExtra.self) {
-            dt.grantedUsers = usageExtra.grantedUsers
+        ifNeedSetWindowAttributes()
+
+        analyzeGrantedUsersFromRoomProperties()
+        // 发送页数初始状态
+        let basePageInfo = mainWindow.getPageInfo()
+        let pageCount = Int(basePageInfo.count)
+        let pageIndex = Int(basePageInfo.showIndex)
+        sendMessage(signal: .BoardPageChanged(.count(pageCount)))
+        sendMessage(signal: .BoardPageChanged(.index(pageIndex)))
+    }
+    
+    func isLocalTeacher() -> Bool {
+        return (info.localUserInfo.userRole == "teacher")
+    }
+}
+
+// MARK: - FcrBoardRoomDelegate
+extension FcrBoardWidget: FcrBoardRoomDelegate {
+    func onConnectionStateUpdated(state: FcrBoardRoomConnectionState) {
+        let extra = state.agDescription
+        log(info: "onConnectionStateUpdated",
+            extra: extra)
+        
+        switch state {
+        case .connected:
+            AgoraWidgetLoading.removeLoading(in: view)
+        case .reconnecting:
+            AgoraWidgetLoading.addLoading(in: view)
+        case .disconnected:
+            initCondition.needJoin = true
+        default:
+            break
         }
-        // 发送页数，白板授权用户初始状态
-        sendMessage(signal: .BoardPageChanged(.count(dt.page.count)))
-        sendMessage(signal: .GetBoardGrantedUsers(Array(dt.grantedUsers.keys)))
     }
 }
 
 // MARK: - FcrBoardMainWindowDelegate
 extension FcrBoardWidget: FcrBoardMainWindowDelegate {
     func onPageInfoUpdated(info: FcrBoardPageInfo) {
-        dt.page = (index: Int(info.showIndex),
-                   count: Int(info.count))
+        sendMessage(signal: .BoardPageChanged(.count(Int(info.count))))
+        sendMessage(signal: .BoardPageChanged(.index(Int(info.showIndex))))
     }
     
     func onUndoStateUpdated(enable: Bool) {
@@ -487,37 +571,6 @@ extension FcrBoardWidget: FcrBoardMainWindowDelegate {
     }
 }
 
-// MARK: - FcrBoardWidgetDTDelegate
-extension FcrBoardWidget: FcrBoardWidgetDTDelegate {
-    func onConfigComplete() {
-        initCondition.configComplete = true
-    }
-    
-    func onLocalGrantedChangedForBoardHandle(localGranted: Bool) {
-        mainWindow?.updateOperationPrivilege(hasPrivilege: localGranted,
-                                             success: { [weak self] in
-            self?.log(info: "[FcrBoardWidget]: updateOperationPrivilege",
-                      extra: "\(localGranted)")
-        }, failure: { [weak self] error in
-            self?.log(content: "[FcrBoardWidget]: updateOperationPrivilege unsuccessfully",
-                      extra: "\(localGranted)",
-                      type: .error)
-        })
-    }
-    
-    func onGrantedUsersChanged(grantedUsers: [String]) {
-        sendMessage(signal: .GetBoardGrantedUsers(grantedUsers))
-    }
-    
-    func onPageCountChanged(count: Int) {
-        sendMessage(signal: .BoardPageChanged(.count(count)))
-    }
-    
-    func onPageIndexChanged(index: Int) {
-        sendMessage(signal: .BoardPageChanged(.index(index)))
-    }
-}
-
 // MARK: - ArLogTube
 extension FcrBoardWidget: ArLogTube {
     public func log(info: String,
@@ -539,5 +592,13 @@ extension FcrBoardWidget: ArLogTube {
         log(content: error.localizedDescription,
             extra: extra,
             type: .info)
+    }
+}
+
+fileprivate extension String {
+    static func currentTimeString() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMdd_HHmmss"
+        return dateFormatter.string(from: Date())
     }
 }

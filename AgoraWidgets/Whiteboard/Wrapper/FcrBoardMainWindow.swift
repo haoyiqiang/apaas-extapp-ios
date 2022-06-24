@@ -23,6 +23,12 @@ class FcrBoardMainWindow: NSObject {
         }
     }
     
+    private var currentScenePath: String?
+    
+    private var pathsToSnapshot = [String]()
+    private var snapshotImages = [UIImage]()
+    private var finalImages = [UIImage]()
+    
     private var memberState: WhiteMemberState
     
     private(set) var hasOperationPrivilege: Bool
@@ -187,27 +193,12 @@ extension FcrBoardMainWindow {
                      fromClass: WhiteRoom.self,
                      funcName: "getEntireScenes")
             
-            let listCount = (paths.count / combined) + 1
-            for loopCount in 0 ..< listCount {
-                // Step2: 在所有paths中，每combinedCount个白板笔记图片执行一次处理
-                let prefixCount = (combined <= paths.count) ? combined : paths.count
-                
-                let subList = Array(paths.prefix(prefixCount))
-                paths.removeFirst(prefixCount)
-                // Step2: 获取白板图片并处理
-                self.combineWhiteSceneImages(folder: imageFolder,
-                                             fileName: "\(loopCount + 1).jpg",
-                                             scenePaths: subList) { imageFilePath in
-                    if let `imageFilePath` = imageFilePath {
-                        combinedImageList.append(imageFilePath)
-                    }
-                    
-                    if loopCount == (listCount - 1) {
-                        imageListPath(combinedImageList)
-                        return
-                    }
-                }
-            }
+            self.pathsToSnapshot = paths
+            
+            self.handleSnaptshotWithScenePaths(paths,
+                                               imageFolder: imageFolder,
+                                               combinedCount: Int(combinedCount),
+                                               combinedPaths: imageListPath)
         })
     }
     
@@ -228,7 +219,7 @@ extension FcrBoardMainWindow {
             fromClass: WhiteRoom.self,
             funcName: "setWritable")
         
-        whiteRoom.setWritable(hasPrivilege) { [weak self] (isSuccess,
+        whiteRoom.setWritable(hasPrivilege) { [weak self] (isWritable,
                                                            error) in
             // Failure
             guard let `self` = self else {
@@ -237,7 +228,7 @@ extension FcrBoardMainWindow {
                 return
             }
             
-            let netlessExtra = ["isSuccess": isSuccess.agDescription,
+            let netlessExtra = ["isWritable": isWritable.agDescription,
                                 "error": StringIsEmpty(error?.localizedDescription)]
             
             let logType: FcrBoardLogType = (error == nil ? .info : .error)
@@ -248,8 +239,7 @@ extension FcrBoardMainWindow {
                      fromClass: WhiteRoom.self,
                      funcName: "setWritableCallback")
             
-            guard isSuccess,
-                  error == nil else {
+            guard error == nil else {
                 
                 let `error` = NSError.create(error)
                 
@@ -265,7 +255,7 @@ extension FcrBoardMainWindow {
             }
             
             // Success
-            let disable = !hasPrivilege
+            let disable = !isWritable
             self.whiteRoom.disableDeviceInputs(disable)
             
             let extra = ["disable": disable.agDescription]
@@ -298,37 +288,24 @@ extension FcrBoardMainWindow {
     }
     
     func removePage() -> FcrBoardError? {
-        let extra = ["currentPage": getPageInfo().agDescription]
+        let extra = ["currentScenePath": StringIsEmpty(currentScenePath)]
         
-        let content = "remove page"
-        
-        log(content: content,
+        log(content: "remove page",
             extra: extra.agDescription,
             type: .info)
         
-        log(content: content,
+        guard let scenePath = currentScenePath else {
+            return FcrBoardError(code: -1,
+                                 message: "currentScenePath nil")
+        }
+        
+        log(content: "remove page",
             extra: extra.agDescription,
             type: .info,
             fromClass: WhiteRoom.self,
-            funcName: "removePage")
+            funcName: "removeScenes")
         
-        whiteRoom.removePage { [weak self] isSuccess in
-            var logType: FcrBoardLogType
-            var text: String
-            
-            if isSuccess {
-                logType = .info
-                text = content
-            } else {
-                logType = .error
-                text = content + " failure"
-            }
-            
-            self?.log(content: content,
-                      extra: extra.agDescription,
-                      type: logType)
-        }
-        
+        whiteRoom.removeScenes(scenePath)
         return nil
     }
     
@@ -646,64 +623,80 @@ private extension FcrBoardMainWindow {
             funcName: "setViewMode")
     }
     
-    func combineWhiteSceneImages(folder: String,
-                                 fileName: String,
-                                 scenePaths: [String],
-                                 combinedPath: @escaping ((String?) -> Void)) {
+    func handleSnaptshotWithScenePaths(_ paths: [String],
+                                       imageFolder: String,
+                                       combinedCount: Int,
+                                       combinedPaths: @escaping (([String]) -> Void)) {
+        let combinedNumber = (combinedCount > 0) ? combinedCount : 1
+        
         // folder create
-        if !FileManager.default.fileExists(atPath: folder,
+        if !FileManager.default.fileExists(atPath: imageFolder,
                                            isDirectory: nil) {
-            try? FileManager.default.createDirectory(atPath: folder,
+            try? FileManager.default.createDirectory(atPath: imageFolder,
                                                      withIntermediateDirectories: true,
                                                      attributes: nil)
         }
-        
-        var imageList = [UIImage]()
-        
-        for (index, scenePath) in scenePaths.enumerated() {
-            // Step1: 获取图片
-            let completion: (UIImage?) -> () = { [weak self] (image) in
-                guard let `self` = self,
-                      let image = image else {
-                    return
-                }
-                
-                let netlessExtra = ["scenePath": scenePath]
-                
-                self.log(content: "get single white scene path successfully",
-                         extra: netlessExtra.agDescription,
-                         type: .info,
-                         fromClass: WhiteRoom.self,
-                         funcName: "getSceneSnapshotImage")
-                
-                imageList.append(image)
-                
-                guard index == (scenePaths.count - 1) else {
-                    return
-                }
-                
-                DispatchQueue.global().async {
-                    // Step2: 合成长图
-                    let combinedImage = self.combineImages(imageList)
-                    // Step3: 保存图片至指定文件夹
-                    let filePath = folder.appendingPathComponent(fileName)
-                    let combinedfilePath = self.saveImage(filePath: filePath,
-                                                          image: combinedImage)
-                    combinedPath(combinedfilePath)
-                    return
-                }
+        pathsToSnapshot = paths
+        // 递归
+        getSingleSnapshot(index: 0,
+                          combinedCount: combinedNumber) { [weak self] in
+            guard let self = self else {
+                return
             }
-            
-            whiteRoom.getSceneSnapshotImage(scenePath,
-                                            completion: completion)
+            var finalPaths = [String]()
+            for (index,image) in self.finalImages.enumerated() {
+                let filePath = imageFolder.appendingPathComponent("\(index)")
+                guard let combinedfilePath = self.saveImage(filePath: filePath,
+                                                            image: image) else {
+                    continue
+                }
+                finalPaths.append(combinedfilePath)
+            }
+            self.finalImages.removeAll()
+            combinedPaths(finalPaths)
         }
     }
     
-    func combineImages(_ imageList: [UIImage]) -> UIImage? {
+    func getSingleSnapshot(index: Int,
+                           combinedCount: Int,
+                           completion: (()-> Void)? = nil) {
+        guard pathsToSnapshot.count > index else {
+            if let combinedImage = self.combineSnapshotImages() {
+                self.finalImages.append(combinedImage)
+            }
+            completion?()
+            return
+        }
+        let scenePath = pathsToSnapshot[index]
+        whiteRoom.getSceneSnapshotImage(scenePath) {[weak self] image in
+            guard let `self` = self,
+                  let image = image
+            else {
+                return
+            }
+            self.snapshotImages.append(image)
+            
+            if self.snapshotImages.count < combinedCount {
+                self.getSingleSnapshot(index: index + 1,
+                                       combinedCount: combinedCount,
+                                       completion: completion)
+            } else if let combinedImage = self.combineSnapshotImages() {
+                self.finalImages.append(combinedImage)
+                self.getSingleSnapshot(index: index + 1,
+                                       combinedCount: combinedCount,
+                                       completion: completion)
+            }
+        }
+    }
+    
+    func combineSnapshotImages() -> UIImage? {
+        guard snapshotImages.count > 0 else {
+            return nil
+        }
         var width: CGFloat = 0
         var height: CGFloat = 0
         
-        for image in imageList {
+        for image in snapshotImages {
             width = (image.size.width > width) ? image.size.width : width
             height += image.size.height
         }
@@ -712,7 +705,7 @@ private extension FcrBoardMainWindow {
                                            height: height))
         var imageY: CGFloat = 0
         
-        for image in imageList {
+        for image in snapshotImages {
             image.draw(at: CGPoint(x: 0,
                                    y: imageY))
             imageY += image.size.height
@@ -720,6 +713,8 @@ private extension FcrBoardMainWindow {
         
         let drawImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
+        
+        snapshotImages.removeAll()
         return drawImage
     }
     
@@ -750,6 +745,8 @@ extension FcrBoardMainWindow: FcrBoardMainWindowNeedObserve {
             log(content: "on room state changed",
                 extra: extra.agDescription,
                 type: .info)
+            
+            currentScenePath = scenePath
         }
         
         if let pageState = modifyState.pageState {

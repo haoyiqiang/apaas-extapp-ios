@@ -10,7 +10,6 @@ import Foundation
 // MARK: signal
 enum FcrBoardInteractionSignal: Convertable {
     case JoinBoard
-    case BoardPhaseChanged(FcrBoardRoomPhase)
     case ChangeAssistantType(FcrBoardAssistantType)
     case GetBoardGrantedUsers([String])
     case UpdateGrantedUsers(FcrBoardGrantUsersChangeType)
@@ -48,9 +47,6 @@ enum FcrBoardInteractionSignal: Convertable {
         
         if let _ = try? container.decodeNil(forKey: .JoinBoard) {
             self = .JoinBoard
-        } else if let value = try? container.decode(FcrBoardRoomPhase.self,
-                                                    forKey: .BoardPhaseChanged) {
-            self = .BoardPhaseChanged(value)
         } else if let value = try? container.decode(FcrBoardAssistantType.self,
                                                     forKey: .ChangeAssistantType) {
             self = .ChangeAssistantType(value)
@@ -100,9 +96,6 @@ enum FcrBoardInteractionSignal: Convertable {
         switch self {
         case .JoinBoard:
             try container.encodeNil(forKey: .JoinBoard)
-        case .BoardPhaseChanged(let x):
-            try container.encode(x,
-                                 forKey: .BoardPhaseChanged)
         case .ChangeAssistantType(let x):
             try container.encode(x,
                                  forKey: .ChangeAssistantType)
@@ -149,15 +142,6 @@ enum FcrBoardInteractionSignal: Convertable {
         }
         return str
     }
-}
-
-// MARK: - phase
-enum FcrBoardRoomPhase: Int, Convertable {
-    case Connecting
-    case Connected
-    case Reconnecting
-    case Disconnecting
-    case Disconnected
 }
 
 // MARK: - audiomixing

@@ -69,15 +69,15 @@ enum FcrBoardDrawShape: Int, AgoraWidgetDescription {
     
     var toNetlessValue: WhiteApplianceNameKey? {
         switch self {
-        case .curve:     return .AppliancePencil
-        case .straight:  return .ApplianceStraight
-        case .arrow:     return .ApplianceArrow
-        case .rectangle: return .ApplianceRectangle
-        case .ellipse:   return .ApplianceEllipse
-        case .triangle:  return .ApplianceShape
-        case .rhombus:  return .ApplianceShape
-        case .pentagram:  return .ApplianceShape
-        default:         return nil
+        case .curve:        return .AppliancePencil
+        case .straight:     return .ApplianceStraight
+        case .arrow:        return .ApplianceArrow
+        case .rectangle:    return .ApplianceRectangle
+        case .ellipse:      return .ApplianceEllipse
+        case .triangle:     return .ApplianceShape
+        case .rhombus:      return .ApplianceShape
+        case .pentagram:    return .ApplianceShape
+        default:            return nil
         }
     }
     
