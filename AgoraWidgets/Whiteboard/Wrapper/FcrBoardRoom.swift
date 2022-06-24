@@ -32,6 +32,7 @@ class FcrBoardRoom: NSObject {
         sdkConfig.enableIFramePlugin = false
         sdkConfig.region = region.netlessValue
         sdkConfig.useMultiViews = true
+        sdkConfig.userCursor = true
         
         let whiteSDK = WhiteSDK(whiteBoardView: whiteView,
                                 config: sdkConfig,

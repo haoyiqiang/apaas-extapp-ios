@@ -25,9 +25,9 @@ class FcrBoardMainWindow: NSObject {
     
     private var currentScenePath: String?
     
-    private var pathsToSnapshot = [String]()
-    private var snapshotImages = [UIImage]()
-    private var finalImages = [UIImage]()
+//    private var pathsToSnapshot = [String]()
+//    private var snapshotImages = [UIImage]()
+//    private var combinedSnapshotImages = [UIImage]()
     
     private var memberState: WhiteMemberState
     
@@ -155,7 +155,8 @@ extension FcrBoardMainWindow {
     func getAllWindowsSnapshotImageList(combinedCount: UInt8,
                                         imageFolder: String,
                                         imageListPath: @escaping (([String]) -> Void)) {
-        let combined = Int(combinedCount)
+        let combined = (Int(combinedCount) > 0) ? Int(combinedCount) : 1
+        
         var combinedImageList = [String]()
         
         let extra = ["combinedCount": "\(combinedCount)",
@@ -169,6 +170,14 @@ extension FcrBoardMainWindow {
             type: .info,
             fromClass: WhiteRoom.self,
             funcName: "getEntireScenes")
+        
+        // Pre: folder create
+        if !FileManager.default.fileExists(atPath: imageFolder,
+                                           isDirectory: nil) {
+            try? FileManager.default.createDirectory(atPath: imageFolder,
+                                                     withIntermediateDirectories: true,
+                                                     attributes: nil)
+        }
         
         // Step1: 获取所有白板scene的scenePath
         whiteRoom.getEntireScenes({ [weak self] scenesMap in
@@ -193,11 +202,10 @@ extension FcrBoardMainWindow {
                      fromClass: WhiteRoom.self,
                      funcName: "getEntireScenes")
             
-            self.pathsToSnapshot = paths
-            
+            // Step2: 处理所有paths截图及合并
             self.handleSnaptshotWithScenePaths(paths,
                                                imageFolder: imageFolder,
-                                               combinedCount: Int(combinedCount),
+                                               combinedCount: combined,
                                                combinedPaths: imageListPath)
         })
     }
@@ -320,7 +328,6 @@ extension FcrBoardMainWindow {
         }
         
         return nil
-        
     }
     
     func setPageIndex(index: UInt16) {
@@ -641,24 +648,16 @@ private extension FcrBoardMainWindow {
                                        imageFolder: String,
                                        combinedCount: Int,
                                        combinedPaths: @escaping (([String]) -> Void)) {
-        let combinedNumber = (combinedCount > 0) ? combinedCount : 1
+        var pathsToSnapshot = paths
+        var snapshotImages = [UIImage]()
+        var combinedSnapshotImages = [UIImage]()
         
-        // folder create
-        if !FileManager.default.fileExists(atPath: imageFolder,
-                                           isDirectory: nil) {
-            try? FileManager.default.createDirectory(atPath: imageFolder,
-                                                     withIntermediateDirectories: true,
-                                                     attributes: nil)
-        }
-        pathsToSnapshot = paths
-        // 递归
-        getSingleSnapshot(index: 0,
-                          combinedCount: combinedNumber) { [weak self] in
+        let completion = { [weak self] in
             guard let self = self else {
                 return
             }
             var finalPaths = [String]()
-            for (index,image) in self.finalImages.enumerated() {
+            for (index,image) in combinedSnapshotImages.enumerated() {
                 let filePath = imageFolder.appendingPathComponent("\(index)")
                 guard let combinedfilePath = self.saveImage(filePath: filePath,
                                                             image: image) else {
@@ -666,44 +665,48 @@ private extension FcrBoardMainWindow {
                 }
                 finalPaths.append(combinedfilePath)
             }
-            self.finalImages.removeAll()
+            combinedSnapshotImages.removeAll()
             combinedPaths(finalPaths)
         }
-    }
-    
-    func getSingleSnapshot(index: Int,
-                           combinedCount: Int,
-                           completion: (()-> Void)? = nil) {
-        guard pathsToSnapshot.count > index else {
-            if let combinedImage = self.combineSnapshotImages() {
-                self.finalImages.append(combinedImage)
-            }
-            completion?()
-            return
-        }
-        let scenePath = pathsToSnapshot[index]
-        whiteRoom.getSceneSnapshotImage(scenePath) {[weak self] image in
-            guard let `self` = self,
-                  let image = image
-            else {
+        
+        func getSingleSnapshot(combinedCount: Int,
+                               completion: @escaping (()-> Void)) {
+            guard let scenePath = pathsToSnapshot.first else {
+                if let combinedImage = self.combineSnapshotImages(snapshotImages) {
+                    combinedSnapshotImages.append(combinedImage)
+                }
+                snapshotImages.removeAll()
+                // 出递归
+                completion()
                 return
             }
-            self.snapshotImages.append(image)
-            
-            if self.snapshotImages.count < combinedCount {
-                self.getSingleSnapshot(index: index + 1,
-                                       combinedCount: combinedCount,
-                                       completion: completion)
-            } else if let combinedImage = self.combineSnapshotImages() {
-                self.finalImages.append(combinedImage)
-                self.getSingleSnapshot(index: index + 1,
-                                       combinedCount: combinedCount,
+            whiteRoom.getSceneSnapshotImage(scenePath) { [weak self] image in
+                guard let `self` = self else {
+                    return
+                }
+                // actually execute
+                pathsToSnapshot.removeFirst()
+                
+                if let img = image {
+                    snapshotImages.append(img)
+                }
+                
+                if snapshotImages.count == combinedCount,
+                   let combinedImage = self.combineSnapshotImages(snapshotImages) {
+                    combinedSnapshotImages.append(combinedImage)
+                    snapshotImages.removeAll()
+                }
+                
+                getSingleSnapshot(combinedCount: combinedCount,
                                        completion: completion)
             }
         }
+        // 递归
+        getSingleSnapshot(combinedCount: combinedCount,
+                          completion: completion)
     }
     
-    func combineSnapshotImages() -> UIImage? {
+    func combineSnapshotImages(_ snapshotImages: [UIImage]) -> UIImage? {
         guard snapshotImages.count > 0 else {
             return nil
         }
@@ -727,8 +730,6 @@ private extension FcrBoardMainWindow {
         
         let drawImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        
-        snapshotImages.removeAll()
         return drawImage
     }
     

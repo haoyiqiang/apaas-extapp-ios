@@ -285,15 +285,36 @@ private extension FcrBoardWidget {
         guard let `mainWindow` = mainWindow else {
             return
         }
-        switch PHPhotoLibrary.authorizationStatus() {
-        case .restricted, .denied, .limited, .notDetermined:
-            // 自定弹窗
-            self.sendMessage(signal: .OnBoardSaveResult(.noAlbumAuth))
-            return
-        default:
-            break
+        
+        // photo auth handle
+        var photoAuthStatus = PHPhotoLibrary.authorizationStatus()
+        
+        if #available(iOS 14, *) {
+            photoAuthStatus = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+        } else {
+            // Fallback on earlier versions
+            photoAuthStatus = PHPhotoLibrary.authorizationStatus()
         }
         
+        guard photoAuthStatus == .authorized else {
+            if #available(iOS 14, *) {
+                PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+                    guard status != .authorized else {
+                        return
+                    }
+                    self.sendMessage(signal: .OnBoardSaveResult(.noAlbumAuth))
+                }
+            } else {
+                // Fallback on earlier versions
+                PHPhotoLibrary.requestAuthorization { status in
+                    guard status != .authorized else {
+                        return
+                    }
+                    self.sendMessage(signal: .OnBoardSaveResult(.noAlbumAuth))
+                }
+            }
+            return
+        }
         AgoraWidgetLoading.addLoading(in: view)
         mainWindow.getAllWindowsSnapshotImageList(combinedCount: 10,
                                                   imageFolder: snapshotFolder) { [weak self] list in
