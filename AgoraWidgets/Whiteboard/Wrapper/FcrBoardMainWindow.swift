@@ -288,25 +288,39 @@ extension FcrBoardMainWindow {
     }
     
     func removePage() -> FcrBoardError? {
-        let extra = ["currentScenePath": StringIsEmpty(currentScenePath)]
+        let extra = ["currentPage": getPageInfo().agDescription]
         
-        log(content: "remove page",
+        let content = "remove page"
+        
+        log(content: content,
             extra: extra.agDescription,
             type: .info)
         
-        guard let scenePath = currentScenePath else {
-            return FcrBoardError(code: -1,
-                                 message: "currentScenePath nil")
-        }
-        
-        log(content: "remove page",
+        log(content: content,
             extra: extra.agDescription,
             type: .info,
             fromClass: WhiteRoom.self,
-            funcName: "removeScenes")
+            funcName: "removePage")
         
-        whiteRoom.removeScenes(scenePath)
+        whiteRoom.removePage { [weak self] isSuccess in
+            var logType: FcrBoardLogType
+            var text: String
+            
+            if isSuccess {
+                logType = .info
+                text = content
+            } else {
+                logType = .error
+                text = content + " failure"
+            }
+            
+            self?.log(content: content,
+                      extra: extra.agDescription,
+                      type: logType)
+        }
+        
         return nil
+        
     }
     
     func setPageIndex(index: UInt16) {
