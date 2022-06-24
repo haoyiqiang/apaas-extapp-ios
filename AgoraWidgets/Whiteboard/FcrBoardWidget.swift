@@ -340,13 +340,23 @@ private extension FcrBoardWidget {
             return
         }
         
-        serverAPI.getWindowAttributes { [weak self,weak mainWindow] (json) in
+        serverAPI.getWindowAttributes { [weak self] (json) in
             guard let `self` = self,
                   let `mainWindow` = self.mainWindow else {
                 return
             }
             
-            mainWindow.setAttributes(json)
+            if mainWindow.hasOperationPrivilege == true {
+                mainWindow.setAttributes(json)
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                    guard let `self` = self else {
+                        return
+                    }
+                    
+                    self.ifNeedSetWindowAttributes()
+                }
+            }
         } failure: { [weak self] error in
             self?.ifNeedSetWindowAttributes()
         }
@@ -363,18 +373,7 @@ private extension FcrBoardWidget {
                                  region: boardRegion)
         boardRoom?.delegate = self
         
-        view.superview?.layoutIfNeeded()
-        
-        let width = view.bounds.width
-        let height = view.bounds.height
-        
-        var ratio: CGFloat
-        
-        if width < 1 || height < 1 {
-            ratio = (16.0 / 9.0)
-        } else {
-            ratio = height / width
-        }
+        let ratio = view.ratio()
         
         let joinConfig = FcrBoardRoomJoinConfig(roomId: config.boardId,
                                                 roomToken: config.boardToken,
@@ -505,9 +504,7 @@ private extension FcrBoardWidget {
                      extra: "\(newLocalPrivilege)",
                      type: .error)
         })
-        
     }
-    
     
     func setUpInitialState() {
         guard let `mainWindow` = mainWindow else {
@@ -621,5 +618,24 @@ fileprivate extension String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd_HHmmss"
         return dateFormatter.string(from: Date())
+    }
+}
+
+fileprivate extension UIView {
+    func ratio() -> CGFloat {
+        superview?.layoutIfNeeded()
+        
+        let width = bounds.width
+        let height = bounds.height
+        
+        var ratio: CGFloat
+        
+        if width < 1 || height < 1 {
+            ratio = (16.0 / 9.0)
+        } else {
+            ratio = height / width
+        }
+        
+        return ratio
     }
 }
