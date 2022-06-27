@@ -67,8 +67,13 @@ struct FcrBoardInitCondition {
         
         analyzeBoardConfigFromRoomProperties()
         
-        log(content: "onLoad room properties",
-            extra: info.roomProperties?.description,
+        let extra: [String: Any] = ["roomId": info.roomInfo.roomUuid,
+                                    "roomType": info.roomInfo.roomType,
+                                    "roomProperties": info.roomProperties?.description,
+                                    "userProperties": info.localUserProperties?.description]
+        
+        log(content: "onLoad",
+            extra: extra.description,
             type: .info)
     }
     

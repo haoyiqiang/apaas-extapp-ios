@@ -277,6 +277,8 @@ extension FcrBoardMainWindow {
             self.log(content: "update operation privilege success",
                      type: .info)
             
+            self.hasOperationPrivilege = hasPrivilege
+            
             success()
         }
     }
