@@ -61,7 +61,7 @@ public class AgoraWidgetServerAPI:NSObject {
         let task = ArRequestTask(event: event,
                                  type: requestType,
                                  timeout: .medium,
-                                 header: header,
+                                 header: tHeader,
                                  parameters: parameters)
         
         let response = ArResponse.json { [weak self] (json) in

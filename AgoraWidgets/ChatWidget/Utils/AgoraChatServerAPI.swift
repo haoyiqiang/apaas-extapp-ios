@@ -41,7 +41,7 @@ public class AgoraChatServerAPI: AgoraWidgetServerAPI {
                 url: url,
                 method: .get,
                 header: header,
-                isRetry: false,
+                isRetry: true,
                 success: success,
                 failure: failure)
         }
