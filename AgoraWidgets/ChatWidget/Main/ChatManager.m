@@ -16,15 +16,15 @@ const static NSString* kRoomUuid = @"roomUuid";
 
 static BOOL isSDKInited = NO;
 
-@interface ChatManager ()<EMClientDelegate,EMChatManagerDelegate,EMChatroomManagerDelegate>
+@interface ChatManager ()<AgoraChatClientDelegate,AgoraChatManagerDelegate,AgoraChatroomManagerDelegate>
 @property (nonatomic, copy) NSString* appkey;
 @property (nonatomic, copy) NSString* password;
 @property (nonatomic) BOOL isLogin;
-@property (nonatomic,copy) NSMutableArray<EMMessage*>* dataArray;
+@property (nonatomic,copy) NSMutableArray<AgoraChatMessage*>* dataArray;
 @property (nonatomic,strong) NSLock* dataLock;
 @property (nonatomic,strong) NSLock* askAndAnswerMsgLock;
-@property (nonatomic,strong) EMChatroom* chatRoom;
-@property (nonatomic,strong) NSMutableArray<EMMessage*>* askAndAnswerMsgs;
+@property (nonatomic,strong) AgoraChatroom* chatRoom;
+@property (nonatomic,strong) NSMutableArray<AgoraChatMessage*>* askAndAnswerMsgs;
 @property (nonatomic,strong) NSString* latestMsgId;
 @property (nonatomic, assign) NSInteger loginRetryCount;
 @property (nonatomic, assign) NSInteger loginRetryMaxCount;
@@ -52,14 +52,14 @@ static BOOL isSDKInited = NO;
 
 - (void)initHyphenateSDK
 {
-    EMOptions* option = [EMOptions optionsWithAppkey:self.appkey];
+    AgoraChatOptions* option = [AgoraChatOptions optionsWithAppkey:self.appkey];
     option.enableConsoleLog = YES;
     option.isAutoLogin = NO;
-    [[EMClient sharedClient] initializeSDKWithOptions:option];
-    [[EMClient sharedClient] addDelegate:self delegateQueue:nil];
+    [[AgoraChatClient sharedClient] initializeSDKWithOptions:option];
+    [[AgoraChatClient sharedClient] addDelegate:self delegateQueue:nil];
     
-    [[EMClient sharedClient].chatManager addDelegate:self delegateQueue:nil];
-    [[EMClient sharedClient].roomManager addDelegate:self delegateQueue:nil];
+    [[AgoraChatClient sharedClient].chatManager addDelegate:self delegateQueue:nil];
+    [[AgoraChatClient sharedClient].roomManager addDelegate:self delegateQueue:nil];
     isSDKInited = YES;
 }
 
@@ -75,12 +75,12 @@ static BOOL isSDKInited = NO;
     weakself.state = ChatRoomStateLogin;
     
     [self _launch:^(NSString *aUsername,
-                    EMError *aError) {
+                    AgoraChatError *aError) {
         weakself.state = ChatRoomStateLoginFailed;
     }];
 }
 
-- (void)_launch:(void (^)(NSString *aUsername, EMError *aError))aCompletionBlock
+- (void)_launch:(void (^)(NSString *aUsername, AgoraChatError *aError))aCompletionBlock
 {
     __weak typeof(self) weakself = self;
     NSString* lowercaseName = [self.user.username lowercaseString];
@@ -89,20 +89,20 @@ static BOOL isSDKInited = NO;
         return;
     }
     
-    [[EMClient sharedClient] loginWithUsername:lowercaseName
-                                      password:weakself.password
-                                    completion:^(NSString *aUsername,
-                                                 EMError *aError) {
-        if (aError == nil || aError.code == EMErrorUserAlreadyLoginSame) {
+    [[AgoraChatClient sharedClient] loginWithUsername:lowercaseName
+                                                token:weakself.user.token
+                                           completion:^(NSString *aUsername,
+                                                 AgoraChatError *aError) {
+        if (aError == nil || aError.code == AgoraChatErrorUserAlreadyLoginSame) {
             weakself.isLogin = YES;
             return;
         }
         
-        if (aError.code == EMErrorUserNotFound) {
-            [[EMClient sharedClient] registerWithUsername:lowercaseName
+        if (aError.code == AgoraChatErrorUserNotFound) {
+            [[AgoraChatClient sharedClient] registerWithUsername:lowercaseName
                                                  password:weakself.password
                                                completion:^(NSString *aUsername,
-                                                            EMError *aError) {
+                                                            AgoraChatError *aError) {
                 if (aError != nil) {
                     aCompletionBlock(aUsername,
                                      aError);
@@ -133,11 +133,11 @@ static BOOL isSDKInited = NO;
 
 - (void)logout
 {
-    [[[EMClient sharedClient] roomManager] leaveChatroom:self.chatRoomId completion:nil];
-    [[EMClient sharedClient] removeDelegate:self];
-    [[EMClient sharedClient].chatManager removeDelegate:self];
-    [[EMClient sharedClient].roomManager removeDelegate:self];
-    [[EMClient sharedClient] logout:NO];
+    [[[AgoraChatClient sharedClient] roomManager] leaveChatroom:self.chatRoomId completion:nil];
+    [[AgoraChatClient sharedClient] removeDelegate:self];
+    [[AgoraChatClient sharedClient].chatManager removeDelegate:self];
+    [[AgoraChatClient sharedClient].roomManager removeDelegate:self];
+    [[AgoraChatClient sharedClient] logout:NO];
     self.latestMsgId = @"";
 }
 
@@ -148,22 +148,22 @@ static BOOL isSDKInited = NO;
         if(self.chatRoomId.length > 0) {
             __weak typeof(self) weakself = self;
             weakself.state = ChatRoomStateJoining;
-            [[EMClient sharedClient].roomManager joinChatroom:self.chatRoomId
-                                                   completion:^(EMChatroom *aChatroom,
-                                                                EMError *aError) {
+            [[AgoraChatClient sharedClient].roomManager joinChatroom:self.chatRoomId
+                                                   completion:^(AgoraChatroom *aChatroom,
+                                                                AgoraChatError *aError) {
                 if(!aError) {
                     self.chatRoom = aChatroom;
                     weakself.state = ChatRoomStateJoined;
                     [weakself fetchChatroomData];
                 } else {
                     [weakself _launch:^(NSString *aUsername,
-                                        EMError *aError) {
+                                        AgoraChatError *aError) {
                                             
                     }];
                 }
             }];
         }
-        EMUserInfo* userInfo = [[EMUserInfo alloc] init];
+        AgoraChatUserInfo* userInfo = [[AgoraChatUserInfo alloc] init];
         NSDictionary* extDic = @{@"role":@(self.user.role)};
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:extDic options:0 error:nil];
         NSString* str = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
@@ -173,9 +173,9 @@ static BOOL isSDKInited = NO;
         if(self.user.nickname.length > 0)
             userInfo.nickName = self.user.nickname ;
         
-        [[[EMClient sharedClient] userInfoManager] updateOwnUserInfo:userInfo
-                                                          completion:^(EMUserInfo *aUserInfo,
-                                                                       EMError *aError) {
+        [[[AgoraChatClient sharedClient] userInfoManager] updateOwnUserInfo:userInfo
+                                                          completion:^(AgoraChatUserInfo *aUserInfo,
+                                                                       AgoraChatError *aError) {
                         
         }];
     }
@@ -185,7 +185,7 @@ static BOOL isSDKInited = NO;
 {
     __weak typeof(self) weakself = self;
     // 获取聊天室详情
-    [[[EMClient sharedClient] roomManager] getChatroomSpecificationFromServerWithId:self.chatRoomId completion:^(EMChatroom *aChatroom, EMError *aError) {
+    [[[AgoraChatClient sharedClient] roomManager] getChatroomSpecificationFromServerWithId:self.chatRoomId completion:^(AgoraChatroom *aChatroom, AgoraChatError *aError) {
         if(!aError)
         {
             weakself.chatRoom = aChatroom;
@@ -194,13 +194,13 @@ static BOOL isSDKInited = NO;
                 [weakself.delegate mutedStateDidChanged];
         }
     }];
-    [[[EMClient sharedClient] chatManager] asyncFetchHistoryMessagesFromServer:self.chatRoomId conversationType:EMConversationTypeGroupChat startMessageId:@"" pageSize:50 completion:^(EMCursorResult *aResult, EMError *aError) {
+    [[[AgoraChatClient sharedClient] chatManager] asyncFetchHistoryMessagesFromServer:self.chatRoomId conversationType:AgoraChatConversationTypeGroupChat startMessageId:@"" pageSize:50 completion:^(AgoraChatCursorResult *aResult, AgoraChatError *aError) {
         if(!aError && aResult.list.count > 0){
             if(weakself.latestMsgId.length > 0)
             {
                 NSArray* arr = [[aResult.list reverseObjectEnumerator] allObjects];
                 NSMutableArray* msgToAdd = [NSMutableArray array];
-                for (EMMessage* msg in arr) {
+                for (AgoraChatMessage* msg in arr) {
                     if([msg.messageId isEqualToString:weakself.latestMsgId]) {
                         if(weakself.dataArray.count > 0){
                             [weakself.delegate chatMessageDidReceive];
@@ -212,7 +212,7 @@ static BOOL isSDKInited = NO;
                 }
             }else{
                 [weakself.dataArray addObjectsFromArray:aResult.list];
-                EMMessage* lastMsg = [aResult.list lastObject];
+                AgoraChatMessage* lastMsg = [aResult.list lastObject];
                 if(lastMsg)
                     weakself.latestMsgId = lastMsg.messageId;
                 [weakself.delegate chatMessageDidReceive];
@@ -220,7 +220,7 @@ static BOOL isSDKInited = NO;
         }
     }];
     // 获取是否被禁言
-    [[[EMClient sharedClient] roomManager] isMemberInWhiteListFromServerWithChatroomId:self.chatRoomId completion:^(BOOL inWhiteList, EMError *aError) {
+    [[[AgoraChatClient sharedClient] roomManager] isMemberInWhiteListFromServerWithChatroomId:self.chatRoomId completion:^(BOOL inWhiteList, AgoraChatError *aError) {
         if(!aError) {
             weakself.isMuted = inWhiteList;
             if(weakself.isMuted)
@@ -228,7 +228,7 @@ static BOOL isSDKInited = NO;
         }
     }];
     // 获取公告
-    [[[EMClient sharedClient] roomManager] getChatroomAnnouncementWithId:self.chatRoomId completion:^(NSString *aAnnouncement, EMError *aError) {
+    [[[AgoraChatClient sharedClient] roomManager] getChatroomAnnouncementWithId:self.chatRoomId completion:^(NSString *aAnnouncement, AgoraChatError *aError) {
         if(!aError)
         {
             [weakself.delegate announcementDidChanged:aAnnouncement isFirst:YES];
@@ -236,27 +236,27 @@ static BOOL isSDKInited = NO;
     }];
 }
 
-- (NSMutableArray<EMMessage*>*)dataArray
+- (NSMutableArray<AgoraChatMessage*>*)dataArray
 {
     if(!_dataArray) {
-        _dataArray = [NSMutableArray<EMMessage*> array];
+        _dataArray = [NSMutableArray<AgoraChatMessage*> array];
     }
     return _dataArray;
 }
 
-- (NSArray<EMMessage*> *)msgArray
+- (NSArray<AgoraChatMessage*> *)msgArray
 {
     [self.dataLock lock];
-    NSArray<EMMessage*> * array = [self.dataArray copy];
+    NSArray<AgoraChatMessage*> * array = [self.dataArray copy];
     [self.dataArray removeAllObjects];
     [self.dataLock unlock];
     return array;
 }
 
-- (NSMutableArray<EMMessage*>*)askAndAnswerMsgs
+- (NSMutableArray<AgoraChatMessage*>*)askAndAnswerMsgs
 {
     if(!_askAndAnswerMsgs) {
-        _askAndAnswerMsgs = [NSMutableArray<EMMessage*> array];
+        _askAndAnswerMsgs = [NSMutableArray<AgoraChatMessage*> array];
     }
     return _askAndAnswerMsgs;
 }
@@ -296,7 +296,7 @@ static BOOL isSDKInited = NO;
 - (void)sendTextMsg:(NSString*)aText msgType:(ChatMsgType)aType
 {
     if(aText.length > 0  && self.isLogin) {
-        EMTextMessageBody* textBody = [[EMTextMessageBody alloc] initWithText:aText];
+        AgoraChatTextMessageBody* textBody = [[AgoraChatTextMessageBody alloc] initWithText:aText];
         NSMutableDictionary* ext = [@{kMsgType:[NSNumber numberWithInteger: aType],
                                       @"role": [NSNumber numberWithInteger:self.user.role],
                                       kAvatarUrl: self.user.avatarurl} mutableCopy];
@@ -310,12 +310,12 @@ static BOOL isSDKInited = NO;
             [ext setObject:self.user.roomUuid forKey:kRoomUuid];
         }
         
-        EMMessage* msg = [[EMMessage alloc] initWithConversationID:self.chatRoomId from:self.user.username to:self.chatRoomId body:textBody ext:ext];
-        msg.chatType = EMChatTypeChatRoom;
+        AgoraChatMessage* msg = [[AgoraChatMessage  alloc] initWithConversationID:self.chatRoomId from:self.user.username to:self.chatRoomId body:textBody ext:ext];
+        msg.chatType = AgoraChatTypeChatRoom;
         __weak typeof(self) weakself = self;
-        [[EMClient sharedClient].chatManager sendMessage:msg progress:^(int progress) {
+        [[AgoraChatClient sharedClient].chatManager sendMessage:msg progress:^(int progress) {
                     
-                } completion:^(EMMessage *message, EMError *error) {
+                } completion:^(AgoraChatMessage*message, AgoraChatError *error) {
                     if(!error) {
                         if(aType == ChatMsgTypeCommon) {
                             if([weakself.delegate respondsToSelector:@selector(chatMessageDidSend:)]){
@@ -328,10 +328,10 @@ static BOOL isSDKInited = NO;
                             [weakself.askAndAnswerMsgLock unlock];
                         }
                     }else{
-                        if(error.code == EMErrorMessageIncludeIllegalContent)
+                        if(error.code == AgoraChatErrorMessageIncludeIllegalContent)
                             [weakself.delegate exceptionDidOccur:[@"fcr_hyphenate_im_send_faild_by_sensitive" agora_localized:@"AgoraWidgets"]];
                         else {
-                            if(error.code == EMErrorUserMuted) {
+                            if(error.code == AgoraChatErrorUserMuted) {
                                 [weakself.delegate exceptionDidOccur:[@"fcr_hyphenate_im_send_faild_by_mute" agora_localized:@"AgoraWidgets"]];
                                 if(!weakself.isAllMuted) {
                                     if(!weakself.isMuted) {
@@ -351,8 +351,8 @@ static BOOL isSDKInited = NO;
 
 - (void)sendImageMsgWithData:(NSData*)aImageData msgType:(ChatMsgType)aType asker:(NSString*)aAsker;
 {
-    EMImageMessageBody *body = [[EMImageMessageBody alloc] initWithData:aImageData displayName:@"image"];
-    NSString *from = [[EMClient sharedClient] currentUsername];
+    AgoraChatImageMessageBody *body = [[AgoraChatImageMessageBody alloc] initWithData:aImageData displayName:@"image"];
+    NSString *from = [[AgoraChatClient sharedClient] currentUsername];
     NSString *to = self.chatRoomId;
     NSMutableDictionary* ext = [@{kMsgType:[NSNumber numberWithInteger: aType],
                                   @"role": [NSNumber numberWithInteger:self.user.role]} mutableCopy];
@@ -366,12 +366,12 @@ static BOOL isSDKInited = NO;
         [ext setObject:self.user.roomUuid forKey:kRoomUuid];
     }
     
-    EMMessage *message = [[EMMessage alloc] initWithConversationID:to from:from to:to body:body ext:ext];
+    AgoraChatMessage*message = [[AgoraChatMessage  alloc] initWithConversationID:to from:from to:to body:body ext:ext];
     
-    message.chatType = EMChatTypeChatRoom;
-    message.status = EMMessageStatusDelivering;
+    message.chatType = AgoraChatTypeChatRoom;
+    message.status = AgoraChatMessageStatusDelivering;
     
-    [[EMClient sharedClient].chatManager sendMessage:message progress:nil completion:^(EMMessage *message,EMError *error) {
+    [[AgoraChatClient sharedClient].chatManager sendMessage:message progress:nil completion:^(AgoraChatMessage*message,AgoraChatError *error) {
         if(!error) {
             [self.delegate chatMessageDidSend:message];
         }else{
@@ -390,7 +390,7 @@ static BOOL isSDKInited = NO;
 {
     self.user.avatarurl = avatarUrl ;
     if(avatarUrl.length > 0) {
-        [[[EMClient sharedClient] userInfoManager] updateOwnUserInfo:avatarUrl withType:EMUserInfoTypeAvatarURL completion:nil];
+        [[[AgoraChatClient sharedClient] userInfoManager] updateOwnUserInfo:avatarUrl withType:AgoraChatUserInfoTypeAvatarURL completion:nil];
     }
 }
 // 更新昵称
@@ -398,7 +398,7 @@ static BOOL isSDKInited = NO;
 {
     self.user.nickname = nickName;
     if(nickName.length > 0){
-        [[[EMClient sharedClient] userInfoManager] updateOwnUserInfo:nickName withType:EMUserInfoTypeNickName completion:nil];
+        [[[AgoraChatClient sharedClient] userInfoManager] updateOwnUserInfo:nickName withType:AgoraChatUserInfoTypeNickName completion:nil];
     }
 }
 
@@ -406,8 +406,8 @@ static BOOL isSDKInited = NO;
 {
     __weak typeof(self) weakself = self;
     void (^completion)(NSString* action)  = ^(NSString* action){
-        EMCmdMessageBody* cmdBody = [[EMCmdMessageBody alloc] initWithAction:action];
-        EMMessage* message = [[EMMessage alloc] initWithConversationID:weakself.chatRoomId from:weakself.user.username to:weakself.chatRoomId body:cmdBody ext:nil];
+        AgoraChatCmdMessageBody* cmdBody = [[AgoraChatCmdMessageBody alloc] initWithAction:action];
+        AgoraChatMessage* message = [[AgoraChatMessage  alloc] initWithConversationID:weakself.chatRoomId from:weakself.user.username to:weakself.chatRoomId body:cmdBody ext:nil];
         NSMutableDictionary* ext = [@{kMsgType:@(ChatMsgTypeCommon),
                                       @"role": [NSNumber numberWithInteger:weakself.user.role]} mutableCopy];
         if(weakself.user.nickname.length > 0 ){
@@ -420,8 +420,8 @@ static BOOL isSDKInited = NO;
             [ext setObject:weakself.user.roomUuid forKey:kRoomUuid];
         }
         message.ext = ext;
-        message.chatType = EMChatTypeChatRoom;
-        [[[EMClient sharedClient] chatManager] sendMessage:message progress:nil completion:^(EMMessage *message, EMError *error) {
+        message.chatType = AgoraChatTypeChatRoom;
+        [[[AgoraChatClient sharedClient] chatManager] sendMessage:message progress:nil completion:^(AgoraChatMessage*message, AgoraChatError *error) {
             if(!error) {
                 [weakself.dataLock lock];
                 [weakself.dataArray addObject:message];
@@ -434,7 +434,7 @@ static BOOL isSDKInited = NO;
         }];
     };
     if(muteAll)
-        [[[EMClient sharedClient] roomManager] muteAllMembersFromChatroom:self.chatRoomId completion:^(EMChatroom *aChatroom, EMError *aError) {
+        [[[AgoraChatClient sharedClient] roomManager] muteAllMembersFromChatroom:self.chatRoomId completion:^(AgoraChatroom *aChatroom, AgoraChatError *aError) {
             if(!aError) {
                 weakself.isAllMuted = YES;
                 completion(@"setAllMute");
@@ -443,7 +443,7 @@ static BOOL isSDKInited = NO;
             }
         }];
     else
-        [[[EMClient sharedClient] roomManager] unmuteAllMembersFromChatroom:self.chatRoomId completion:^(EMChatroom *aChatroom, EMError *aError) {
+        [[[AgoraChatClient sharedClient] roomManager] unmuteAllMembersFromChatroom:self.chatRoomId completion:^(AgoraChatroom *aChatroom, AgoraChatError *aError) {
             if(!aError) {
                 self.isAllMuted = NO;
                 completion(@"removeAllMute");
@@ -453,18 +453,18 @@ static BOOL isSDKInited = NO;
         }];
 }
 
-#pragma mark - EMClientDelegate
-- (void)connectionStateDidChange:(EMConnectionState)aConnectionState
+#pragma mark - AgoraChatClientDelegate
+- (void)connectionStateDidChange:(AgoraChatConnectionState)aConnectionState
 {
     NSLog(@"connectionStateDidChange:%d",aConnectionState);
-    if(aConnectionState == EMConnectionConnected) {
+    if(aConnectionState == AgoraChatConnectionConnected) {
         __weak typeof(self) weakself = self;
-        [[EMClient sharedClient].roomManager joinChatroom:self.chatRoomId completion:^(EMChatroom *aChatroom, EMError *aError) {
-            if(!aError || aError.code == EMErrorGroupAlreadyJoined) {
+        [[AgoraChatClient sharedClient].roomManager joinChatroom:self.chatRoomId completion:^(AgoraChatroom *aChatroom, AgoraChatError *aError) {
+            if(!aError || aError.code == AgoraChatErrorGroupAlreadyJoined) {
                 [weakself fetchChatroomData];
             }else{
                 [weakself _launch:^(NSString *aUsername,
-                                    EMError *aError) {
+                                    AgoraChatError *aError) {
                                     
                 }];
             }
@@ -477,7 +477,7 @@ static BOOL isSDKInited = NO;
     [self.delegate exceptionDidOccur:[@"fcr_hyphenate_im_login_on_other_device" agora_localized:@"AgoraWidgets"]];
 }
 
-- (void)userAccountDidForcedToLogout:(EMError *)aError
+- (void)userAccountDidForcedToLogout:(AgoraChatError *)aError
 {
     [self.delegate exceptionDidOccur:[@"fcr_hyphenate_im_logout_forced" agora_localized:@"AgoraWidgets"]];
 }
@@ -486,14 +486,14 @@ static BOOL isSDKInited = NO;
 - (void)messagesDidReceive:(NSArray *)aMessages
 {
     BOOL aInsertCommonMsg = NO;
-    for (EMMessage* msg in aMessages) {
+    for (AgoraChatMessage* msg in aMessages) {
         // 判断聊天室消息
-        if(msg.chatType == EMChatTypeChatRoom && [msg.to isEqualToString:self.chatRoomId]) {
+        if(msg.chatType == AgoraChatTypeChatRoom && [msg.to isEqualToString:self.chatRoomId]) {
             // 文本消息
-            if(msg.body.type == EMMessageBodyTypeText) {
+            if(msg.body.type == AgoraChatMessageBodyTypeText) {
                 NSDictionary* ext = msg.ext;
                 NSNumber* msgType = [ext objectForKey:kMsgType];
-                EMTextMessageBody* textBody = (EMTextMessageBody*)msg.body;
+                AgoraChatTextMessageBody* textBody = (AgoraChatTextMessageBody*)msg.body;
                 // 普通消息
                 //if(msgType.integerValue == ChatMsgTypeCommon) {
                     if([textBody.text length] > 0)
@@ -516,7 +516,7 @@ static BOOL isSDKInited = NO;
 //                    }
 //                }
             }
-            if(msg.body.type == EMMessageBodyTypeImage) {
+            if(msg.body.type == AgoraChatMessageBodyTypeImage) {
                 [self.dataLock lock];
                 [self.dataArray addObject:msg];
                 self.latestMsgId = msg.messageId;
@@ -535,8 +535,8 @@ static BOOL isSDKInited = NO;
 
 - (void)cmdMessagesDidReceive:(NSArray *)aCmdMessages
 {
-    for(EMMessage* msg in aCmdMessages) {
-        EMCmdMessageBody* body = (EMCmdMessageBody*)msg.body;
+    for(AgoraChatMessage* msg in aCmdMessages) {
+        AgoraChatCmdMessageBody* body = (AgoraChatCmdMessageBody*)msg.body;
         if([body.action isEqualToString:@"DEL"]) {
             NSDictionary* ext = msg.ext;
             id tmp = [ext objectForKey:@"msgId"];
@@ -558,7 +558,7 @@ static BOOL isSDKInited = NO;
     }
     [self.dataLock lock];
     [self.dataArray addObjectsFromArray:aCmdMessages];
-    EMMessage* lastMsg = [aCmdMessages lastObject];
+    AgoraChatMessage* lastMsg = [aCmdMessages lastObject];
     if(lastMsg)
         self.latestMsgId = lastMsg.messageId;
     [self.dataLock unlock];
@@ -569,16 +569,16 @@ static BOOL isSDKInited = NO;
 
 - (void)messagesDidRecall:(NSArray *)aMessages
 {
-    for (EMMessage* msg in aMessages) {
+    for (AgoraChatMessage* msg in aMessages) {
         // 判断聊天室消息
-        if(msg.chatType == EMChatTypeChatRoom && [msg.to isEqualToString:self.chatRoomId]) {
+        if(msg.chatType == AgoraChatTypeChatRoom && [msg.to isEqualToString:self.chatRoomId]) {
             // 文本消息
-            if(msg.body.type == EMMessageBodyTypeText) {
+            if(msg.body.type == AgoraChatMessageBodyTypeText) {
                 NSDictionary* ext = msg.ext;
                 NSNumber* msgType = [ext objectForKey:kMsgType];
                 // 普通消息
                 //if(msgType.integerValue == ChatMsgTypeCommon) {
-                    EMTextMessageBody* textBody = (EMTextMessageBody*)msg.body;
+                    AgoraChatTextMessageBody* textBody = (AgoraChatTextMessageBody*)msg.body;
                     if([textBody.text length] > 0)
                     {
                         if([self.delegate respondsToSelector:@selector(chatMessageDidRecallchatMessageDidRecall:)]) {
@@ -591,44 +591,44 @@ static BOOL isSDKInited = NO;
     }
 }
 
-- (void)messageStatusDidChange:(EMMessage *)aMessage
-                         error:(EMError *)aError
+- (void)messageStatusDidChange:(AgoraChatMessage*)aMessage
+                         error:(AgoraChatError *)aError
 {
    
 }
 
-#pragma mark - EMChatroomManagerDelegate
-- (void)userDidJoinChatroom:(EMChatroom *)aChatroom
+#pragma mark - AgoraChatroomManagerDelegate
+- (void)userDidJoinChatroom:(AgoraChatroom *)aChatroom
                        user:(NSString *)aUsername
 {
     
 }
 
-- (void)userDidLeaveChatroom:(EMChatroom *)aChatroom
+- (void)userDidLeaveChatroom:(AgoraChatroom *)aChatroom
                         user:(NSString *)aUsername
 {
     
 }
 
-- (void)didDismissFromChatroom:(EMChatroom *)aChatroom
-                        reason:(EMChatroomBeKickedReason)aReason
+- (void)didDismissFromChatroom:(AgoraChatroom *)aChatroom
+                        reason:(AgoraChatroomBeKickedReason)aReason
 {
 }
 
-- (void)chatroomMuteListDidUpdate:(EMChatroom *)aChatroom
+- (void)chatroomMuteListDidUpdate:(AgoraChatroom *)aChatroom
                 addedMutedMembers:(NSArray *)aMutes
                        muteExpire:(NSInteger)aMuteExpire
 {
     
 }
 
-- (void)chatroomMuteListDidUpdate:(EMChatroom *)aChatroom
+- (void)chatroomMuteListDidUpdate:(AgoraChatroom *)aChatroom
               removedMutedMembers:(NSArray *)aMutes
 {
     
 }
 
-- (void)chatroomWhiteListDidUpdate:(EMChatroom *)aChatroom
+- (void)chatroomWhiteListDidUpdate:(AgoraChatroom *)aChatroom
              addedWhiteListMembers:(NSArray *)aMembers
 {
     if([aChatroom.chatroomId isEqualToString:self.chatRoomId]) {
@@ -640,7 +640,7 @@ static BOOL isSDKInited = NO;
     }
 }
 
-- (void)chatroomWhiteListDidUpdate:(EMChatroom *)aChatroom
+- (void)chatroomWhiteListDidUpdate:(AgoraChatroom *)aChatroom
            removedWhiteListMembers:(NSArray *)aMembers
 {
     if([aChatroom.chatroomId isEqualToString:self.chatRoomId]){
@@ -652,7 +652,7 @@ static BOOL isSDKInited = NO;
     }
 }
 
-- (void)chatroomAllMemberMuteChanged:(EMChatroom *)aChatroom
+- (void)chatroomAllMemberMuteChanged:(AgoraChatroom *)aChatroom
                     isAllMemberMuted:(BOOL)aMuted
 {
     if([aChatroom.chatroomId isEqualToString:self.chatRoomId]) {
@@ -662,7 +662,7 @@ static BOOL isSDKInited = NO;
     
 }
 
-- (void)chatroomAnnouncementDidUpdate:(EMChatroom *)aChatroom
+- (void)chatroomAnnouncementDidUpdate:(AgoraChatroom *)aChatroom
                          announcement:(NSString *)aAnnouncement
 {
     if([aChatroom.chatroomId isEqualToString:self.chatRoomId]) {

@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,strong) NSString* avatarurl;
 @property (nonatomic,strong) NSString* roomUuid;
 @property (nonatomic) NSInteger role;
+@property (nonatomic,strong) NSString* token;
 @end
 
 NS_ASSUME_NONNULL_END

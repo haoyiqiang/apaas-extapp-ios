@@ -8,11 +8,11 @@
 import Foundation
 import Armin
 
-typealias SuccessCompletion = () -> ()
-typealias JsonCompletion = ([String: Any]) -> ()
-typealias FailureCompletion = (Error) -> ()
+public typealias SuccessCompletion = () -> ()
+public typealias JsonCompletion = ([String: Any]) -> ()
+public typealias FailureCompletion = (Error) -> ()
 
-class AgoraWidgetServerAPI {
+public class AgoraWidgetServerAPI:NSObject {
     private(set) var host: String
     private(set) var appId: String
     private(set) var token: String

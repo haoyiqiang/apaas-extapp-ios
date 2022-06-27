@@ -17,8 +17,8 @@
 
 @implementation EMMsgImageBubbleView
 
-- (instancetype)initWithDirection:(EMMessageDirection)aDirection
-                             type:(EMMessageType)aType
+- (instancetype)initWithDirection:(AgoraChatMessageDirection)aDirection
+                             type:(AgoraChatMessageType)aType
 {
     self = [super initWithDirection:aDirection type:aType];
     if (self) {
@@ -89,7 +89,7 @@
         size = img.size;
         block(size);
     } else {
-        BOOL isAutoDownloadThumbnail = ([EMClient sharedClient].options.isAutoDownloadThumbnail);
+        BOOL isAutoDownloadThumbnail = ([AgoraChatClient sharedClient].options.isAutoDownloadThumbnail);
         if (isAutoDownloadThumbnail) {
             [self sd_setImageWithURL:[NSURL URLWithString:aRemotePath] placeholderImage:[UIImage ag_image:@"msg_img_broken"] completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                     if (!error) {
@@ -110,11 +110,11 @@
 
 - (void)setModel:(EMMessageModel *)model
 {
-    EMMessageType type = model.type;
-    if (type == EMMessageTypeImage) {
-        EMImageMessageBody *body = (EMImageMessageBody *)model.emModel.body;
+    AgoraChatMessageType type = model.type;
+    if (type == AgoraChatMessageTypeImage) {
+        AgoraChatImageMessageBody *body = (AgoraChatImageMessageBody *)model.emModel.body;
         NSString *imgPath = body.thumbnailLocalPath;
-        if ([imgPath length] == 0 && model.direction == EMMessageDirectionSend) {
+        if ([imgPath length] == 0 && model.direction == AgoraChatMessageDirectionSend) {
             imgPath = body.localPath;
         }
         [self setThumbnailImageWithLocalPath:imgPath remotePath:body.thumbnailRemotePath thumbImgSize:body.thumbnailSize imgSize:body.size];

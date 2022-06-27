@@ -37,7 +37,7 @@ Pod::Spec.new do |spec|
   spec.dependency "Whiteboard"
   
   # Hyphenate
-  spec.dependency 'HyphenateChat', "3.8.6"
+  spec.dependency 'Agora_Chat_iOS'
   spec.dependency 'SDWebImage'
   spec.dependency 'WHToast'
 
