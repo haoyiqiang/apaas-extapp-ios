@@ -138,7 +138,7 @@
 
 - (void)dealloc
 {
-    if(self.chatManager.user.role == 1) {
+    if(self.chatManager.user.role == 1 && self.muteAllButton.isHidden == NO) {
         [self.chatManager removeObserver:self forKeyPath:@"isAllMuted"];
     }
 }

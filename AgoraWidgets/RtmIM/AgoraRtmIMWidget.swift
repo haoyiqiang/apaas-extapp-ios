@@ -85,11 +85,13 @@ fileprivate class AgoraRtmDataModel: NSObject {
 }
 // MARK: - Private
 private extension AgoraRtmIMWidget {
-    func headers(token: String? = nil,
-                 uid: String? = nil) -> [String: String] {
+    func headers() -> [String: String] {
+        let token = dataModel.token ?? ""
+        let userId = info.localUserInfo.userUuid
         let dic = ["Content-Type": "application/json",
-                   "x-agora-token": dataModel.token ?? "",
-                   "x-agora-uid": info.localUserInfo.userUuid]
+                   "x-agora-token": token,
+                   "x-agora-uid": userId,
+                   "Authorization": "agora token=\"\(token)\""]
         return dic
     }
     
