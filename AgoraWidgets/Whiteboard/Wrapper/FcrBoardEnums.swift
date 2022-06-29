@@ -32,6 +32,18 @@ enum FcrBoardRoomConnectionState: Int, AgoraWidgetDescription {
     }
 }
 
+enum FcrWindowBoxState: AgoraWidgetDescription {
+    case normal, mini, max
+    
+    var agDescription: String {
+        switch self {
+        case .normal:   return "normal"
+        case .mini:     return "minimized"
+        case .max:      return "maximized"
+        }
+    }
+}
+
 enum FcrBoardToolType: Int, AgoraWidgetDescription {
     case none         = 0
     case selector     = 1
@@ -140,6 +152,26 @@ extension WhiteRoomPhase: AgoraWidgetDescription {
         case .reconnecting:  return "reconnecting"
         case .disconnecting: return "disconnecting"
         case .disconnected:  return "disconnected"
+        }
+    }
+}
+
+extension WhiteWindowBoxState: AgoraWidgetDescription {
+    var agDescription: String {
+        switch self {
+        case .normal:   return "normal"
+        case .mini:     return "minimized"
+        case .max:      return "maximized"
+        default:        return "normal"
+        }
+    }
+    
+    var toFcr: FcrWindowBoxState {
+        switch self {
+        case .normal:   return .normal
+        case .mini:     return .mini
+        case .max:      return .max
+        default:        return .normal
         }
     }
 }

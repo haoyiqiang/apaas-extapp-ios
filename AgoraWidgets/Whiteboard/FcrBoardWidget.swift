@@ -570,6 +570,10 @@ extension FcrBoardWidget: FcrBoardMainWindowDelegate {
         sendMessage(signal: .BoardStepChanged(.redoAble(enable)))
     }
     
+    func onWindowBoxStateChanged(state: FcrWindowBoxState) {
+        sendMessage(signal: .WindowStateChanged(state.toWidget))
+    }
+    
     func onStartAudioMixing(filePath: String,
                             loopback: Bool,
                             replace: Bool,

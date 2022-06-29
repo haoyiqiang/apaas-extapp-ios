@@ -772,6 +772,12 @@ extension FcrBoardMainWindow: FcrBoardMainWindowNeedObserve {
             delegate?.onPageInfoUpdated(info: pageState.toFcr)
         }
         
+        if let windowBoxState = modifyState.windowBoxState {
+            extra["windowBoxState"] = windowBoxState.agDescription
+            
+            delegate?.onWindowBoxStateChanged(state: windowBoxState.toFcr)
+        }
+        
         log(content: "on room state changed",
             extra: extra.agDescription,
             type: .info)

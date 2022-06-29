@@ -225,6 +225,16 @@ enum FcrBoardWindowState: Int, Convertable {
     case min, max, normal
 }
 
+extension FcrWindowBoxState {
+    var toWidget: FcrBoardWindowState {
+        switch self {
+        case .normal:   return .normal
+        case .mini:     return .min
+        case .max:      return .max
+        }
+    }
+}
+
 // courseware
 struct FcrBoardCoursewareInfo: Convertable {
     var resourceUuid: String
