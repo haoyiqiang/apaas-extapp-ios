@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "AgoraWidgets"
-  spec.version      = "2.6.0"
+  spec.version      = "2.6.1"
   spec.summary      = "Agora widgets"
   spec.description  = "Agora native widgets"
   spec.homepage     = "https://docs.agora.io/en/agora-class/landing-page?platform=iOS"
@@ -38,7 +38,7 @@ Pod::Spec.new do |spec|
   
   # Hyphenate
   spec.dependency "Agora_Chat_iOS", ">=1.0.6.1"
-  spec.dependency "SDWebImage", "<=5.1.2"
+  spec.dependency "SDWebImage", "<=5.12.0"
   spec.dependency "WHToast"
 
   spec.pod_target_xcconfig  = { "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", "DEFINES_MODULE" => "YES" }
