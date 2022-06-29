@@ -24,10 +24,10 @@ Pod::Spec.new do |spec|
                       "AgoraWidgets/CountdownTimer/**/*.{h,m,swift}",
                       "AgoraWidgets/WebView/**/*.{h,m,swift}"
   
-  spec.dependency "AgoraUIBaseViews", ">=2.3.0"
+  spec.dependency "AgoraUIBaseViews", ">=2.6.0"
   spec.dependency "AgoraWidget", ">=2.6.0"
   spec.dependency "AgoraLog", "1.0.2"
-  spec.dependency "Armin", ">=1.0.10"
+  spec.dependency "Armin", ">=1.1.0"
 
   spec.dependency "SwifterSwift"
   spec.dependency "Masonry"
