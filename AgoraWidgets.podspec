@@ -38,7 +38,7 @@ Pod::Spec.new do |spec|
   
   # Hyphenate
   spec.dependency "Agora_Chat_iOS", ">=1.0.6.1"
-  spec.dependency "SDWebImage"
+  spec.dependency "SDWebImage", ">=5.1.2"
   spec.dependency "WHToast"
 
   spec.pod_target_xcconfig  = { "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", "DEFINES_MODULE" => "YES" }
