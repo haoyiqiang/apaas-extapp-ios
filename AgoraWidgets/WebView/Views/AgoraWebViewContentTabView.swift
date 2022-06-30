@@ -27,7 +27,17 @@ class AgoraWebViewContentTabView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func initViews() {
+    func setOperationPrivilege(_ hasPrivilege: Bool) {
+        scaleButton.isHidden = !hasPrivilege
+        closeButton.isHidden = !hasPrivilege
+        
+        let stackWidth = stackWidth(count: hasPrivilege ? 3 : 1)
+        buttonsStackView.mas_updateConstraints { make in
+            make?.width.equalTo()(stackWidth)
+        }
+    }
+    
+    private func initViews() {
         let group = AgoraUIGroup()
         
         layer.borderWidth = group.frame.border_width
@@ -60,9 +70,9 @@ class AgoraWebViewContentTabView: UIView {
         buttonsStackView.addArrangedSubview(closeButton)
     }
     
-    func initViewFrame() {
+    private func initViewFrame() {
         let group = AgoraUIGroup()
-        let stackWidth = group.frame.web_button_length * 3 + group.frame.web_button_spacing * 2
+        let stackWidth = stackWidth(count: 1)
         
         titleLabel.mas_makeConstraints { make in
             make?.centerY.equalTo()(0)
@@ -75,5 +85,11 @@ class AgoraWebViewContentTabView: UIView {
             make?.width.equalTo()(stackWidth)
             make?.height.equalTo()(group.frame.web_button_length)
         }
+    }
+    
+    private func stackWidth(count: Int) -> CGFloat {
+        let frame = AgoraUIGroup().frame
+        let width: CGFloat = frame.web_button_length * CGFloat(count) + frame.web_button_spacing * CGFloat(count - 1)
+        return width
     }
 }

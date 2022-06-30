@@ -19,7 +19,7 @@
 
 @property (nonatomic, strong) UILabel *nameLabel;
 
-@property (nonatomic, strong) EMMessageStatusView *statusView;
+@property (nonatomic, strong) AgoraChatMessageStatusView *statusView;
 
 @property (nonatomic, strong) UIButton *readReceiptBtn;//阅读回执按钮
 
@@ -28,8 +28,8 @@
 
 @implementation EMMessageCell
 
-- (instancetype)initWithDirection:(EMMessageDirection)aDirection
-                             type:(EMMessageType)aType
+- (instancetype)initWithDirection:(AgoraChatMessageDirection)aDirection
+                             type:(AgoraChatMessageType)aType
 {
     NSString *identifier = [EMMessageCell cellIdentifierWithDirection:aDirection type:aType];
     self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
@@ -54,27 +54,27 @@
 
 #pragma mark - Class Methods
 
-+ (NSString *)cellIdentifierWithDirection:(EMMessageDirection)aDirection
-                                     type:(EMMessageType)aType
++ (NSString *)cellIdentifierWithDirection:(AgoraChatMessageDirection)aDirection
+                                     type:(AgoraChatMessageType)aType
 {
     NSString *identifier = @"EMMsgCellDirectionSend";
-    if (aDirection == EMMessageDirectionReceive) {
+    if (aDirection == AgoraChatMessageDirectionReceive) {
         identifier = @"EMMsgCellDirectionRecv";
     }
     
-    if (aType == EMMessageTypeText || aType == EMMessageTypeExtCall) {
+    if (aType == AgoraChatMessageTypeText || aType == AgoraChatMessageTypeExtCall) {
         identifier = [NSString stringWithFormat:@"%@Text", identifier];
-    } else if (aType == EMMessageTypeImage) {
+    } else if (aType == AgoraChatMessageTypeImage) {
         identifier = [NSString stringWithFormat:@"%@Image", identifier];
-    } else if (aType == EMMessageTypeVoice) {
+    } else if (aType == AgoraChatMessageTypeVoice) {
         identifier = [NSString stringWithFormat:@"%@Voice", identifier];
-    } else if (aType == EMMessageTypeVideo) {
+    } else if (aType == AgoraChatMessageTypeVideo) {
         identifier = [NSString stringWithFormat:@"%@Video", identifier];
-    } else if (aType == EMMessageTypeLocation) {
+    } else if (aType == AgoraChatMessageTypeLocation) {
         identifier = [NSString stringWithFormat:@"%@Location", identifier];
-    } else if (aType == EMMessageTypeFile) {
+    } else if (aType == AgoraChatMessageTypeFile) {
         identifier = [NSString stringWithFormat:@"%@File", identifier];
-    } else if (aType == EMMessageTypeExtGif) {
+    } else if (aType == AgoraChatMessageTypeExtGif) {
         identifier = [NSString stringWithFormat:@"%@ExtGif", identifier];
     }
     
@@ -83,7 +83,7 @@
 
 #pragma mark - Subviews
 
-- (void)_setupViewsWithType:(EMMessageType)aType
+- (void)_setupViewsWithType:(AgoraChatMessageType)aType
 {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.backgroundColor = [UIColor clearColor];
@@ -112,11 +112,11 @@
     _roleTag.leftViewMode = UITextFieldViewModeAlways;
     _roleTag.rightView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 8, 0)];
     _roleTag.rightViewMode = UITextFieldViewModeAlways;
-    _roleTag.text = [@"fcr_hyphenate_im_teacher" ag_localizedIn:@"AgoraWidgets"];
+    _roleTag.text = [@"fcr_hyphenate_im_teacher" agora_localized:@"AgoraWidgets"];
     _roleTag.enabled = NO;
     [self.contentView addSubview:_roleTag];
     
-    if (self.direction == EMMessageDirectionSend) {
+    if (self.direction == AgoraChatMessageDirectionSend) {
         [_avatarView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.equalTo(self.contentView).offset(5);
             make.right.equalTo(self.contentView).offset(-10);
@@ -153,7 +153,7 @@
     _bubbleView.clipsToBounds = YES;
     _bubbleView.layer.cornerRadius = 4;
     [self.contentView addSubview:_bubbleView];
-    if (self.direction == EMMessageDirectionSend) {
+    if (self.direction == AgoraChatMessageDirectionSend) {
         [_bubbleView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.equalTo(self.avatarView.mas_bottom).offset(8);
             make.bottom.equalTo(self.contentView).offset(-15);
@@ -169,9 +169,9 @@
         }];
     }
 
-    _statusView = [[EMMessageStatusView alloc] init];
+    _statusView = [[AgoraChatMessageStatusView alloc] init];
     [self.contentView addSubview:_statusView];
-    if (self.direction == EMMessageDirectionSend) {
+    if (self.direction == AgoraChatMessageDirectionSend) {
         [_statusView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.centerY.equalTo(self.bubbleView.mas_centerY);
             make.right.equalTo(self.bubbleView.mas_left).offset(-8);
@@ -207,7 +207,7 @@
     _readReceiptBtn.titleLabel.font = [UIFont systemFontOfSize: 10.0];
     [_readReceiptBtn addTarget:self action:@selector(readReceiptDetilAction) forControlEvents:UIControlEventTouchUpInside];
     [self.contentView addSubview:_readReceiptBtn];
-    if(self.direction == EMMessageDirectionSend) {
+    if(self.direction == AgoraChatMessageDirectionSend) {
         [_readReceiptBtn mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.equalTo(self.bubbleView.mas_bottom).offset(2);
             make.right.equalTo(self.bubbleView.mas_right);
@@ -216,15 +216,15 @@
     }
 }
 
-- (EMMessageBubbleView *)_getBubbleViewWithType:(EMMessageType)aType
+- (EMMessageBubbleView *)_getBubbleViewWithType:(AgoraChatMessageType)aType
 {
     EMMessageBubbleView *bubbleView = nil;
     switch (aType) {
-        case EMMessageTypeText:
-        case EMMessageTypeExtCall:
+        case AgoraChatMessageTypeText:
+        case AgoraChatMessageTypeExtCall:
             bubbleView = [[EMMsgTextBubbleView alloc] initWithDirection:self.direction type:aType];
             break;
-        case EMMessageTypeImage:
+        case AgoraChatMessageTypeImage:
             bubbleView = [[EMMsgImageBubbleView alloc] initWithDirection:self.direction type:aType];
             break;
         default:
@@ -262,13 +262,13 @@
         }
     }
     if(role.longValue == 1 || role.longValue == 3) {
-        self.roleTag.text = role.longValue == 1?[@"fcr_hyphenate_im_teacher" ag_localizedIn:@"AgoraWidgets"] : [@"fcr_hyphenate_im_assistant" ag_localizedIn:@"AgoraWidgets"];
+        self.roleTag.text = role.longValue == 1?[@"fcr_hyphenate_im_teacher" agora_localized:@"AgoraWidgets"] : [@"fcr_hyphenate_im_assistant" agora_localized:@"AgoraWidgets"];
         self.roleTag.hidden = NO;
     }else{
         self.roleTag.hidden = YES;
     }
     
-    if (model.direction == EMMessageDirectionSend) {
+    if (model.direction == AgoraChatMessageDirectionSend) {
         
         [self.statusView setSenderStatus:model.emModel.status isReadAcked:model.emModel.isReadAcked];
     }

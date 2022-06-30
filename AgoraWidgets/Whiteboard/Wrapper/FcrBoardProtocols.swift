@@ -19,6 +19,8 @@ protocol FcrBoardMainWindowDelegate: FcrBoardAudioMixingDelegate {
     func onUndoStateUpdated(enable: Bool)
     
     func onRedoStateUpdated(enable: Bool)
+    
+    func onWindowBoxStateChanged(state: FcrWindowBoxState)
 }
 
 protocol FcrBoardLogTube: NSObjectProtocol {

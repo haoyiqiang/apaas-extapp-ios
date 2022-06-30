@@ -204,12 +204,13 @@ extension WKWebViewConfiguration {
                            footViewPageButtonStyle]
         
         let wkConfig = WKWebViewConfiguration()
+
+#if arch(arm64)
+        wkConfig.setValue("TRUE", forKey: "allowUniversalAccessFromFileURLs")
+#else
+        wkConfig.setValue("\(1)", forKey: "allowUniversalAccessFromFileURLs")
+#endif
         // TODO: schemeHandler
-//#if arch(arm64)
-//        wkConfig.setValue("TRUE", forKey: "allowUniversalAccessFromFileURLs")
-//#else
-//        wkConfig.setValue("\(1)", forKey: "allowUniversalAccessFromFileURLs")
-//#endif
 //        if #available(iOS 11.0, *),
 //           let handler = self.schemeHandler {
 //            wkConfig.setURLSchemeHandler(handler,

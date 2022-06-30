@@ -10,7 +10,6 @@ import Foundation
 // MARK: signal
 enum FcrBoardInteractionSignal: Convertable {
     case JoinBoard
-    case BoardPhaseChanged(FcrBoardRoomPhase)
     case ChangeAssistantType(FcrBoardAssistantType)
     case GetBoardGrantedUsers([String])
     case UpdateGrantedUsers(FcrBoardGrantUsersChangeType)
@@ -22,7 +21,7 @@ enum FcrBoardInteractionSignal: Convertable {
     case OpenCourseware(FcrBoardCoursewareInfo)
     case WindowStateChanged(FcrBoardWindowState)
     case SaveBoard
-    case PhotoAuth
+    case OnBoardSaveResult(FcrBoardSnapshotResult)
     case CloseBoard
     
     private enum CodingKeys: CodingKey {
@@ -39,7 +38,7 @@ enum FcrBoardInteractionSignal: Convertable {
         case OpenCourseware
         case WindowStateChanged
         case SaveBoard
-        case PhotoAuth
+        case OnBoardSaveResult
         case CloseBoard
     }
     
@@ -48,9 +47,6 @@ enum FcrBoardInteractionSignal: Convertable {
         
         if let _ = try? container.decodeNil(forKey: .JoinBoard) {
             self = .JoinBoard
-        } else if let value = try? container.decode(FcrBoardRoomPhase.self,
-                                                    forKey: .BoardPhaseChanged) {
-            self = .BoardPhaseChanged(value)
         } else if let value = try? container.decode(FcrBoardAssistantType.self,
                                                     forKey: .ChangeAssistantType) {
             self = .ChangeAssistantType(value)
@@ -79,8 +75,9 @@ enum FcrBoardInteractionSignal: Convertable {
             self = .WindowStateChanged(value)
         } else if let _ = try? container.decodeNil(forKey: .SaveBoard) {
             self = .SaveBoard
-        } else if let _ = try? container.decodeNil(forKey: .PhotoAuth) {
-            self = .PhotoAuth
+        } else if let value = try? container.decode(FcrBoardSnapshotResult.self,
+                                                    forKey: .OnBoardSaveResult) {
+            self = .OnBoardSaveResult(value)
         } else if let _ = try? container.decodeNil(forKey: .CloseBoard) {
             self = .CloseBoard
         } else {
@@ -99,9 +96,6 @@ enum FcrBoardInteractionSignal: Convertable {
         switch self {
         case .JoinBoard:
             try container.encodeNil(forKey: .JoinBoard)
-        case .BoardPhaseChanged(let x):
-            try container.encode(x,
-                                 forKey: .BoardPhaseChanged)
         case .ChangeAssistantType(let x):
             try container.encode(x,
                                  forKey: .ChangeAssistantType)
@@ -133,8 +127,9 @@ enum FcrBoardInteractionSignal: Convertable {
                                  forKey: .WindowStateChanged)
         case .SaveBoard:
             try container.encodeNil(forKey: .SaveBoard)
-        case .PhotoAuth:
-            try container.encodeNil(forKey: .PhotoAuth)
+        case .OnBoardSaveResult(let x):
+            try container.encode(x,
+                                 forKey: .OnBoardSaveResult)
         case .CloseBoard:
             try container.encodeNil(forKey: .CloseBoard)
         }
@@ -147,15 +142,6 @@ enum FcrBoardInteractionSignal: Convertable {
         }
         return str
     }
-}
-
-// MARK: - phase
-enum FcrBoardRoomPhase: Int, Convertable {
-    case Connecting
-    case Connected
-    case Reconnecting
-    case Disconnecting
-    case Disconnected
 }
 
 // MARK: - audiomixing
@@ -229,9 +215,24 @@ enum FcrBoardGrantUsersChangeType: Convertable {
     }
 }
 
+// save snapshot
+enum FcrBoardSnapshotResult: Int, Convertable {
+    case savedToAlbum, noAlbumAuth, failureToSave
+}
+
 // window
 enum FcrBoardWindowState: Int, Convertable {
     case min, max, normal
+}
+
+extension FcrWindowBoxState {
+    var toWidget: FcrBoardWindowState {
+        switch self {
+        case .normal:   return .normal
+        case .mini:     return .min
+        case .max:      return .max
+        }
+    }
 }
 
 // courseware

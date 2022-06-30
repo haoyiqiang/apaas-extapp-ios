@@ -6,7 +6,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <HyphenateChat/HyphenateChat.h>
+#import <AgoraChat/AgoraChat.h>
 #import "ChatManager.h"
 #import "ChatBar.h"
 
@@ -29,8 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,strong) NSString* announcement;
 @property (nonatomic,strong) ChatBar* chatBar;
 @property (nonatomic,strong) ChatManager* chatManager;
-- (void)updateMsgs:(NSMutableArray<EMMessage*>*)msgArray;
+- (void)updateMsgs:(NSMutableArray<AgoraChatMessage*>*)msgArray;
 - (void)scrollToBottomRow;
+- (void)hideMuteButton;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -32,6 +32,7 @@ fcr_hyphenate_im_no_announcement = "No Notice";
 fcr_hyphenate_im_all_mute = "All Mute";
 fcr_hyphenate_im_mute = "You are muted by teacher";
 fcr_hyphenate_im_login_faild = "Login failed";
+fcr_hyphenate_im_fetch_token_faild = "Fetch IM token failed";
 fcr_hyphenate_im_join_faild = "Join failed";
 fcr_hyphenate_im_send_faild_by_mute = "Send faild,you have been muted";
 fcr_hyphenate_im_send_faild_by_sensitive = "Send faild,message contain sensitive word";

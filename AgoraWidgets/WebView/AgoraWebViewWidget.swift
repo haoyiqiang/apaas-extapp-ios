@@ -25,17 +25,6 @@ import AgoraWidget
         }
     }
     
-    private var localGranted: Bool = false {
-        didSet {
-            guard localGranted != oldValue else {
-                return
-            }
-            
-            contentView.tabView.scaleButton.isUserInteractionEnabled = localGranted
-            contentView.tabView.closeButton.isUserInteractionEnabled = localGranted
-        }
-    }
-    
     var webViewState: FcrWebViewShowState = .none {
         didSet {
             guard webViewState != oldValue else {
@@ -74,8 +63,9 @@ import AgoraWidget
         super.onLoad()
         
         view.addSubview(contentView)
-        contentView.tabView.scaleButton.isUserInteractionEnabled = false
-        contentView.tabView.closeButton.isUserInteractionEnabled = false
+        
+        contentView.tabView.setOperationPrivilege(false)
+        
         contentView.mas_makeConstraints { make in
             make?.left.right().top().bottom().equalTo()(0)
         }
@@ -109,7 +99,7 @@ import AgoraWidget
         }
         switch signal {
         case .boardAuth(let granted):
-            localGranted = granted
+            contentView.tabView.setOperationPrivilege(granted)
         case .updateViewZIndex(let zIndex):
             updateRoomPropertiesZIndex(zIndex: zIndex)
         default:

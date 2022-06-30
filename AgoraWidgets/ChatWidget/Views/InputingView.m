@@ -41,7 +41,7 @@
 - (void)setupSubViews
 {
     self.sendButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.sendButton setTitle:[@"fcr_hyphenate_im_send" ag_localizedIn:@"AgoraWidgets"]
+    [self.sendButton setTitle:[@"fcr_hyphenate_im_send" agora_localized:@"AgoraWidgets"]
                      forState:UIControlStateNormal];
     [self addSubview:self.sendButton];
     self.sendButton.backgroundColor = [UIColor colorWithRed:53/255.0 green:123/255.0 blue:246/255.0 alpha:1.0];
@@ -64,7 +64,7 @@
     self.inputField.leftView.userInteractionEnabled = NO;
     self.inputField.leftViewMode = UITextFieldViewModeAlways;
     self.inputField.backgroundColor = [UIColor whiteColor];
-    self.inputField.placeholder = [@"fcr_hyphenate_im_input_placeholder" ag_localizedIn:@"AgoraWidgets"];
+    self.inputField.placeholder = [@"fcr_hyphenate_im_input_placeholder" agora_localized:@"AgoraWidgets"];
     //self.inputField.layer.cornerRadius = 15;
     self.inputField.returnKeyType = UIReturnKeySend;
     self.inputField.delegate = self;

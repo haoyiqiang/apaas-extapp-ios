@@ -85,23 +85,25 @@ fileprivate class AgoraRtmDataModel: NSObject {
 }
 // MARK: - Private
 private extension AgoraRtmIMWidget {
-    func headers(token: String? = nil,
-                 uid: String? = nil) -> [String: String] {
+    func headers() -> [String: String] {
+        let token = dataModel.token ?? ""
+        let userId = info.localUserInfo.userUuid
         let dic = ["Content-Type": "application/json",
-                   "x-agora-token": dataModel.token ?? "",
-                   "x-agora-uid": info.localUserInfo.userUuid]
+                   "x-agora-token": token,
+                   "x-agora-uid": userId,
+                   "Authorization": "agora token=\"\(token)\""]
         return dic
     }
     
     func roleName(role: String) -> String? {
         if role == "teacher" {
-            return "fcr_rtm_im_teacher".ag_localizedIn("AgoraWidgets")
+            return "fcr_rtm_im_teacher".agora_localized("AgoraWidgets")
         } else if role == "student" {
-            return "fcr_rtm_im_student".ag_localizedIn("AgoraWidgets")
+            return "fcr_rtm_im_student".agora_localized("AgoraWidgets")
         } else if role == "1" {
-            return "fcr_rtm_im_teacher".ag_localizedIn("AgoraWidgets")
+            return "fcr_rtm_im_teacher".agora_localized("AgoraWidgets")
         } else if role == "2" {
-            return "fcr_rtm_im_student".ag_localizedIn("AgoraWidgets")
+            return "fcr_rtm_im_student".agora_localized("AgoraWidgets")
         } else {
             return nil
         }

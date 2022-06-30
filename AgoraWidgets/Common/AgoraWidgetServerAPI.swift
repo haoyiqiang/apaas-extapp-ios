@@ -8,11 +8,11 @@
 import Foundation
 import Armin
 
-typealias SuccessCompletion = () -> ()
-typealias JsonCompletion = ([String: Any]) -> ()
-typealias FailureCompletion = (Error) -> ()
+public typealias SuccessCompletion = () -> ()
+public typealias JsonCompletion = ([String: Any]) -> ()
+public typealias FailureCompletion = (Error) -> ()
 
-class AgoraWidgetServerAPI {
+public class AgoraWidgetServerAPI:NSObject {
     private(set) var host: String
     private(set) var appId: String
     private(set) var token: String
@@ -43,6 +43,16 @@ class AgoraWidgetServerAPI {
                  isRetry: Bool = false,
                  success: JsonCompletion? = nil,
                  failure: FailureCompletion? = nil) {
+        var tHeader = ["x-agora-token": token,
+                       "x-agora-uid": userId,
+                       "Authorization": "agora token=\"\(token)\""]
+        
+        if let `header` = header {
+            tHeader.merge(header) { _, new in
+                new
+            }
+        }
+        
         let event = ArRequestEvent(name: event)
         
         let requestType: ArRequestType = .http(method,
@@ -51,7 +61,7 @@ class AgoraWidgetServerAPI {
         let task = ArRequestTask(event: event,
                                  type: requestType,
                                  timeout: .medium,
-                                 header: header,
+                                 header: tHeader,
                                  parameters: parameters)
         
         let response = ArResponse.json { [weak self] (json) in

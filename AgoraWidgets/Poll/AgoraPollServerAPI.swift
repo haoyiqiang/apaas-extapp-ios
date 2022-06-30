@@ -43,7 +43,8 @@ class AgoraPollServerAPI: NSObject {
         let type = ArRequestType.http(.post,
                                       url: urlString)
         let header = ["x-agora-token" : baseInfo.token,
-                      "x-agora-uid" : uid]
+                      "x-agora-uid" : uid,
+                      "Authorization": "agora token=\"\(baseInfo.token)\""]
         let parameters: [String : Any] = ["selectIndex" : selectList]
         let task = ArRequestTask(event: event,
                                  type: type,

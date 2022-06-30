@@ -63,7 +63,7 @@ class AgoraRtmIMSendCell: UITableViewCell {
 private extension AgoraRtmIMSendCell {
     func createViews() {
         avatarView = UIImageView()
-        avatarView.image = UIImage.ag_imageNamed("ic_rtm_avatar",
+        avatarView.image = UIImage.agora_image("ic_rtm_avatar",
                                                  in: "AgoraWidgets")
         avatarView.contentMode = .scaleAspectFill
         avatarView.layer.cornerRadius = kAvatarHeight * 0.5

@@ -37,7 +37,7 @@ struct AgoraWidgetsFit {
 
 public extension UIImage {
     @objc static func ag_image(_ name: String) -> UIImage? {
-        return UIImage.ag_imageNamed(name,
+        return UIImage.agora_image(name,
                                      in: "AgoraWidgets")
     }
 }

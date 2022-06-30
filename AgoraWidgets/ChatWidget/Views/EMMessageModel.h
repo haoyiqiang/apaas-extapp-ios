@@ -7,24 +7,24 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <HyphenateChat/HyphenateChat.h>
+#import <AgoraChat/AgoraChat.h>
 #import <Masonry/Masonry.h>
 
 #define MSG_EXT_GIF_ID @"em_expression_id"
 #define MSG_EXT_GIF @"em_is_big_expression"
 #define MSG_EXT_RECALL @"em_recall"
 
-typedef NS_ENUM(NSInteger, EMMessageType) {
-    EMMessageTypeText = 1,
-    EMMessageTypeImage,
-    EMMessageTypeVideo,
-    EMMessageTypeLocation,
-    EMMessageTypeVoice,
-    EMMessageTypeFile,
-    EMMessageTypeCmd,
-    EMMessageTypeExtGif,
-    EMMessageTypeExtRecall,
-    EMMessageTypeExtCall,
+typedef NS_ENUM(NSInteger, AgoraChatMessageType) {
+    AgoraChatMessageTypeText = 1,
+    AgoraChatMessageTypeImage,
+    AgoraChatMessageTypeVideo,
+    AgoraChatMessageTypeLocation,
+    AgoraChatMessageTypeVoice,
+    AgoraChatMessageTypeFile,
+    AgoraChatMessageTypeCmd,
+    AgoraChatMessageTypeExtGif,
+    AgoraChatMessageTypeExtRecall,
+    AgoraChatMessageTypeExtCall,
 };
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,17 +33,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) NSString *readReceiptCount;
 
-@property (nonatomic, strong) EMMessage *emModel;
+@property (nonatomic, strong) AgoraChatMessage*emModel;
 
-@property (nonatomic) EMMessageDirection direction;
+@property (nonatomic) AgoraChatMessageDirection direction;
 
-@property (nonatomic) EMMessageType type;
+@property (nonatomic) AgoraChatMessageType type;
 
 //@property (nonatomic) BOOL isReadReceipt;
 
 @property (nonatomic) BOOL isPlaying;
 
-- (instancetype)initWithEMMessage:(EMMessage *)aMsg;
+- (instancetype)initWithEMMessage:(AgoraChatMessage*)aMsg;
 
 @end
 

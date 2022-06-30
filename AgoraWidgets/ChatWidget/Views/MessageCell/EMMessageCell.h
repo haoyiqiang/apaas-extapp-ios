@@ -20,15 +20,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong, readonly) EMMessageBubbleView *bubbleView;
 
-@property (nonatomic) EMMessageDirection direction;
+@property (nonatomic) AgoraChatMessageDirection direction;
 
 @property (nonatomic, strong) EMMessageModel *model;
 
-+ (NSString *)cellIdentifierWithDirection:(EMMessageDirection)aDirection
-                                     type:(EMMessageType)aType;
++ (NSString *)cellIdentifierWithDirection:(AgoraChatMessageDirection)aDirection
+                                     type:(AgoraChatMessageType)aType;
 
-- (instancetype)initWithDirection:(EMMessageDirection)aDirection
-                             type:(EMMessageType)aType;
+- (instancetype)initWithDirection:(AgoraChatMessageDirection)aDirection
+                             type:(AgoraChatMessageType)aType;
 
 @end
 

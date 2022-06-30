@@ -48,7 +48,7 @@
 {
     self.backgroundColor = [UIColor colorWithRed:236/255.0 green:236/255.0 blue:241/255.0 alpha:1.0];
     self.inputButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal] ;
+    [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" agora_localized:@"AgoraWidgets"] forState:UIControlStateNormal] ;
     self.inputButton.backgroundColor = [UIColor clearColor];
     self.inputButton.titleLabel.font = [UIFont systemFontOfSize:12];
     [self.inputButton setTitleColor:[UIColor colorWithRed:125/255.0 green:135/255.0 blue:152/255.0 alpha:1.0] forState:UIControlStateNormal];
@@ -152,19 +152,19 @@
 - (void)updateMuteState
 {
     if(self.isAllMuted) {
-        [self.inputButton setTitle:[@"fcr_hyphenate_im_all_mute" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal];
+        [self.inputButton setTitle:[@"fcr_hyphenate_im_all_mute" agora_localized:@"AgoraWidgets"] forState:UIControlStateNormal];
         [self.inputButton setEnabled:NO];
         self.emojiButton.enabled = NO;
         self.imageButton.enabled = NO;
         
     }else{
         if(self.isMuted){
-            [self.inputButton setTitle:[@"fcr_hyphenate_im_mute" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal];
+            [self.inputButton setTitle:[@"fcr_hyphenate_im_mute" agora_localized:@"AgoraWidgets"] forState:UIControlStateNormal];
             [self.inputButton setEnabled:NO];
             self.emojiButton.enabled = NO;
             self.imageButton.enabled = NO;
         }else{
-            [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal];
+            [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" agora_localized:@"AgoraWidgets"] forState:UIControlStateNormal];
             [self.inputButton setEnabled:YES];
             self.emojiButton.enabled = YES;
             self.imageButton.enabled = YES;
@@ -185,7 +185,7 @@
             [self.inputButton setTitle:aText forState:UIControlStateNormal];
         }else{
             if(!self.isMuted && !self.isAllMuted)
-                [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal];
+                [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" agora_localized:@"AgoraWidgets"] forState:UIControlStateNormal];
         }
     });
     
@@ -208,7 +208,7 @@
         }else{
             PHFetchResult *result = [PHAsset fetchAssetsWithALAssetURLs:@[url] options:nil];
             if(result.count == 0){
-                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_photo_permission_request" ag_localizedIn:@"AgoraWidgets"]
+                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_photo_permission_request" agora_localized:@"AgoraWidgets"]
                                      duration:2
                                 finishHandler:nil];
             }else{
@@ -218,7 +218,7 @@
                             if (data != nil) {
                                 [self.delegate imageDataWillSend:data];
                             } else {
-                                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_image_too_large" ag_localizedIn:@"AgoraWidgets"] duration:2 finishHandler:nil];
+                                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_image_too_large" agora_localized:@"AgoraWidgets"] duration:2 finishHandler:nil];
                             }
                         }];
                     }
@@ -267,7 +267,7 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             if (status == permissions) {
                 //limit权限
-                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_photo_permission_request" ag_localizedIn:@"AgoraWidgets"]
+                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_photo_permission_request" agora_localized:@"AgoraWidgets"]
                                      duration:2
                                 finishHandler:nil];
                 return;
@@ -283,7 +283,7 @@
                     break;
                 case PHAuthorizationStatusDenied: //用户已经明确否认了这一照片数据的应用程序访问
                 case PHAuthorizationStatusRestricted://此应用程序没有被授权访问的照片数据。可能是家长控制权限
-                    [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_photo_permission_disabled" ag_localizedIn:@"AgoraWidgets"] duration:2 finishHandler:^{
+                    [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_photo_permission_disabled" agora_localized:@"AgoraWidgets"] duration:2 finishHandler:^{
                             
                     }];
                     break;

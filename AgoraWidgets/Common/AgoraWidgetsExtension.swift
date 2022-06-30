@@ -119,7 +119,7 @@ extension String {
     
     func ag_widget_localized() -> String {
         let resource = "AgoraWidgets"
-        return self.ag_localizedIn(resource)
+        return self.agora_localized(resource)
     }
     
     func agora_md5() -> String {
@@ -149,7 +149,7 @@ extension String {
 extension UIImage {
     static func ag_imageName(_ name: String) -> UIImage? {
         let resource = "AgoraWidgets"
-        let bundle = Bundle.ag_compentsBundleNamed(resource)
+        let bundle = Bundle.agora_bundle(resource)
         return UIImage.init(named: name,
                             in: bundle,
                             compatibleWith: nil)

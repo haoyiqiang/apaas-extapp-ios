@@ -9,9 +9,9 @@ import Foundation
 import Whiteboard
 
 enum FcrBoardLogType: Int {
-    case info = 1
+    case info    = 1
     case warning = 2
-    case error = 3
+    case error   = 3
 }
 
 enum FcrBoardRoomConnectionState: Int, AgoraWidgetDescription {
@@ -28,6 +28,18 @@ enum FcrBoardRoomConnectionState: Int, AgoraWidgetDescription {
         case .reconnecting:  return "reconnecting"
         case .disconnecting: return "disconnecting"
         case .disconnected:  return "disconnected"
+        }
+    }
+}
+
+enum FcrWindowBoxState: AgoraWidgetDescription {
+    case normal, mini, max
+    
+    var agDescription: String {
+        switch self {
+        case .normal:   return "normal"
+        case .mini:     return "minimized"
+        case .max:      return "maximized"
         }
     }
 }
@@ -69,12 +81,15 @@ enum FcrBoardDrawShape: Int, AgoraWidgetDescription {
     
     var toNetlessValue: WhiteApplianceNameKey? {
         switch self {
-        case .curve:     return .AppliancePencil
-        case .straight:  return .ApplianceStraight
-        case .arrow:     return .ApplianceArrow
-        case .rectangle: return .ApplianceRectangle
-        case .ellipse:   return .ApplianceEllipse
-        default:         return nil
+        case .curve:        return .AppliancePencil
+        case .straight:     return .ApplianceStraight
+        case .arrow:        return .ApplianceArrow
+        case .rectangle:    return .ApplianceRectangle
+        case .ellipse:      return .ApplianceEllipse
+        case .triangle:     return .ApplianceShape
+        case .rhombus:      return .ApplianceShape
+        case .pentagram:    return .ApplianceShape
+        default:            return nil
         }
     }
     
@@ -137,6 +152,26 @@ extension WhiteRoomPhase: AgoraWidgetDescription {
         case .reconnecting:  return "reconnecting"
         case .disconnecting: return "disconnecting"
         case .disconnected:  return "disconnected"
+        }
+    }
+}
+
+extension WhiteWindowBoxState: AgoraWidgetDescription {
+    var agDescription: String {
+        switch self {
+        case .normal:   return "normal"
+        case .mini:     return "minimized"
+        case .max:      return "maximized"
+        default:        return "normal"
+        }
+    }
+    
+    var toFcr: FcrWindowBoxState {
+        switch self {
+        case .normal:   return .normal
+        case .mini:     return .mini
+        case .max:      return .max
+        default:        return .normal
         }
     }
 }

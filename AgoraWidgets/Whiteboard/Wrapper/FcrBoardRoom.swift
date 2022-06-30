@@ -32,6 +32,7 @@ class FcrBoardRoom: NSObject {
         sdkConfig.enableIFramePlugin = false
         sdkConfig.region = region.netlessValue
         sdkConfig.useMultiViews = true
+        sdkConfig.userCursor = true
         
         let whiteSDK = WhiteSDK(whiteBoardView: whiteView,
                                 config: sdkConfig,
@@ -158,9 +159,19 @@ private extension FcrBoardRoom {
             return nil
         }
         
+        let length = UIDevice.current.agora_is_pad ? 34 : 32
+        let left = UIDevice.current.agora_is_pad ? 15 : 12
+        let bottom = UIDevice.current.agora_is_pad ? 20 : 15
+        let defaultCollectorStyles = ["position":"fixed",
+                                      "left":"\(left)px",
+                                      "bottom":"\(bottom)px",
+                                      "width":"\(length)px",
+                                      "height":"\(length)px"]
+        
         let params = WhiteWindowParams()
         params.chessboard = false
         params.containerSizeRatio = NSNumber.init(value: config.boardRatio)
+        params.collectorStyles = defaultCollectorStyles
         
         let roomConfig = WhiteRoomConfig(uuid: config.roomId,
                                          roomToken: config.roomToken,
@@ -197,7 +208,7 @@ private extension FcrBoardRoom {
     }
     
     func registerH5App() {
-        guard let bundle = Bundle.ag_compentsBundleNamed("AgoraWidgets"),
+        guard let bundle = Bundle.agora_bundle("AgoraWidgets"),
               let javascriptPath = bundle.path(forResource: "app-talkative",
                                                ofType: "js"),
               let javascriptString = try? String(contentsOfFile: javascriptPath,

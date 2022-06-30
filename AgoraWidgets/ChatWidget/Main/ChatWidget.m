@@ -14,6 +14,7 @@
 #import "ChatView.h"
 #import "CustomBadgeView.h"
 #import "ChatWidget.h"
+#import <AgoraWidgets/AgoraWidgets-Swift.h>
 
 static const NSString* kAvatarUrl = @"avatarUrl";
 static const NSString* kNickname = @"nickName";
@@ -25,6 +26,10 @@ static const NSString* kChatRoomId = @"chatroomId";
 @property (nonatomic, copy) NSString *password;
 @property (nonatomic, copy) NSString *orgName;
 @property (nonatomic, copy) NSString *appName;
+@property (nonatomic, copy) NSString *token007;
+@property (nonatomic, copy) NSString *appId;
+@property (nonatomic, copy) NSString *host;
+@property (nonatomic, copy) NSString *hxToken;
 
 // room
 @property (nonatomic, copy) NSString *roomUuid;
@@ -43,7 +48,20 @@ static const NSString* kChatRoomId = @"chatroomId";
         return false;
     }
     
-    if (self.password.length <= 0) {
+    // if we login with token,password can set nil
+//    if (self.password.length <= 0) {
+//        return false;
+//    }
+    
+    if (self.token007.length <= 0) {
+        return false;
+    }
+    
+    if (self.host.length <= 0) {
+        return false;
+    }
+    
+    if (self.appId.length <= 0) {
         return false;
     }
     
@@ -88,6 +106,7 @@ static const NSString* kChatRoomId = @"chatroomId";
 @property (nonatomic, strong) ChatWidgetLaunchData *launchData;
 @property (nonatomic, assign) CGFloat topHeight;
 @property (nonatomic, assign) BOOL launchedFlag;
+@property (nonatomic) AgoraChatServerAPI* tokenRequest;
 @end
 
 @implementation ChatWidget
@@ -125,6 +144,8 @@ static const NSString* kChatRoomId = @"chatroomId";
         self.chatTopView.selLine.hidden = true;
     } else if ([message isEqualToString:@"hideInput"]) {
         self.chatView.chatBar.hidden = true;
+    } else if ([message isEqualToString:@"hideMuteButton"]) {
+        [self.chatView hideMuteButton];
     } else {
         NSData *data = [message dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data
@@ -215,6 +236,13 @@ static const NSString* kChatRoomId = @"chatroomId";
     NSString *appKey = nil;
     NSString *password = self.info.localUserProperties[@"userId"];
     NSString *orgName = nil;
+    NSString *token007 = nil;
+    
+    NSDictionary *keys = widgetExtraProps[@"keys"];
+    token007 = keys[@"token"];
+    NSString *appId = keys[@"agoraAppId"];
+    NSString *host = keys[@"host"];
+    
     // room
     NSString *chatRoomId = nil;
     NSString *roomUuid = self.info.roomInfo.roomUuid;
@@ -243,6 +271,18 @@ static const NSString* kChatRoomId = @"chatroomId";
         self.launchData.password = password;
     }
     
+    if (token007.length > 0) {
+        self.launchData.token007 = token007;
+    }
+    
+    if (host.length > 0){
+        self.launchData.host = host;
+    }
+    
+    if (appId.length > 0) {
+        self.launchData.appId = appId;
+    }
+    
     // room
     if (chatRoomId.length > 0) {
         self.launchData.chatRoomId = chatRoomId;
@@ -268,9 +308,36 @@ static const NSString* kChatRoomId = @"chatroomId";
     if (![self.launchData checkIsLegal] || self.launchedFlag) {
         return;
     }
+    if(self.launchData.token007.length > 0) {
+        [self fetchHXToken];
+    }
     
-    self.launchedFlag = YES;
-    [self launch];
+    
+//    self.launchedFlag = YES;
+//    [self launch];
+}
+
+- (void)fetchHXToken
+{
+    self.tokenRequest = [AgoraChatServerAPI createInstanceWithInputhost:self.launchData.host inputappId:self.launchData.appId inputtoken:self.launchData.token007 inputroomId:self.launchData.roomUuid inputuserId:self.info.localUserInfo.userUuid];
+    __weak typeof(self) weakself = self;
+    [self.tokenRequest fetchHXToken:self.launchData.userUuid success:^(NSDictionary<NSString *,id> * _Nonnull body) {
+        if(body) {
+            NSDictionary* bodyData = [body objectForKey:@"data"];
+            if(bodyData) {
+                NSString* hxToken = [bodyData objectForKey:@"token"];
+                if(hxToken.length > 0) {
+                    weakself.launchData.hxToken = hxToken;
+                    weakself.launchedFlag = YES;
+                    [weakself launch];
+                }
+            }
+        }
+        } failure:^(NSError * _Nonnull) {
+            [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_login_faild" agora_localized:@"AgoraWidgets"] duration:2 finishHandler:^{
+                    
+            }];
+        }];
 }
 
 - (void)launch {
@@ -280,6 +347,7 @@ static const NSString* kChatRoomId = @"chatroomId";
     user.username = self.launchData.userUuid;
     user.nickname = self.launchData.userName;
     user.roomUuid = self.launchData.roomUuid;
+    user.token = self.launchData.hxToken;
     if ([self.info.localUserInfo.userRole isEqualToString:@"teacher"]) {
         user.role = 1;
     } else {
@@ -308,7 +376,7 @@ static const NSString* kChatRoomId = @"chatroomId";
 {
     __weak typeof(self) weakself = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSArray<EMMessage*>* array = [weakself.chatManager msgArray];
+        NSArray<AgoraChatMessage*>* array = [weakself.chatManager msgArray];
         [self.chatView updateMsgs:array];
         if(array.count > 0) {
             [self sendMessage:@"chatWidgetDidReceiveMessage"];
@@ -325,7 +393,7 @@ static const NSString* kChatRoomId = @"chatroomId";
     
 }
 
-- (void)chatMessageDidSend:(EMMessage*)aInfo
+- (void)chatMessageDidSend:(AgoraChatMessage*)aInfo
 {
     [self.chatView updateMsgs:@[aInfo]];
 }
@@ -361,7 +429,7 @@ static const NSString* kChatRoomId = @"chatroomId";
                 
                 break;
             case ChatRoomStateLoginFailed:
-                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_login_faild" ag_localizedIn:@"AgoraWidgets"] duration:2 finishHandler:^{
+                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_login_faild" agora_localized:@"AgoraWidgets"] duration:2 finishHandler:^{
                         
                 }];
                 break;
@@ -375,7 +443,7 @@ static const NSString* kChatRoomId = @"chatroomId";
                 
                 break;
             case ChatRoomStateJoinFail:
-                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_join_faild" ag_localizedIn:@"AgoraWidgets"] duration:2 finishHandler:^{
+                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_join_faild" agora_localized:@"AgoraWidgets"] duration:2 finishHandler:^{
                         
                 }];
                 break;
@@ -457,4 +525,5 @@ static const NSString* kChatRoomId = @"chatroomId";
 {
     [self.chatManager sendImageMsgWithData:aImageData msgType:ChatMsgTypeCommon asker:nil];
 }
+
 @end

@@ -95,7 +95,7 @@ fileprivate class AgoraLoadingView: UIView {
         addSubview(contentView)
         
         var image: FLAnimatedImage?
-        if let url = Bundle.ag_compentsBundleNamed("AgoraWidgets")?.url(forResource: "img_loading", withExtension: "gif") {
+        if let url = Bundle.agora_bundle("AgoraWidgets")?.url(forResource: "img_loading", withExtension: "gif") {
             let imgData = try? Data(contentsOf: url)
             image = FLAnimatedImage.init(animatedGIFData: imgData)
         }
