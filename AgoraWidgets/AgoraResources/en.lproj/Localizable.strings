@@ -57,15 +57,15 @@ fcr_cloud_private_resource = "Private coursewares";
 fcr_cloud_total_item = "items";
 
 // AnswerSelector
-fcr_popup_quiz = "Selector";
-fcr_popup_quiz_post = "Post";
+fcr_popup_quiz = "Popup quiz answerer";
+fcr_popup_quiz_post = "Submit the answer";
 fcr_popup_quiz_change = "Change My Answer";
-fcr_popup_quiz_submission = "Submission List";
+fcr_popup_quiz_submission = "Submitted";
 fcr_popup_quiz_accuracy = "Accuracy";
 fcr_popup_quiz_correct = "The Correct Answer";
 fcr_popup_quiz_my_answer = "My Answer";
 fcr_popup_quiz_start_again = "restart";
-fcr_popup_quiz_answer_time = "Selector";
+fcr_popup_quiz_answer_time = "Time elapsed";
 
 // poll
 fcr_poll_title = "Poll";
