@@ -210,6 +210,24 @@ extension FcrBoardMainWindow {
         })
     }
     
+    func setContainerSizeRatio(ratio: Float) -> Error? {
+        let extra = ["ratio": ratio.agDescription]
+        
+        log(content: "set container size ratio",
+            extra: extra.agDescription,
+            type: .info)
+                
+        log(content: "set container size ratio",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "setContainerSizeRatio")
+        
+        let number: NSNumber = NSNumber(value: ratio)
+        whiteRoom.setContainerSizeRatio(number)
+        return nil
+    }
+    
     func updateOperationPrivilege(hasPrivilege: Bool,
                                   success: @escaping () -> Void,
                                   failure: @escaping (Error) -> Void) {

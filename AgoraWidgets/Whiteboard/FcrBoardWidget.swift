@@ -142,6 +142,8 @@ struct FcrBoardInitCondition {
                 handleOpenCourseware(info: courseware)
             case .SaveBoard:
                 handleSaveBoardImage()
+            case .ChangeRatio:
+                updateViewRatio()
             default:
                 break
             }
@@ -325,6 +327,14 @@ private extension FcrBoardWidget {
                                                   imageFolder: snapshotFolder) { [weak self] list in
             self?.saveImagesToPhotoLibrary(imagePathList: list)
         }
+    }
+    
+    func updateViewRatio() {
+        guard let `mainWindow` = mainWindow else {
+            return
+        }
+        let ratio = Float(view.ratio())
+        mainWindow.setContainerSizeRatio(ratio: ratio)
     }
 
     // MARK: - private
