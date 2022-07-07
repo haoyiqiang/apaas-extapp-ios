@@ -15,6 +15,7 @@ protocol AgoraWidgetLogTube where Self: NSObject {
     func log(content: String,
              extra: String?,
              type: AgoraLogType,
+             fromClass: AnyClass?,
              funcName: String,
              line: Int)
 }
@@ -23,12 +24,21 @@ extension AgoraWidgetLogTube {
     func log(content: String,
              extra: String? = nil,
              type: AgoraLogType,
+             fromClass: AnyClass? = nil,
              funcName: String = #function,
              line: Int = #line) {
+        var fClass: AnyClass
+        
+        if let from = fromClass {
+            fClass = from
+        } else {
+            fClass = self.classForCoder
+        }
+        
         logger.log(content: content,
                    extra: extra,
                    type: type,
-                   from: self.classForCoder,
+                   from: fClass,
                    funcName: funcName,
                    line: line)
     }

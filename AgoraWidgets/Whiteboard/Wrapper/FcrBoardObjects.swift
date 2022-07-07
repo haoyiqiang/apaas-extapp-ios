@@ -360,3 +360,13 @@ extension WhiteScene: AgoraWidgetDescription {
         return dic.agDescription
     }
 }
+
+extension WhiteCameraState: AgoraWidgetDescription {
+    var agDescription: String {
+        var array = ["centerX: \(centerX.floatValue.agDescription)",
+                     "centerY: \(centerY.floatValue.agDescription)",
+                     "scale: \(scale.floatValue.agDescription)"]
+        
+        return array.agDescription
+    }
+}
