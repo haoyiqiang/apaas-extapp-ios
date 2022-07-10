@@ -78,6 +78,7 @@ class FcrBoardRoom: NSObject {
         joinConfig = config
         
         superView.addSubview(whiteView)
+        
         whiteView.mas_makeConstraints { make in
             make?.left.right().top().bottom().equalTo()(superView)
         }

@@ -256,7 +256,21 @@ class AgoraPopupQuizButton: UIButton {
             default:
                 break
             }
+            
+            layoutIfNeeded()
         }
+    }
+    
+    override func layoutIfNeeded() {
+        super.layoutIfNeeded()
+        
+        guard let label = titleLabel,
+              let text = label.text else {
+                  return
+              }
+        let textWidth = text.agora_size(font: label.font).width
+        
+        width = (textWidth > width) ? textWidth : width
     }
     
     override init(frame: CGRect) {
@@ -390,6 +404,7 @@ class AgoraPopupQuizView: UIView {
                               y: buttonY,
                               width: buttonWidth,
                               height: buttonHeight)
+        button.layoutIfNeeded()
         
         let buttonBottomSpace: CGFloat = 10
         let newHeight: CGFloat = button.frame.maxY + buttonBottomSpace

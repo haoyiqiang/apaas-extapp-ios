@@ -25,10 +25,6 @@ class FcrBoardMainWindow: NSObject {
     
     private var currentScenePath: String?
     
-//    private var pathsToSnapshot = [String]()
-//    private var snapshotImages = [UIImage]()
-//    private var combinedSnapshotImages = [UIImage]()
-    
     private var memberState: WhiteMemberState
     
     private(set) var hasOperationPrivilege: Bool
@@ -47,6 +43,7 @@ class FcrBoardMainWindow: NSObject {
         self.whiteRoom = whiteRoom
         self.whiteSDK = whiteSDK
         self.hasOperationPrivilege = hasOperationPrivilege
+        
         self.memberState = WhiteMemberState()
         self.memberState.currentApplianceName = WhiteApplianceNameKey.ApplianceClicker
         super.init()
@@ -210,6 +207,35 @@ extension FcrBoardMainWindow {
         })
     }
     
+    func setContainerSizeRatio(ratio: Float) -> Error? {
+        let extra = ["ratio: \(ratio.agDescription)"]
+        
+        log(content: "set container size ratio",
+            extra: extra.agDescription,
+            type: .info)
+                
+        log(content: "set container size ratio",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "setContainerSizeRatio")
+        
+        // WhiteCameraState
+        let camera = whiteRoom.state.cameraState
+        
+        let number: NSNumber = NSNumber(value: ratio)
+        whiteRoom.setContainerSizeRatio(number)
+        
+        let config = WhiteCameraConfig()
+        config.centerX = camera?.centerX
+        config.centerY = camera?.centerY
+        config.scale = camera?.scale
+        
+        whiteRoom.moveCamera(config)
+        
+        return nil
+    }
+    
     func updateOperationPrivilege(hasPrivilege: Bool,
                                   success: @escaping () -> Void,
                                   failure: @escaping (Error) -> Void) {
@@ -265,6 +291,7 @@ extension FcrBoardMainWindow {
             // Success
             let disable = !isWritable
             self.whiteRoom.disableDeviceInputs(disable)
+            self.whiteRoom.disableCameraTransform(true)
             
             let extra = ["disable": disable.agDescription]
             
@@ -621,11 +648,12 @@ private extension FcrBoardMainWindow {
     func setUpNetless() {
         let disableSerialization = false
         let viewMode: WhiteViewMode = .broadcaster
+        let disableCamera = true
         
         whiteRoom.setMemberState(memberState)
         whiteRoom.disableSerialization(disableSerialization)
         whiteRoom.setViewMode(.broadcaster)
-        whiteRoom.disableCameraTransform(true)
+        whiteRoom.disableCameraTransform(disableCamera)
         
         log(content: "set member state",
             extra: memberState.agDescription,
@@ -644,6 +672,12 @@ private extension FcrBoardMainWindow {
             type: .info,
             fromClass: WhiteRoom.self,
             funcName: "setViewMode")
+        
+        log(content: "disable camera transform",
+            extra: disableCamera.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "disableCameraTransform")
     }
     
     func handleSnaptshotWithScenePaths(_ paths: [String],
@@ -776,6 +810,10 @@ extension FcrBoardMainWindow: FcrBoardMainWindowNeedObserve {
             extra["windowBoxState"] = windowBoxState.agDescription
             
             delegate?.onWindowBoxStateChanged(state: windowBoxState.toFcr)
+        }
+        
+        if let cameraState = modifyState.cameraState {
+            extra["cameraState"] = cameraState.agDescription
         }
         
         log(content: "on room state changed",

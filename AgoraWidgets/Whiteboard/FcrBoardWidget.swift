@@ -5,8 +5,9 @@
 //  Created by Cavan on 2022/6/8.
 //
 
-import Armin
+import AgoraLog
 import Photos
+import Armin
 
 struct FcrBoardInitCondition {
     var configComplete = false
@@ -14,7 +15,6 @@ struct FcrBoardInitCondition {
 }
 
 @objcMembers public class FcrBoardWidget: AgoraBaseWidget, AgoraWidgetLogTube {
-    
     var logger: AgoraWidgetLogger
     
     private var boardRoom: FcrBoardRoom?
@@ -142,6 +142,8 @@ struct FcrBoardInitCondition {
                 handleOpenCourseware(info: courseware)
             case .SaveBoard:
                 handleSaveBoardImage()
+            case .ChangeRatio:
+                updateViewRatio()
             default:
                 break
             }
@@ -326,6 +328,14 @@ private extension FcrBoardWidget {
             self?.saveImagesToPhotoLibrary(imagePathList: list)
         }
     }
+    
+    func updateViewRatio() {
+        guard let `mainWindow` = mainWindow else {
+            return
+        }
+        let ratio = Float(view.ratio())
+        mainWindow.setContainerSizeRatio(ratio: ratio)
+    }
 
     // MARK: - private
     func initServerAPI(keys: AgoraWidgetRequestKeys) {
@@ -378,6 +388,8 @@ private extension FcrBoardWidget {
                                  region: boardRegion)
         boardRoom?.delegate = self
         
+        boardRoom?.logTube = self
+        
         let ratio = view.ratio()
         
         let joinConfig = FcrBoardRoomJoinConfig(roomId: config.boardId,
@@ -397,6 +409,8 @@ private extension FcrBoardWidget {
                      type: .info)
             self.mainWindow = mainWindow
             mainWindow.delegate = self
+            mainWindow.logTube = self
+            
             self.initCondition.needJoin = false
             
             self.setUpInitialState()
@@ -491,6 +505,7 @@ private extension FcrBoardWidget {
             sendMessage(signal: .GetBoardGrantedUsers(grantedUsers))
             return
         }
+        
         mainWindow?.updateOperationPrivilege(hasPrivilege: newLocalPrivilege,
                                              success: { [weak self] in
             guard let `self` = self else {
@@ -598,6 +613,30 @@ extension FcrBoardWidget: FcrBoardMainWindowDelegate {
     }
 }
 
+extension FcrBoardWidget: FcrBoardLogTube {
+    func onBoardLog(content: String,
+                    extra: String?,
+                    type: FcrBoardLogType,
+                    fromClass: AnyClass,
+                    funcName: String,
+                    line: Int) {
+        log(content: content,
+            extra: extra,
+            type: type.toAgoraType,
+            fromClass: fromClass,
+            funcName: funcName,
+            line: line)
+    }
+    
+    func onNetlessLog(content: String,
+                      extra: String?,
+                      type: FcrBoardLogType) {
+        log(content: content,
+            extra: extra,
+            type: type.toAgoraType)
+    }
+}
+
 // MARK: - ArLogTube
 extension FcrBoardWidget: ArLogTube {
     public func log(info: String,
@@ -646,5 +685,15 @@ fileprivate extension UIView {
         }
         
         return ratio
+    }
+}
+
+fileprivate extension FcrBoardLogType {
+    var toAgoraType: AgoraLogType {
+        switch self {
+        case .info:     return .info
+        case .warning:  return .warning
+        case .error:    return .error
+        }
     }
 }
