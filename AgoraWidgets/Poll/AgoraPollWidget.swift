@@ -223,15 +223,16 @@ private extension AgoraPollWidget {
         }
    
         // title
-        let titleFont = group.font.poll_label_font
-        let limitWidth = receiverView.neededSize.width - group.frame.poll_title_label_horizontal_space - group.frame.poll_title_label_horizontal_space
+        let titleFont = group.font.fcr_font9
+        let poll_title_label_horizontal_space: CGFloat = 15
+        let limitWidth = receiverView.neededSize.width - poll_title_label_horizontal_space * 2
         
         title = data.toViewTitle(font: titleFont,
                                  limitWidth: limitWidth)
         receiverView.titleLabel.text = title?.title
         
         // option
-        let optionLabelFont: UIFont = group.font.poll_label_font
+        let optionLabelFont: UIFont = group.font.fcr_font9
         let optionWidth = receiverView.neededSize.width
         
         let optionLabelInsets = UIEdgeInsets(top: group.frame.poll_option_label_vertical_space,
@@ -244,7 +245,7 @@ private extension AgoraPollWidget {
                                                optionWidth: optionWidth)
         
         // result
-        let resultLabelFont = group.font.poll_label_font
+        let resultLabelFont = group.font.fcr_font9
         let resultWidth = receiverView.neededSize.width
         
         let resultTitleLabelInsetsRight = group.frame.poll_result_value_label_width + group.frame.poll_result_label_horizontal_space

@@ -22,7 +22,7 @@ class AgoraCloudView: UIView {
     }
     
     private func initViews() {
-        backgroundColor = .white
+        backgroundColor = FcrWidgetsColorGroup.fcr_system_component_color
         layer.cornerRadius = 6
         layer.masksToBounds = true
         

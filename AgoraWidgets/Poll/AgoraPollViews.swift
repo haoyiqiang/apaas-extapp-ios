@@ -37,7 +37,7 @@ class AgoraPollHeaderView: UIView {
     
     private func createViews() {
         let group = AgoraFontGroup()
-        label.font = group.poll_label_font
+        label.font = group.fcr_font9
         label.textColor = UIColor(hexString: "#191919")
         
         addSubview(label)
@@ -66,7 +66,7 @@ class AgoraPollTitleLabel: UILabel {
     override init(frame: CGRect) {
         super.init(frame: frame)
         let group = AgoraFontGroup()
-        font = group.poll_label_font
+        font = group.fcr_font9
         textColor = UIColor(hex: 0x191919)
         numberOfLines = 0
     }
@@ -125,7 +125,7 @@ class AgoraPollOptionCell: UITableViewCell {
         
         let group = AgoraFontGroup()
         
-        optionLabel.font = group.poll_label_font
+        optionLabel.font = group.fcr_font9
         optionLabel.numberOfLines = 0
         
         sepLine.backgroundColor = UIColor(hex: 0xEEEEF7)
@@ -190,7 +190,7 @@ class AgoraPollResultCell: UITableViewCell {
         selectionStyle = .none
         let group = AgoraFontGroup()
         let textColor = UIColor(hexString: "#191919")
-        let font = group.poll_label_font
+        let font = group.fcr_font9
         
         titleLabel.textColor = textColor
         titleLabel.font = font

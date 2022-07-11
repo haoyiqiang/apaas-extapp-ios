@@ -65,9 +65,9 @@ private extension AgoraWebViewContentView {
                            navigationDelegate: WKNavigationDelegate?) {
         let group = AgoraUIGroup()
         
-        layer.borderWidth = group.frame.border_width
-        layer.borderColor = group.color.web_border_color
-        layer.cornerRadius = group.frame.web_corner_radius
+        layer.borderWidth = group.frame.fcr_border_width
+        layer.borderColor = FcrWidgetsColorGroup.fcr_border_color
+        layer.cornerRadius = group.frame.fcr_button_corner_radius
         layer.masksToBounds = true
         
         backgroundColor = .white

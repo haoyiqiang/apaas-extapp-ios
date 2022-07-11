@@ -384,8 +384,10 @@ private extension FcrBoardWidget {
         
         // init
         let boardRegion = FcrBoardRegion(rawValue: config.boardRegion) ?? .cn
+        let backgroundColor = FcrWidgetsColorGroup.fcr_system_foreground_color
         boardRoom = FcrBoardRoom(appId: config.boardAppId,
-                                 region: boardRegion)
+                                 region: boardRegion,
+                                 backgroundColor: backgroundColor)
         boardRoom?.delegate = self
         
         boardRoom?.logTube = self

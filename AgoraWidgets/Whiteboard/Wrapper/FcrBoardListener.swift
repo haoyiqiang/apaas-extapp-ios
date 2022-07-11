@@ -55,6 +55,16 @@ extension FcrBoardListener: WhiteAudioMixerBridgeDelegate {
                                                   replace: replace,
                                                   cycle: cycle)
     }
+//
+//    func startAudioMixing(_ filePath: String,
+//                          loopback: Bool,
+//                          replace: Bool,
+//                          cycle: Int) {
+//        mainWindowNeedObserve?.onStartAudioMixing(filePath: filePath,
+//                                                  loopback: loopback,
+//                                                  replace: replace,
+//                                                  cycle: cycle)
+//    }
     
     func stopAudioMixing() {
         mainWindowNeedObserve?.onStopAudioMixing()

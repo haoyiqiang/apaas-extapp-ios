@@ -22,11 +22,14 @@ class FcrBoardRoom: NSObject {
     weak var logTube: FcrBoardLogTube?
     
     init(appId: String,
-         region: FcrBoardRegion) {
+         region: FcrBoardRegion,
+         backgroundColor: UIColor?) {
         let listener = FcrBoardListener()
         
         let whiteView = WhiteBoardView(frame: .zero,
                                        configuration: WKWebViewConfiguration.defaultConfig())
+        
+        whiteView.backgroundColor = backgroundColor
         
         let sdkConfig = WhiteSdkConfiguration(app: appId)
         sdkConfig.enableIFramePlugin = false

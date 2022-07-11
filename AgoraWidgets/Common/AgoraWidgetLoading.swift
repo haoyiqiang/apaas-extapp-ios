@@ -48,17 +48,18 @@ public class AgoraWidgetLoading: NSObject {
 
 fileprivate class AgoraLoadingView: UIView {
     
-    private var contentView: UIView!
+    private lazy var contentView = UIView()
     
-    public var label: UILabel!
+    public lazy var label = UILabel()
     
-    private var loadingView: FLAnimatedImageView!
+    private lazy var loadingView = FLAnimatedImageView()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        self.createViews()
-        self.createConstraint()
+        initViews()
+        initViewFrame()
+        updateViewProperties()
     }
     
     required init?(coder: NSCoder) {
@@ -81,17 +82,11 @@ fileprivate class AgoraLoadingView: UIView {
     public func stopAnimating() {
         loadingView.stopAnimating()
     }
-    
-    private func createViews() {
-        contentView = UIView()
-        contentView.backgroundColor = .white
-        contentView.layer.cornerRadius = 15
-        contentView.layer.shadowColor = UIColor(hex: 0x2F4192,
-                                                transparency: 0.15)?.cgColor
-        contentView.layer.shadowOffset = CGSize(width: 0,
-                                                height: 2)
-        contentView.layer.shadowOpacity = 1
-        contentView.layer.shadowRadius = 6
+}
+
+// MARK: - AgoraUIContentContainer
+private extension AgoraLoadingView {
+    func initViews() {
         addSubview(contentView)
         
         var image: FLAnimatedImage?
@@ -99,17 +94,14 @@ fileprivate class AgoraLoadingView: UIView {
             let imgData = try? Data(contentsOf: url)
             image = FLAnimatedImage.init(animatedGIFData: imgData)
         }
-        loadingView = FLAnimatedImageView()
         loadingView.animatedImage = image
         contentView.addSubview(loadingView)
         
-        label = UILabel()
         label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 14)
         contentView.addSubview(label)
     }
     
-    private func createConstraint() {
+    func initViewFrame() {
         loadingView.mas_makeConstraints { make in
             make?.centerX.equalTo()(0)
             make?.centerY.equalTo()(0)
@@ -119,5 +111,14 @@ fileprivate class AgoraLoadingView: UIView {
             make?.left.right().equalTo()(0)
             make?.bottom.equalTo()(-5)
         }
+    }
+    
+    func updateViewProperties() {
+        let ui = AgoraUIGroup()
+        
+        contentView.backgroundColor = FcrWidgetsColorGroup.fcr_system_component_color
+        contentView.layer.cornerRadius = ui.frame.fcr_round_container_corner_radius
+        FcrWidgetsColorGroup.borderSet(layer: contentView.layer)
+        label.font = ui.font.fcr_font14
     }
 }

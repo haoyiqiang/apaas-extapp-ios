@@ -137,19 +137,19 @@ private extension AgoraCloudTopView {
     func initViews() {
         let ui = AgoraUIGroup()
         /// 上半部分
-        contentView1.backgroundColor = ui.color.cloud_header_1_bg_color
+        contentView1.backgroundColor = FcrWidgetsColorGroup.fcr_system_component_color
         publicAreaButton.setTitleForAllStates(GetWidgetLocalizableString(object: self,
                                                                          key: "fcr_cloud_public_resource"))
         
         privateAreaButton.setTitleForAllStates(GetWidgetLocalizableString(object: self,
                                                                           key: "fcr_cloud_private_resource"))
         for btn in [publicAreaButton,privateAreaButton] {
-            btn.titleLabel?.font = ui.font.cloud_label_font
-            btn.setTitleColor(ui.color.cloud_label_color,
+            btn.titleLabel?.font = ui.font.fcr_font12
+            btn.setTitleColor(FcrWidgetsColorGroup.fcr_text_level1_color,
                               for: .normal)
         }
         
-        selectedLine.backgroundColor = ui.color.cloud_select_line_color
+        selectedLine.backgroundColor = FcrWidgetsColorGroup.fcr_icon_fill_color
 
         closeButton.setImage(GetWidgetImage(object: self,
                                             "cloud_close"),
@@ -162,29 +162,29 @@ private extension AgoraCloudTopView {
         contentView1.addSubview(selectedLine)
         
         /// 下半部分
-        contentView2.backgroundColor = ui.color.cloud_header_2_bg_color
+        contentView2.backgroundColor = FcrWidgetsColorGroup.fcr_system_component_color
         let refreshImage = GetWidgetImage(object: self,
                                           "icon_refresh")
         refreshButton.setImage(refreshImage,
                                for: .normal)
         
-        pathNameLabel.textColor = ui.color.cloud_label_color
-        pathNameLabel.font = ui.font.cloud_label_font
+        pathNameLabel.textColor = FcrWidgetsColorGroup.fcr_text_level1_color
+        pathNameLabel.font = ui.font.fcr_font12
         pathNameLabel.textAlignment = .left
         
-        fileCountLabel.textColor = ui.color.cloud_label_color
-        fileCountLabel.font = ui.font.cloud_label_font
+        fileCountLabel.textColor = FcrWidgetsColorGroup.fcr_text_level1_color
+        fileCountLabel.font = ui.font.fcr_font12
         fileCountLabel.textAlignment = .right
         
         searchBar.placeholder = GetWidgetLocalizableString(object: self,
                                                            key: "fcr_cloud_search")
         searchBar.delegate = self
-        searchBar.backgroundColor = ui.color.cloud_header_2_bg_color
-        searchBar.cornerRadius = ui.frame.cloud_search_bar_corner_radius
-        searchBar.layer.borderColor = ui.color.cloud_search_bar_border_color
-        searchBar.layer.borderWidth = ui.frame.border_width
-        searchBar.textField?.font = ui.font.cloud_label_font
-        searchBar.textField?.backgroundColor = ui.color.cloud_header_2_bg_color
+        searchBar.backgroundColor = FcrWidgetsColorGroup.fcr_system_component_color
+        searchBar.cornerRadius = ui.frame.fcr_button_corner_radius
+        searchBar.layer.borderColor = FcrWidgetsColorGroup.fcr_border_color
+        searchBar.layer.borderWidth = ui.frame.fcr_border_width
+        searchBar.textField?.font = ui.font.fcr_font12
+        searchBar.textField?.backgroundColor = FcrWidgetsColorGroup.fcr_system_component_color
         searchBar.textField?.clearButtonMode = .whileEditing
         searchBar.textField?.delegate = self
         
@@ -202,12 +202,12 @@ private extension AgoraCloudTopView {
         // header view
         let nameLabel = UILabel()
         
-        listHeaderView.backgroundColor = ui.color.cloud_header_1_bg_color
+        listHeaderView.backgroundColor = FcrWidgetsColorGroup.fcr_system_component_color
         nameLabel.text = GetWidgetLocalizableString(object: self,
                                                     key: "fcr_cloud_file_name")
         
-        nameLabel.textColor = ui.color.cloud_file_name_label_color
-        nameLabel.font = ui.font.cloud_label_font
+        nameLabel.textColor = FcrWidgetsColorGroup.fcr_text_level3_color
+        nameLabel.font = ui.font.fcr_font12
         
         listHeaderView.addSubview(nameLabel)
         
@@ -218,7 +218,7 @@ private extension AgoraCloudTopView {
         addSubview(listHeaderView)
         
         for sepLayer in [sepLineLayer1, sepLineLayer2, sepLineLayer3] {
-            sepLayer.backgroundColor = ui.color.cloud_sep_line_color
+            sepLayer.backgroundColor = FcrWidgetsColorGroup.fcr_system_divider_color.cgColor
             layer.addSublayer(sepLayer)
         }
     }

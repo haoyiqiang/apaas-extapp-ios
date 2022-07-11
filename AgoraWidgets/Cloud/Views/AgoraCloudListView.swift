@@ -26,7 +26,7 @@ class AgoraCloudCell: UITableViewCell {
         super.init(style: style,
                    reuseIdentifier: reuseIdentifier)
 
-        backgroundColor = .white
+        backgroundColor = FcrWidgetsColorGroup.fcr_system_component_color
         createViews()
         createConstraints()
     }
@@ -36,8 +36,8 @@ class AgoraCloudCell: UITableViewCell {
     }
     
     private func createViews() {
-        nameLabel.textColor = UIColor(hex: 0x191919)
-        nameLabel.font = .systemFont(ofSize: 13)
+        nameLabel.textColor = FcrWidgetsColorGroup.fcr_text_level1_color
+        nameLabel.font = AgoraUIGroup().font.fcr_font13
         
         contentView.addSubview(nameLabel)
         contentView.addSubview(iconImageView)
@@ -64,7 +64,7 @@ class AgoraCloudListView: UITableView {
         super.init(frame: frame,
                    style: style)
         contentInset = .zero
-        backgroundColor = .white
+        backgroundColor = FcrWidgetsColorGroup.fcr_system_component_color
         tableFooterView = UIView()
         separatorInset = .init(top: 0, left: 0, bottom: 0, right: 0)
         

@@ -46,6 +46,7 @@ class FcrBoardMainWindow: NSObject {
         
         self.memberState = WhiteMemberState()
         self.memberState.currentApplianceName = WhiteApplianceNameKey.ApplianceClicker
+        
         super.init()
         
         let extra = ["whiteView": whiteView.description,

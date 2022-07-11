@@ -40,22 +40,22 @@ class AgoraWebViewContentTabView: UIView {
     private func initViews() {
         let group = AgoraUIGroup()
         
-        layer.borderWidth = group.frame.border_width
-        layer.borderColor = group.color.web_border_color
-        layer.cornerRadius = group.frame.web_corner_radius
+        layer.borderWidth = group.frame.fcr_border_width
+        layer.borderColor = FcrWidgetsColorGroup.fcr_border_color
+        layer.cornerRadius = group.frame.fcr_button_corner_radius
         layer.masksToBounds = true
         
         backgroundColor = .clear
         titleLabel.text = "fcr_online_courseware_label_online_courseware".ag_widget_localized()
-        titleLabel.font = group.font.web_title_font
-        titleLabel.textColor = group.color.web_title_color
+        titleLabel.font = group.font.fcr_font12
+        titleLabel.textColor = FcrWidgetsColorGroup.fcr_text_level1_color
         addSubview(titleLabel)
         
         buttonsStackView.backgroundColor = .clear
         buttonsStackView.axis = .horizontal
         buttonsStackView.distribution = .fillEqually
         buttonsStackView.alignment = .center
-        buttonsStackView.spacing = group.frame.web_button_spacing
+        buttonsStackView.spacing = 12
         addSubview(buttonsStackView)
         
         refreshButton.setImage(UIImage.ag_imageName("web_refresh"),
@@ -76,20 +76,20 @@ class AgoraWebViewContentTabView: UIView {
         
         titleLabel.mas_makeConstraints { make in
             make?.centerY.equalTo()(0)
-            make?.left.equalTo()(group.frame.web_title_side_gap)
+            make?.left.equalTo()(15)
         }
         
         buttonsStackView.mas_makeConstraints { make in
             make?.centerY.equalTo()(0)
-            make?.right.equalTo()(-group.frame.web_title_side_gap)
+            make?.right.equalTo()(-15)
             make?.width.equalTo()(stackWidth)
-            make?.height.equalTo()(group.frame.web_button_length)
+            make?.height.equalTo()(15)
         }
     }
     
     private func stackWidth(count: Int) -> CGFloat {
         let frame = AgoraUIGroup().frame
-        let width: CGFloat = frame.web_button_length * CGFloat(count) + frame.web_button_spacing * CGFloat(count - 1)
+        let width: CGFloat = 20 * CGFloat(count) + 12 * CGFloat(count - 1)
         return width
     }
 }
