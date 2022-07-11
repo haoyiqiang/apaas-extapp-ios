@@ -13,7 +13,7 @@ Pod::Spec.new do |spec|
 
   spec.source       = { :git => "git@github.com:AgoraIO-Community/apaas-extapp-ios.git", :tag => "AgoraWidgets_v" + "#{spec.version.to_s}" }
 
-  spec.source_files = "AgoraWidgets/Common/*.{h,m,swift}", 
+  spec.source_files = "AgoraWidgets/Common/**/*.{h,m,swift}", 
                       "AgoraWidgets/StreamWindow/**/*.{h,m,swift}", 
                       "AgoraWidgets/Cloud/**/*.{h,m,swift}",
                       "AgoraWidgets/Whiteboard/**/*.{h,m,swift}", 
