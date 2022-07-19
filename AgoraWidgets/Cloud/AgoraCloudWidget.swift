@@ -10,25 +10,21 @@ import AgoraLog
 import Masonry
 import Darwin
 
-@objcMembers public class AgoraCloudWidget: AgoraBaseWidget, AgoraWidgetLogTube {
+@objcMembers public class AgoraCloudWidget: AgoraNativeWidget {
     /**Data*/
     private var vm: AgoraCloudVM
     private var serverApi: AgoraCloudServerAPI?
-    var logger: AgoraWidgetLogger
+    
     /**View*/
     private let cloudView = AgoraCloudView(frame: .zero)
     
-    public override init(widgetInfo: AgoraWidgetInfo) {
+    override init(widgetInfo: AgoraWidgetInfo) {
         self.vm = AgoraCloudVM(extra: widgetInfo.extraInfo)
-        
-        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId,
-                                       logId: widgetInfo.localUserInfo.userUuid)
-        #if DEBUG
-        logger.isPrintOnConsole = true
-        #endif
-        self.logger = logger
-        
         super.init(widgetInfo: widgetInfo)
+    }
+    
+    public override func onLoad() {
+        super.onLoad()
         initViews()
     }
     
@@ -36,12 +32,16 @@ import Darwin
         log(content: "onMessageReceived:\(message)",
             type: .info)
         
-        if let baseInfo = message.toRequestKeys() {
-            serverApi = AgoraCloudServerAPI(baseInfo: baseInfo,
-                                            uid: info.localUserInfo.userUuid)
+        if let keys = message.toRequestKeys() {
+            serverApi = AgoraCloudServerAPI(host: keys.host,
+                                            appId: keys.agoraAppId,
+                                            token: keys.token,
+                                            roomId: info.roomInfo.roomUuid,
+                                            userId: info.localUserInfo.userUuid,
+                                            logTube: self.logger)
             // init private data
             fetchPrivate(success: nil,
-                         fail: nil)
+                         failure: nil)
         }
     }
 }
@@ -56,7 +56,7 @@ extension AgoraCloudWidget: AgoraCloudTopViewDelegate {
     }
     
     func agoraCloudTopViewDidTapCloseButton() {
-        sendMessage(signal: .CloseCloud)
+        sendMessage(signal: .closeCloud)
     }
     
     func agoraCloudTopViewDidTapRefreshButton() {
@@ -64,13 +64,14 @@ extension AgoraCloudWidget: AgoraCloudTopViewDelegate {
         guard vm.selectedType == .privateResource else {
             return
         }
-        fetchPrivate {[weak self] list in
+        
+        fetchPrivate { [weak self] list in
             guard let `self` = self else {
                 return
             }
 
             self.cloudView.listView.reloadData()
-        } fail: {[weak self] error in
+        } failure: { [weak self] error in
             self?.log(content: error.localizedDescription,
                       type: .error)
         }
@@ -80,19 +81,19 @@ extension AgoraCloudWidget: AgoraCloudTopViewDelegate {
         guard vm.selectedType == .privateResource else {
             return
         }
-        fetchPrivate(resourceName: keyStr) {[weak self] list in
+        
+        fetchPrivate(resourceName: keyStr) { [weak self] list in
             guard let `self` = self else {
                 return
             }
             self.vm.currentFilterStr = keyStr
             self.cloudView.listView.reloadData()
-        } fail: {[weak self] error in
+        } failure: { [weak self] error in
             self?.log(content: error.localizedDescription,
                       type: .error)
         }
     }
 }
-
 
 // MARK: - UITableViewDataSource, UITableViewDelegate
 extension AgoraCloudWidget: UITableViewDataSource, UITableViewDelegate {
@@ -104,8 +105,8 @@ extension AgoraCloudWidget: UITableViewDataSource, UITableViewDelegate {
     
     public func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = tableView.dequeueReusableCell(withIdentifier: cloudView.listView.cellId,
-                                             for: indexPath) as! AgoraCloudCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: AgoraCloudCell.cellId,
+                                                 for: indexPath) as! AgoraCloudCell
         let info = vm.currentFiles[indexPath.row]
         cell.iconImageView.image = info.image
         cell.nameLabel.text = info.name
@@ -122,8 +123,13 @@ extension AgoraCloudWidget: UITableViewDataSource, UITableViewDelegate {
             return
         }
         
-        sendMessage(signal: .OpenCourseware(coursewareInfo))
+        sendMessage(signal: .openCourseware(coursewareInfo))
     }
+}
+
+// MARK: - private
+extension AgoraCloudWidget {
+    
 }
 
 // MARK: - private
@@ -134,13 +140,9 @@ private extension AgoraCloudWidget {
         }
         sendMessage(text)
     }
+    
     func initViews() {
         view.backgroundColor = .clear
-        view.layer.shadowColor = UIColor(hex: 0x2F4192,
-                                    transparency: 0.15)?.cgColor
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowOpacity = 1
-        view.layer.shadowRadius = 6
         view.addSubview(cloudView)
         
         cloudView.topView.delegate = self
@@ -158,10 +160,11 @@ private extension AgoraCloudWidget {
     /// 获取个人数据
     func fetchPrivate(resourceName: String? = nil,
                       success: (([AgoraCloudCourseware]) -> ())?,
-                      fail: ((Error) -> ())?) {
+                      failure: ((Error) -> ())?) {
         guard let `serverApi` = serverApi else {
             return
         }
+        
         serverApi.requestResourceInUser(pageNo: 1,
                                         pageSize: 10,
                                         resourceName: resourceName) { [weak self] (resp) in
@@ -177,8 +180,8 @@ private extension AgoraCloudWidget {
             }
             self.vm.updatePrivate(temp)
             success?(temp)
-        } fail: { [weak self](error) in
-            fail?(error)
+        } failure: { [weak self](error) in
+            failure?(error)
         }
     }
 }

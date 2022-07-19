@@ -22,7 +22,8 @@ Pod::Spec.new do |spec|
                       "AgoraWidgets/Poll/**/*.{h,m,swift}",
                       "AgoraWidgets/PopupQuiz/**/*.{h,m,swift}",
                       "AgoraWidgets/CountdownTimer/**/*.{h,m,swift}",
-                      "AgoraWidgets/WebView/**/*.{h,m,swift}"
+                      "AgoraWidgets/WebView/**/*.{h,m,swift}",
+                      "AgoraWidgets/AgoraChat/**/*.{h,m,swift}"
   
   spec.dependency "AgoraUIBaseViews", ">=2.6.0"
   spec.dependency "AgoraWidget", ">=2.6.0"
@@ -31,7 +32,6 @@ Pod::Spec.new do |spec|
 
   spec.dependency "SwifterSwift"
   spec.dependency "Masonry"
-  spec.dependency "FLAnimatedImage"
   
   # Netless
   spec.dependency "Whiteboard"

@@ -7,6 +7,13 @@
 
 import Foundation
 
-struct FcrWidgetLectrueConfig: FcrWidgetUIConfig {
-    
+struct FcrWidgetLectrueUIConfig: FcrWidgetUIConfig {
+    let streamWindow    = FcrWidgetUIComponentStreamWindow()
+    let webView         = FcrWidgetUIComponentWebView()
+    let popupQuiz       = FcrWidgetUIComponentPopupQuiz()
+    let counter         = FcrWidgetUIComponentCounter()
+    let poll            = FcrWidgetUIComponentPoll()
+    let cloudStorage    = FcrWidgetUIComponentCloudStorage()
+    let netlessBoard    = FcrWidgetUIComponentNetlessBoard()
+    let agoraChat       = FcrWidgetUIComponentAgoraChat()
 }

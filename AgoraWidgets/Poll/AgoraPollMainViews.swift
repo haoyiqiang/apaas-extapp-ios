@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AgoraPollReceiverView: UIView {
+class AgoraPollReceiverView: UIView, AgoraUIContentContainer {
     // Data
     var selectedMode: AgoraPollViewSelectedMode = .single {
         didSet {
@@ -34,29 +34,41 @@ class AgoraPollReceiverView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         initViews()
+        initViewFrame()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func initViews() {
-        layer.borderWidth = 1
-        layer.borderColor = UIColor(hexString: "#E3E3EC")?.cgColor
-        layer.cornerRadius = 4
+    func initViews() {
         layer.masksToBounds = true
-        
-        backgroundColor = .white
         
         addSubviews([headerView,
                      titleLabel,
                      tableView,
                      submitButton])
-        
+    }
+    
+    func initViewFrame() {
         headerView.frame = CGRect(x: 0,
                                   y: 0,
                                   width: neededSize.width,
                                   height: 17)
+    }
+    
+    func updateViewProperties() {
+        let component = UIConfig.poll
+        
+        headerView.backgroundColor = component.headerBackgroundColor
+        
+        backgroundColor = component.backgroundColor
+        
+        layer.borderColor = component.boardColor.cgColor
+        layer.borderWidth = component.boardWidth
+        layer.cornerRadius = component.cornerRadius
+        
+        agora_all_sub_views_update_view_properties()
     }
     
     func updateViewFrame(titleHeight: CGFloat,

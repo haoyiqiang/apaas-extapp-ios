@@ -11,7 +11,7 @@ import Foundation
 
 public class AgoraCountdownSingleTimeView: UIView {
     private lazy var bgImageView: UIImageView = {
-        let image = UIImage.ag_image("countdown_bg")
+        let image = UIImage.agora_widget_image("countdown_bg")
         let view = UIImageView(image: image)
         return view
     }()
@@ -57,7 +57,7 @@ public class AgoraCountdownSingleTimeView: UIView {
     private lazy var downPageView: AgoraCountdownSingleTimeView = AgoraCountdownSingleTimeView(frame: .zero)
     
     private lazy var lineImgView: UIImageView = {
-        let image = UIImage.ag_image("countdown_line")
+        let image = UIImage.agora_widget_image("countdown_line")
         let view = UIImageView(image: image)
         return view
     }()

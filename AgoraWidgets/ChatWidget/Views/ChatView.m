@@ -34,7 +34,7 @@
 - (void)setupSubViews
 {
     self.nilMsgImageView = [[UIImageView alloc] init];
-    self.nilMsgImageView.image = [UIImage ag_image:@"icon_message_none"];
+    self.nilMsgImageView.image = [UIImage agora_widget_image:@"icon_message_none"];
     [self addSubview:self.nilMsgImageView];
     [self.nilMsgImageView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(self);
@@ -79,7 +79,7 @@
 {
     self.backgroundColor = [UIColor colorWithRed:253/255.0 green:249/255.0 blue:244/255.0 alpha:1.0];
     self.announcementButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.announcementButton setImage:[UIImage ag_image:@"icon_notice"] forState:UIControlStateNormal];
+    [self.announcementButton setImage:[UIImage agora_widget_image:@"icon_notice"] forState:UIControlStateNormal];
     [self.announcementButton setTitle:@"" forState:UIControlStateNormal];
     [self.announcementButton setTitleColor:[UIColor colorWithRed:25/255.0 green:25/255.0 blue:25/255.0 alpha:1.0] forState:UIControlStateNormal];
     [self.announcementButton.titleLabel setFont:[UIFont systemFontOfSize:12]];
@@ -317,8 +317,8 @@
         _muteAllButton.contentMode = UIViewContentModeScaleAspectFit;
         _muteAllButton.layer.borderColor = [UIColor colorWithRed:236/255.0 green:236/255.0 blue:241/255.0 alpha:1.0].CGColor;
         _muteAllButton.backgroundColor = [UIColor colorWithRed:249/255.0 green:249/255.0 blue:252/255.0 alpha:1.0];
-        [_muteAllButton setImage:[UIImage ag_image:@"icon_mute"] forState:UIControlStateNormal];
-        [_muteAllButton setImage:[UIImage ag_image:@"icon_unmute"] forState:UIControlStateSelected];
+        [_muteAllButton setImage:[UIImage agora_widget_image:@"icon_mute"] forState:UIControlStateNormal];
+        [_muteAllButton setImage:[UIImage agora_widget_image:@"icon_unmute"] forState:UIControlStateSelected];
         [_muteAllButton addTarget:self action:@selector(muteAction) forControlEvents:UIControlEventTouchUpInside];
     }
     return _muteAllButton;

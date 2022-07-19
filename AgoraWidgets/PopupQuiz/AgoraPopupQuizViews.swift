@@ -11,58 +11,70 @@ import Masonry
 import UIKit
 
 // MAKR: - Top View
-class AgoraPopupQuizTopView: UIView {
+class AgoraPopupQuizTopView: UIView, AgoraUIContentContainer {
     private let titleLabel = UILabel()
     private let timeLabel = UILabel()
     private let lineLayer = CALayer()
-    
-    private let backColor = UIColor(hexString: "#191919")
-    private let grayColor = UIColor(hexString: "#677386")
     
     let defaultHeight: CGFloat = 17
     
     var quizState: AgoraPopupQuizState = .unselected {
         didSet {
-            timeLabel.textColor = (quizState == .unselected) ? backColor : grayColor
+            let component = UIConfig.popupQuiz
+            let itemTime = component.time
+            
+            if quizState == .unselected {
+                timeLabel.textColor = itemTime.unselectedTextColor
+            } else {
+                timeLabel.textColor = itemTime.selectedTextColor
+            }
         }
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        createViews()
+        initViews()
+        initViewFrame()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func createViews() {
-        let selector = GetWidgetLocalizableString(object: self,
-                                                  key: "fcr_popup_quiz")
+    func initViews() {
+        let component = UIConfig.popupQuiz
+        let itemName = component.name
+        let itemTime = component.time
+        let itemLine = component.sepLine
         
-        let font = UIFont.systemFont(ofSize: 9)
+        // TitleLabel
+        titleLabel.text = itemName.text
+        titleLabel.font = itemName.font
+        titleLabel.textAlignment = itemName.textAlignment
+        titleLabel.agora_enable = itemName.enable
         
-        let titleSize = selector.agora_size(font: font,
-                                            height: defaultHeight)
-        
-        titleLabel.text = selector
-        titleLabel.textColor = backColor
-        titleLabel.font = font
         addSubview(titleLabel)
         
-        timeLabel.textColor = backColor
-        timeLabel.font = font
-        timeLabel.textAlignment = .left
-        addSubview(timeLabel)
+        // TimeLabel
+        timeLabel.font = itemTime.font
+        timeLabel.textAlignment = itemTime.textAlignment
+        titleLabel.agora_enable = itemTime.enable
         
         update(timeString: "00:00:00")
         
-        lineLayer.backgroundColor = UIColor(hexString: "#EEEEF7")?.cgColor
-        self.layer.addSublayer(lineLayer)
+        addSubview(timeLabel)
         
-        backgroundColor = UIColor(hexString: "#F9F9FC")
+        // LineLayer
+        lineLayer.agora_enable = itemLine.enable
+        layer.addSublayer(lineLayer)
+    }
+    
+    func initViewFrame() {
+        let selector = titleLabel.text!
         
-        // Constrains
+        let titleSize = selector.agora_size(font: titleLabel.font,
+                                            height: defaultHeight)
+        
         titleLabel.mas_makeConstraints { (make) in
             make?.left.equalTo()(10)
             make?.top.bottom()?.equalTo()(0)
@@ -73,6 +85,19 @@ class AgoraPopupQuizTopView: UIView {
             make?.left.equalTo()(titleLabel.mas_right)?.offset()(5)
             make?.top.right().bottom()?.equalTo()(0)
         }
+    }
+    
+    func updateViewProperties() {
+        let component = UIConfig.popupQuiz
+        let itemName = component.name
+        let itemTime = component.time
+        let itemLine = component.sepLine
+        
+        backgroundColor = component.headerBackgroundColor
+        
+        titleLabel.textColor = itemName.textColor
+        timeLabel.textColor = itemTime.unselectedTextColor
+        lineLayer.backgroundColor = itemLine.backgroundColor.cgColor
     }
     
     func update(timeString: String) {
@@ -89,18 +114,21 @@ class AgoraPopupQuizTopView: UIView {
 }
 
 // MAKR: - Option Collection View
-class AgoraPopupQuizOptionCell: UICollectionViewCell {
-    private let grayColor = UIColor(hexString: "#EEEEF7")
-    private let darkGrayColor = UIColor(hexString: "#BDBDCA")
-    private let blueColor = UIColor(hexString: "#357BF6")
-    private let lightBlueColor = UIColor(hexString: "#C0D6FF")
-    private let whiteColor = UIColor.white
-    
+class AgoraPopupQuizOptionCell: UICollectionViewCell, AgoraUIContentContainer {
     var optionIsSelected: Bool = false {
         didSet {
-            optionLabel.backgroundColor = optionIsSelected ? blueColor : whiteColor
-            optionLabel.textColor = optionIsSelected ? whiteColor : darkGrayColor
-            layer.borderColor = optionIsSelected ? blueColor?.cgColor : grayColor?.cgColor
+            let component = UIConfig.popupQuiz
+            let itemOption = component.option
+            
+            if optionIsSelected {
+                optionLabel.backgroundColor = itemOption.selectedBackgroundColor
+                optionLabel.textColor = itemOption.selectedTextColor
+                layer.borderColor = itemOption.selectedBoardColor.cgColor
+            } else {
+                optionLabel.backgroundColor = itemOption.unselectedBackgroundColor
+                optionLabel.textColor = itemOption.unselectedTextColor
+                layer.borderColor = itemOption.unselectedBoardColor.cgColor
+            }
         }
     }
     
@@ -113,8 +141,16 @@ class AgoraPopupQuizOptionCell: UICollectionViewCell {
                 return
             }
             
-            optionLabel.backgroundColor = isEnable ? blueColor : lightBlueColor
-            layer.borderColor = isEnable ? blueColor?.cgColor : lightBlueColor?.cgColor
+            let component = UIConfig.popupQuiz
+            let itemOption = component.option
+            
+            if isEnable {
+                optionLabel.backgroundColor = itemOption.selectedBackgroundColor
+                layer.borderColor = itemOption.selectedBoardColor.cgColor
+            } else {
+                optionLabel.backgroundColor = itemOption.disableBackgroundColor
+                layer.borderColor = itemOption.disableBoardColor.cgColor
+            }
         }
     }
     
@@ -122,15 +158,9 @@ class AgoraPopupQuizOptionCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.addSubview(optionLabel)
-        
-        optionLabel.textColor = darkGrayColor
-        optionLabel.textAlignment = .center
-        optionLabel.font = UIFont.systemFont(ofSize: 12)
-        
-        layer.borderWidth = 1
-        layer.cornerRadius = 8
-        layer.masksToBounds = true
+        initViews()
+        initViewFrame()
+        updateViewProperties()
     }
     
     required init?(coder: NSCoder) {
@@ -141,34 +171,72 @@ class AgoraPopupQuizOptionCell: UICollectionViewCell {
         super.layoutSubviews()
         optionLabel.frame = bounds
     }
+    
+    func initViews() {
+        let component = UIConfig.popupQuiz
+        let itemOption = component.option
+        
+        contentView.addSubview(optionLabel)
+        
+        optionLabel.font = itemOption.font
+        optionLabel.textAlignment = itemOption.textAlignment
+        
+        layer.borderWidth = itemOption.boardWidth
+        layer.cornerRadius = itemOption.cornerRadius
+        layer.masksToBounds = true
+    }
+    
+    func initViewFrame() {
+        
+    }
+    
+    func updateViewProperties() {
+        let selected = optionIsSelected
+        let enable = isEnable
+        
+        optionIsSelected = selected
+        isEnable = enable
+    }
 }
 
-class AgoraPopupQuizOptionCollectionView: UICollectionView {
+class AgoraPopupQuizOptionCollectionView: UICollectionView, AgoraUIContentContainer {
     init() {
         let layout = UICollectionViewFlowLayout()
         
         super.init(frame: .zero,
                    collectionViewLayout: layout)
         
-        showsHorizontalScrollIndicator = false
-        showsVerticalScrollIndicator = false
-        isScrollEnabled = false
-        
-        backgroundColor = .white
-        bounces = false
-        
-        register(cellWithClass: AgoraPopupQuizOptionCell.self)
+        initViews()
+        initViewFrame()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    func initViews() {
+        showsHorizontalScrollIndicator = false
+        showsVerticalScrollIndicator = false
+        isScrollEnabled = false
+        bounces = false
+        
+        register(cellWithClass: AgoraPopupQuizOptionCell.self)
+    }
+    
+    func initViewFrame() {
+        
+    }
+    
+    func updateViewProperties() {
+        let component = UIConfig.popupQuiz
+        backgroundColor = component.backgroundColor
+    }
 }
 
 // MAKR: - Result Table View
-class AgoraPopupQuizResultCell: UITableViewCell {
+class AgoraPopupQuizResultCell: UITableViewCell, AgoraUIContentContainer {
     static let cellId = NSStringFromClass(AgoraPopupQuizResultCell.self)
-    static let font = UIFont.systemFont(ofSize: 9)
+    static let font = UIConfig.popupQuiz.result.font
     
     let titleLabel = UILabel()
     let resultLabel = UILabel()
@@ -178,81 +246,110 @@ class AgoraPopupQuizResultCell: UITableViewCell {
         super.init(style: style,
                    reuseIdentifier: reuseIdentifier)
         
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(resultLabel)
-        
-        titleLabel.textColor = UIColor(hexString: "#7B88A0")
-        resultLabel.textColor = UIColor(hexString: "#191919")
-        
-        titleLabel.font = AgoraPopupQuizResultCell.font
-        resultLabel.font = AgoraPopupQuizResultCell.font
-        
-        titleLabel.textAlignment = .left
-        resultLabel.textAlignment = .left
-        
-        selectionStyle = .none
+        initViews()
+        initViewFrame()
+        updateViewProperties()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    func initViews() {
+        let itemResult = UIConfig.popupQuiz.result
+        
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(resultLabel)
+        
+        titleLabel.font = AgoraPopupQuizResultCell.font
+        resultLabel.font = AgoraPopupQuizResultCell.font
+        
+        titleLabel.textAlignment = itemResult.textAlignment
+        resultLabel.textAlignment = itemResult.textAlignment
+        
+        selectionStyle = .none
+    }
+    
+    func initViewFrame() {
+        
+    }
+    
+    func updateViewProperties() {
+        let itemResult = UIConfig.popupQuiz.result
+        
+        titleLabel.textColor = itemResult.titleTextColor
+        resultLabel.textColor = itemResult.resultNormalTextColor
+    }
 }
 
-class AgoraPopupQuizResultTableView: UITableView {
+class AgoraPopupQuizResultTableView: UITableView, AgoraUIContentContainer {
     override init(frame: CGRect,
                   style: UITableView.Style) {
         super.init(frame: frame,
                    style: style)
-        rowHeight = 19
+        initViews()
+        initViewFrame()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func initViews() {
         separatorStyle = .none
         isScrollEnabled = false
         register(AgoraPopupQuizResultCell.self,
                  forCellReuseIdentifier: AgoraPopupQuizResultCell.cellId)
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    func initViewFrame() {
+        let itemResult = UIConfig.popupQuiz.result
+        rowHeight = itemResult.rowHeight
+    }
+    
+    func updateViewProperties() {
+        let component = UIConfig.popupQuiz
+        backgroundColor = component.backgroundColor
     }
 }
 
 // MAKR: - Button
-class AgoraPopupQuizButton: UIButton {
+class AgoraPopupQuizButton: UIButton, AgoraUIContentContainer {
     private let blueColor = UIColor(hexString: "#357BF6")
     private let lightBlueColor = UIColor(hexString: "#C0D6FF")
     
     var quizState: AgoraPopupQuizState = .unselected {
         didSet {
+            let itemSubmit = UIConfig.popupQuiz.submit
+            
             switch quizState {
             case .selected:
-                let post = GetWidgetLocalizableString(object: self,
-                                                      key: "fcr_popup_quiz_post")
+                let post = itemSubmit.postText
                 setTitle(post,
                          for: .normal)
-                setTitleColor(.white,
+                setTitleColor(itemSubmit.selectedTextColor,
                               for: .normal)
                 isEnabled = true
-                backgroundColor = blueColor
-                layer.borderColor = blueColor?.cgColor
+                backgroundColor = itemSubmit.selectedBackgroundColor
+                layer.borderColor = itemSubmit.selectedBoardColor.cgColor
             case .changing:
-                let change = GetWidgetLocalizableString(object: self,
-                                                        key: "fcr_popup_quiz_change")
+                let change = itemSubmit.changeText
                 setTitle(change,
                          for: .normal)
-                setTitleColor(blueColor,
+                setTitleColor(itemSubmit.changingTextColor,
                               for: .normal)
                 isEnabled = true
-                backgroundColor = .white
-                layer.borderColor = blueColor?.cgColor
+                backgroundColor = itemSubmit.changingBackgroundColor
+                layer.borderColor = itemSubmit.changingBoardColor.cgColor
             case .unselected:
-                let post = GetWidgetLocalizableString(object: self,
-                                                      key: "fcr_popup_quiz_post")
+                let post = itemSubmit.postText
                 setTitle(post,
                          for: .disabled)
-                setTitleColor(.white,
+                setTitleColor(itemSubmit.unselectedTextColor,
                               for: .disabled)
                 isEnabled = false
-                backgroundColor = lightBlueColor
-                layer.borderColor = lightBlueColor?.cgColor
+                backgroundColor = itemSubmit.unselectedBackgroundColor
+                layer.borderColor = itemSubmit.unselectedBoardColor.cgColor
             default:
                 break
             }
@@ -275,17 +372,32 @@ class AgoraPopupQuizButton: UIButton {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        layer.borderWidth = 1
-        cornerRadius = 11
-        titleLabel?.font = UIFont.systemFont(ofSize: 10)
+        initViews()
+        initViewFrame()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    func initViews() {
+        let itemSubmit = UIConfig.popupQuiz.submit
+        titleLabel?.font = itemSubmit.font
+    }
+    
+    func initViewFrame() {
+        let itemSubmit = UIConfig.popupQuiz.submit
+        layer.borderWidth = itemSubmit.boardWidth
+        layer.cornerRadius = itemSubmit.cornerRadius
+    }
+    
+    func updateViewProperties() {
+        let state = quizState
+        quizState = state
+    }
 }
 
-class AgoraPopupQuizView: UIView {
+class AgoraPopupQuizView: UIView, AgoraUIContentContainer {
     // View
     let optionCollectionView = AgoraPopupQuizOptionCollectionView()
     let topView = AgoraPopupQuizTopView()
@@ -345,7 +457,7 @@ class AgoraPopupQuizView: UIView {
                                                      animated: false)
     }
     
-    private func initViews() {
+    func initViews() {
         quizState = .unselected
         
         addSubview(topView)
@@ -355,14 +467,12 @@ class AgoraPopupQuizView: UIView {
         
         resultTableView.isHidden = true
         
-        backgroundColor = .white
-        layer.borderColor = UIColor(hexString: "#E3E3EC")?.cgColor
         layer.borderWidth = 1
         layer.cornerRadius = 6
         layer.masksToBounds = true
     }
     
-    private func initViewFrame() {
+    func initViewFrame() {
         let topViewWidth = unfinishedNeededSize.width
         let topViewHeight = topView.defaultHeight
         
@@ -381,6 +491,15 @@ class AgoraPopupQuizView: UIView {
                                        height: resultTableViewHeight)
         
         collectionViewLayout()
+    }
+    
+    func updateViewProperties() {
+        let component = UIConfig.popupQuiz
+        
+        backgroundColor = component.backgroundColor
+        layer.borderColor = component.boardColor.cgColor
+        
+        agora_all_sub_views_update_view_properties()
     }
     
     func updateUnfinishedViewFrame(optionCount: Int) {

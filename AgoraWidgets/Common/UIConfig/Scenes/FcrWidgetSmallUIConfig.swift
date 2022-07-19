@@ -8,5 +8,12 @@
 import Foundation
 
 struct FcrWidgetSmallUIConfig: FcrWidgetUIConfig {
-    
+    let streamWindow    = FcrWidgetUIComponentStreamWindow()
+    let webView         = FcrWidgetUIComponentWebView()
+    let popupQuiz       = FcrWidgetUIComponentPopupQuiz()
+    let counter         = FcrWidgetUIComponentCounter()
+    let poll            = FcrWidgetUIComponentPoll()
+    let cloudStorage    = FcrWidgetUIComponentCloudStorage()
+    let netlessBoard    = FcrWidgetUIComponentNetlessBoard()
+    let agoraChat       = FcrWidgetUIComponentAgoraChat()
 }

@@ -5,6 +5,7 @@
 //  Created by Cavan on 2022/6/8.
 //
 
+import AgoraUIBaseViews
 import AgoraLog
 import Photos
 import Armin
@@ -14,9 +15,7 @@ struct FcrBoardInitCondition {
     var needJoin = false
 }
 
-@objcMembers public class FcrBoardWidget: AgoraBaseWidget, AgoraWidgetLogTube {
-    var logger: AgoraWidgetLogger
-    
+@objcMembers public class FcrBoardWidget: AgoraNativeWidget {
     private var boardRoom: FcrBoardRoom?
     private var mainWindow: FcrBoardMainWindow?
 
@@ -31,7 +30,7 @@ struct FcrBoardInitCondition {
         }
     }
     
-    private var serverAPI: FcrWhiteBoardServerAPI?
+    private var serverAPI: FcrBoardServerAPI?
     
     /**Data**/
     private var currentSnapshotFolder: String = ""
@@ -50,17 +49,6 @@ struct FcrBoardInitCondition {
     
     // 教师角色加入房间成功时设置，学生角色监听grantedUsers变化设置
     private var hasOperationPrivilege: Bool = false
-    
-    override init(widgetInfo: AgoraWidgetInfo) {
-        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId,
-                                       logId: widgetInfo.localUserInfo.userUuid)
-        #if DEBUG
-        logger.isPrintOnConsole = true
-        #endif
-        self.logger = logger
-        
-        super.init(widgetInfo: widgetInfo)
-    }
     
     public override func onLoad() {
         super.onLoad()
@@ -322,7 +310,9 @@ private extension FcrBoardWidget {
             }
             return
         }
-        AgoraWidgetLoading.addLoading(in: view)
+        
+        AgoraLoading.loading(in: view)
+        
         mainWindow.getAllWindowsSnapshotImageList(combinedCount: 10,
                                                   imageFolder: snapshotFolder) { [weak self] list in
             self?.saveImagesToPhotoLibrary(imagePathList: list)
@@ -339,12 +329,12 @@ private extension FcrBoardWidget {
 
     // MARK: - private
     func initServerAPI(keys: AgoraWidgetRequestKeys) {
-        serverAPI = FcrWhiteBoardServerAPI(host: keys.host,
-                                             appId: keys.agoraAppId,
-                                             token: keys.token,
-                                             roomId: info.roomInfo.roomUuid,
-                                             userId: info.localUserInfo.userUuid,
-                                             logTube: self)
+        serverAPI = FcrBoardServerAPI(host: keys.host,
+                                      appId: keys.agoraAppId,
+                                      token: keys.token,
+                                      roomId: info.roomInfo.roomUuid,
+                                      userId: info.localUserInfo.userUuid,
+                                      logTube: self.logger)
     }
     
     func ifNeedSetWindowAttributes() {
@@ -384,7 +374,7 @@ private extension FcrBoardWidget {
         
         // init
         let boardRegion = FcrBoardRegion(rawValue: config.boardRegion) ?? .cn
-        let backgroundColor = FcrWidgetsColorGroup.fcr_system_foreground_color
+        let backgroundColor = UIConfig.netlessBoard.backgroundColor
         boardRoom = FcrBoardRoom(appId: config.boardAppId,
                                  region: boardRegion,
                                  backgroundColor: backgroundColor)
@@ -400,13 +390,15 @@ private extension FcrBoardWidget {
                                                 hasOperationPrivilege: isLocalTeacher(),
                                                 userId: info.localUserInfo.userUuid,
                                                 userName: info.localUserInfo.userName)
-        AgoraWidgetLoading.addLoading(in: view)
+        
+        AgoraLoading.loading(in: view)
+        
         boardRoom!.join(config: joinConfig,
                         superView: view) { [weak self] mainWindow in
             guard let `self` = self else {
                 return
             }
-            self.log(content: "[FcrBoardWidget]:join successfully",
+            self.log(content: "join successfully",
                      extra: nil,
                      type: .info)
             self.mainWindow = mainWindow
@@ -420,7 +412,7 @@ private extension FcrBoardWidget {
             guard let `self` = self else {
                 return
             }
-            self.log(content: "[FcrBoardWidget]:join unsuccessfully",
+            self.log(content: "join unsuccessfully",
                       extra: error.localizedDescription,
                       type: .error)
         }
@@ -462,7 +454,8 @@ private extension FcrBoardWidget {
         }
 
         try? FileManager.default.removeItem(atPath: currentSnapshotFolder)
-        AgoraWidgetLoading.removeLoading(in: view)
+        
+        AgoraLoading.hide()
         
         sendMessage(signal: .OnBoardSaveResult(.savedToAlbum))
       }
@@ -513,8 +506,10 @@ private extension FcrBoardWidget {
             guard let `self` = self else {
                 return
             }
-            self.log(info: "updateOperationPrivilege",
-                     extra: "\(newLocalPrivilege)")
+            
+            self.log(content: "updateOperationPrivilege",
+                     extra: "\(newLocalPrivilege)",
+                     type: .info)
             
             self.hasOperationPrivilege = newLocalPrivilege
             self.sendMessage(signal: .GetBoardGrantedUsers(grantedUsers))
@@ -556,14 +551,16 @@ private extension FcrBoardWidget {
 extension FcrBoardWidget: FcrBoardRoomDelegate {
     func onConnectionStateUpdated(state: FcrBoardRoomConnectionState) {
         let extra = state.agDescription
-        log(info: "onConnectionStateUpdated",
-            extra: extra)
+        
+        log(content: "onConnectionStateUpdated",
+            extra: extra,
+            type: .info)
         
         switch state {
         case .connected:
-            AgoraWidgetLoading.removeLoading(in: view)
+            AgoraLoading.hide()
         case .reconnecting:
-            AgoraWidgetLoading.addLoading(in: view)
+            AgoraLoading.loading(in: view)
         case .disconnected:
             initCondition.needJoin = true
         default:
@@ -636,30 +633,6 @@ extension FcrBoardWidget: FcrBoardLogTube {
         log(content: content,
             extra: extra,
             type: type.toAgoraType)
-    }
-}
-
-// MARK: - ArLogTube
-extension FcrBoardWidget: ArLogTube {
-    public func log(info: String,
-                    extra: String?) {
-        log(content: info,
-            extra: extra,
-            type: .info)
-    }
-    
-    public func log(warning: String,
-                    extra: String?) {
-        log(content: warning,
-            extra: extra,
-            type: .info)
-    }
-    
-    public func log(error: ArError,
-                    extra: String?) {
-        log(content: error.localizedDescription,
-            extra: extra,
-            type: .info)
     }
 }
 

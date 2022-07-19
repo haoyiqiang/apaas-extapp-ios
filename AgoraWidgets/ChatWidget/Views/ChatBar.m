@@ -58,9 +58,9 @@
     self.inputButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
     
     self.emojiButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.emojiButton setImage:[UIImage ag_image:@"icon_emoji"]
+    [self.emojiButton setImage:[UIImage agora_widget_image:@"icon_emoji"]
                       forState:UIControlStateNormal];
-    [self.emojiButton setImage:[UIImage ag_image:@"icon_keyboard"]
+    [self.emojiButton setImage:[UIImage agora_widget_image:@"icon_keyboard"]
                       forState:UIControlStateSelected];
     self.emojiButton.contentMode = UIViewContentModeScaleAspectFit;
     [self addSubview:self.emojiButton];
@@ -69,7 +69,7 @@
                forControlEvents:UIControlEventTouchUpInside];
     
     self.imageButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.imageButton setImage:[UIImage ag_image:@"icon_image"]
+    [self.imageButton setImage:[UIImage agora_widget_image:@"icon_image"]
                       forState:UIControlStateNormal];
     self.imageButton.contentMode = UIViewContentModeScaleAspectFit;
     [self addSubview:self.imageButton];

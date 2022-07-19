@@ -1,5 +1,5 @@
 //
-//  AgoraWebViewModel.swift
+//  AgoraWebViewModels.swift
 //  AgoraWidgets
 //
 //  Created by DoubleCircle on 2022/5/25.
@@ -70,7 +70,6 @@ enum AgoraWebViewSignal: Convertable {
             try container.encodeNil(forKey: .close)
         }
     }
-    
     
     func toMessageString() -> String? {
         guard let dic = self.toDictionary(),

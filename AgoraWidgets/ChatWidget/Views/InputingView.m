@@ -73,9 +73,9 @@
     [self addSubview:self.inputField];
     
     self.emojiButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.emojiButton setImage:[UIImage ag_image:@"icon_emoji"]
+    [self.emojiButton setImage:[UIImage agora_widget_image:@"icon_emoji"]
                       forState:UIControlStateNormal];
-    [self.emojiButton setImage:[UIImage ag_image:@"icon_keyboard"]
+    [self.emojiButton setImage:[UIImage agora_widget_image:@"icon_keyboard"]
                       forState:UIControlStateSelected];
     self.emojiButton.contentMode = UIViewContentModeScaleAspectFit;
     self.emojiButton.frame = CGRectMake(self.bounds.size.width - EMOJIBUTTON_WIDTH*2 - SENDBUTTON_WIDTH - GAP,
@@ -91,7 +91,7 @@
     self.emojiKeyBoardView.delegate = self;
     
     self.imageButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.imageButton setImage:[UIImage ag_image:@"icon_image"]
+    [self.imageButton setImage:[UIImage agora_widget_image:@"icon_image"]
                       forState:UIControlStateNormal];
     self.imageButton.contentMode = UIViewContentModeScaleAspectFit;
     self.imageButton.frame = CGRectMake(self.bounds.size.width - EMOJIBUTTON_WIDTH - SENDBUTTON_WIDTH - GAP,

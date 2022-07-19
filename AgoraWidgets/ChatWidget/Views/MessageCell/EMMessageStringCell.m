@@ -48,7 +48,7 @@
         
         [_stringLabel sizeToFit];
         self.preImageView = [[UIImageView alloc] init];
-        self.preImageView.image = [UIImage ag_image:@"icon_caution"];
+        self.preImageView.image = [UIImage agora_widget_image:@"icon_caution"];
         [self.containerView addSubview:self.preImageView];
         [self.preImageView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.width.equalTo(@18);

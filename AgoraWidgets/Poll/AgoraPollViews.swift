@@ -8,7 +8,7 @@
 import Masonry
 import UIKit
 
-class AgoraPollHeaderView: UIView {
+class AgoraPollHeaderView: UIView, AgoraUIContentContainer {
     private let label = UILabel()
     private let lineLayer = CALayer()
     
@@ -20,7 +20,8 @@ class AgoraPollHeaderView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        createViews()
+        initViews()
+        initViewFrame()
     }
     
     required init?(coder: NSCoder) {
@@ -35,48 +36,75 @@ class AgoraPollHeaderView: UIView {
                                  height: 1)
     }
     
-    private func createViews() {
-        let group = AgoraFontGroup()
-        label.font = group.fcr_font9
-        label.textColor = UIColor(hexString: "#191919")
+    func initViews() {
+        let itemName = UIConfig.poll.name
+        label.font = itemName.font
         
         addSubview(label)
-        
-        label.mas_makeConstraints { (make) in
-            make?.left.equalTo()(8)
-            make?.top.bottom()?.right().equalTo()(0)
-        }
-        
-        lineLayer.backgroundColor = UIColor(hexString: "#EEEEF7")?.cgColor
         layer.addSublayer(lineLayer)
         
         updateTitle()
     }
     
+    func initViewFrame() {
+        label.mas_makeConstraints { (make) in
+            make?.left.equalTo()(8)
+            make?.top.bottom()?.right().equalTo()(0)
+        }
+    }
+    
+    func updateViewProperties() {
+        let itemLine = UIConfig.poll.sepLine
+        let itemName = UIConfig.poll.name
+        
+        label.textColor = itemName.textColor
+        
+        lineLayer.backgroundColor = itemLine.backgroundColor.cgColor
+    }
+    
     private func updateTitle() {
+        let itemName = UIConfig.poll.name
+        
+        let title = itemName.text
+        
         let isSingle = (selectedMode == .single)
-        let mode = (isSingle ? "fcr_poll_single" : "fcr_poll_multi").ag_widget_localized()
-        let title = "fcr_poll_title".ag_widget_localized()
+        
+        let mode = (isSingle ? itemName.singleMode : itemName.multiMode)
+        
         let fullTitle = title + "  " + "(\(mode))"
+        
         label.text = fullTitle
     }
 }
 
-class AgoraPollTitleLabel: UILabel {
+class AgoraPollTitleLabel: UILabel, AgoraUIContentContainer {
     override init(frame: CGRect) {
         super.init(frame: frame)
-        let group = AgoraFontGroup()
-        font = group.fcr_font9
-        textColor = UIColor(hex: 0x191919)
-        numberOfLines = 0
+        initViews()
+        initViewFrame()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    func initViews() {
+        let itemTitle = UIConfig.poll.title
+        font = itemTitle.font
+        numberOfLines = 0
+    }
+    
+    func initViewFrame() {
+        
+    }
+    
+    func updateViewProperties() {
+        let itemTitle = UIConfig.poll.title
+        textColor = itemTitle.textColor
+    }
 }
 
-class AgoraPollOptionCell: UITableViewCell {
+class AgoraPollOptionCell: UITableViewCell, AgoraUIContentContainer {
     static let cellId = NSStringFromClass(AgoraPollOptionCell.self)
     
     private let optionImageView = UIImageView()
@@ -98,46 +126,49 @@ class AgoraPollOptionCell: UITableViewCell {
         super.init(style: style,
                    reuseIdentifier: reuseIdentifier)
         initViews()
-        initConstraints()
+        initViewFrame()
+        updateViewProperties()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-        
+    
     private func setOptionImage() {
-        var imageName: String
+        let itemOption = UIConfig.poll.option
+        
+        var image: UIImage
         
         switch selectedMode {
         case .single:
-            imageName = optionIsSelected ? "poll_sin_checked" : "poll_sin_unchecked"
+            image = (optionIsSelected ? itemOption.selectedSingleModeImage : itemOption.unselectedSingleModeImage)
         case .multi:
-            imageName = optionIsSelected ? "poll_mul_checked" : "poll_mul_unchecked"
+            image = (optionIsSelected ? itemOption.selectedMultiModeImage : itemOption.unselectedMultiModeImage)
         default:
             fatalError()
         }
         
-        optionImageView.image = UIImage.ag_imageName(imageName)
+        optionImageView.image = image
     }
     
-    private func initViews() {
+    func initViews() {
+        let itemLine = UIConfig.poll.sepLine
+        let itemOption = UIConfig.poll.option
+        
         selectionStyle = .none
         
-        let group = AgoraFontGroup()
-        
-        optionLabel.font = group.fcr_font9
+        optionLabel.font = itemOption.font
         optionLabel.numberOfLines = 0
-        
-        sepLine.backgroundColor = UIColor(hex: 0xEEEEF7)
         
         addSubviews([optionImageView,
                      optionLabel,
                      sepLine])
     }
     
-    private func initConstraints() {
+    func initViewFrame() {
+        let itemOption = UIConfig.poll.option
+        
         let horizontalSpace: CGFloat = 15
-        let group = AgoraFrameGroup()
         
         optionImageView.mas_makeConstraints { make in
             make?.left.equalTo()(horizontalSpace)
@@ -145,10 +176,10 @@ class AgoraPollOptionCell: UITableViewCell {
             make?.width.height().equalTo()(12)
         }
         
-        let labelTop: CGFloat = group.poll_option_label_vertical_space
-        let labelBottom: CGFloat = group.poll_option_label_vertical_space
-        let labelLeft: CGFloat = group.poll_option_label_left_space
-        let labelRight: CGFloat = group.poll_option_label_right_space
+        let labelTop: CGFloat = itemOption.labelVerticalSpace
+        let labelBottom: CGFloat = itemOption.labelVerticalSpace
+        let labelLeft: CGFloat = itemOption.labelLeftSpace
+        let labelRight: CGFloat = itemOption.labelRightSpace
 
         optionLabel.mas_makeConstraints { make in
             make?.top.equalTo()(0)
@@ -164,9 +195,14 @@ class AgoraPollOptionCell: UITableViewCell {
             make?.bottom.equalTo()(0)
         }
     }
+    
+    func updateViewProperties() {
+        let itemLine = UIConfig.poll.sepLine
+        sepLine.backgroundColor = itemLine.backgroundColor
+    }
 }
 
-class AgoraPollResultCell: UITableViewCell {
+class AgoraPollResultCell: UITableViewCell, AgoraUIContentContainer {
     static let cellId = NSStringFromClass(AgoraPollResultCell.self)
     
     /**Views**/
@@ -179,66 +215,71 @@ class AgoraPollResultCell: UITableViewCell {
         super.init(style: style,
                    reuseIdentifier: reuseIdentifier)
         initViews()
-        initConstraints()
+        initViewFrame()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func initViews() {
-        selectionStyle = .none
-        let group = AgoraFontGroup()
-        let textColor = UIColor(hexString: "#191919")
-        let font = group.fcr_font9
+    func initViews() {
+        let itemResult = UIConfig.poll.result
         
-        titleLabel.textColor = textColor
-        titleLabel.font = font
-        titleLabel.textAlignment = .left
+        selectionStyle = .none
+        
+        titleLabel.font = itemResult.font
+        titleLabel.textAlignment = itemResult.titleTextAlignment
         titleLabel.numberOfLines = 0
         
-        resultLabel.textColor = textColor
-        resultLabel.font = font
-        resultLabel.textAlignment = .right
+        resultLabel.font = itemResult.font
+        resultLabel.textAlignment = itemResult.resultTextAlignment
         resultLabel.adjustsFontSizeToFitWidth = true
         resultLabel.sizeToFit()
         
         resultProgressView.layer.cornerRadius = 1.5
-        resultProgressView.trackTintColor = UIColor(hexString: "#F9F9FC")
-        resultProgressView.progressTintColor = UIColor(hex: 0x0073FF)
         
         addSubviews([titleLabel,
                      resultLabel,
                      resultProgressView])
     }
     
-    private func initConstraints() {
-        let group = AgoraFrameGroup()
+    func initViewFrame() {
+        let itemResult = UIConfig.poll.result
         
         resultLabel.mas_makeConstraints { (make) in
             make?.top.equalTo()(0)
-            make?.right.equalTo()(-group.poll_result_label_horizontal_space)
-            make?.width.equalTo()(group.poll_result_value_label_width)
+            make?.right.equalTo()(-itemResult.labelHorizontalSpace)
+            make?.width.equalTo()(itemResult.labelWidth)
             make?.bottom.equalTo()(0)
         }
         
         titleLabel.mas_makeConstraints { make in
             make?.top.equalTo()(0)
-            make?.left.equalTo()(group.poll_result_label_horizontal_space)
+            make?.left.equalTo()(itemResult.labelHorizontalSpace)
             make?.right.equalTo()(resultLabel.mas_left)
             make?.bottom.equalTo()(0)
         }
         
         resultProgressView.mas_makeConstraints { make in
-            make?.left.equalTo()(group.poll_result_label_horizontal_space)
-            make?.right.equalTo()(-group.poll_result_label_horizontal_space)
+            make?.left.equalTo()(itemResult.labelHorizontalSpace)
+            make?.right.equalTo()(-itemResult.labelHorizontalSpace)
             make?.bottom.equalTo()(0)
             make?.height.equalTo()(1)
         }
     }
+    
+    func updateViewProperties() {
+        let itemResult = UIConfig.poll.result
+        
+        titleLabel.textColor = itemResult.textColor
+        resultLabel.textColor = itemResult.textColor
+        
+        resultProgressView.trackTintColor = itemResult.progressTrackTintColor
+        resultProgressView.progressTintColor = itemResult.progressTintColor
+    }
 }
 
-class AgoraPollTableView: UITableView {
+class AgoraPollTableView: UITableView, AgoraUIContentContainer {
     var state: AgoraPollViewState = .unselected {
         didSet {
             switch state {
@@ -255,19 +296,39 @@ class AgoraPollTableView: UITableView {
                   style: UITableView.Style) {
         super.init(frame: frame,
                    style: style)
-        separatorStyle = .none
-        isScrollEnabled = false
-        rowHeight = 22
-        register(AgoraPollOptionCell.self,
-                 forCellReuseIdentifier: AgoraPollOptionCell.cellId)
+        initViews()
+        initViewFrame()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    func initViews() {
+        separatorStyle = .none
+        isScrollEnabled = false
+        register(AgoraPollOptionCell.self,
+                 forCellReuseIdentifier: AgoraPollOptionCell.cellId)
+    }
+    
+    func initViewFrame() {
+        rowHeight = 22
+    }
+    
+    func updateViewProperties() {
+        let cells = visibleCells
+        
+        for cell in cells {
+            guard let item = cell as? AgoraUIContentContainer else {
+                continue
+            }
+            
+            item.updateViewProperties()
+        }
+    }
 }
 
-class AgoraPollSubmitButton: UIButton {
+class AgoraPollSubmitButton: UIButton, AgoraUIContentContainer {
     var pollState: AgoraPollViewState = .unselected {
         didSet {
             switch pollState {
@@ -285,26 +346,39 @@ class AgoraPollSubmitButton: UIButton {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        layer.cornerRadius = 11
-        titleLabel?.font = .systemFont(ofSize: 10)
-        
-        let title = "fcr_poll_submit".ag_widget_localized()
-        
-        setTitle(title,
-                 for: .normal)
-        setTitle(title,
-                 for: .disabled)
-        
-        setTitleColor(.white,
-                      for: .normal)
-        setTitleColor(.white,
-                      for: .disabled)
-        
-        backgroundColor = UIColor(hexString: "#C0D6FF")
-        isEnabled = false
+        initViews()
+        initViewFrame()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func initViews() {
+        let itemSubmit = UIConfig.poll.submit
+        
+        titleLabel?.font = itemSubmit.font
+        
+        setTitle(itemSubmit.text,
+                 for: .normal)
+        setTitle(itemSubmit.text,
+                 for: .disabled)
+    }
+    
+    func initViewFrame() {
+        let itemSubmit = UIConfig.poll.submit
+        layer.cornerRadius = itemSubmit.cornerRadius
+    }
+    
+    func updateViewProperties() {
+        let itemSubmit = UIConfig.poll.submit
+        
+        setTitleColor(itemSubmit.textColor,
+                      for: .normal)
+        setTitleColor(itemSubmit.textColor,
+                      for: .disabled)
+        
+        let state = pollState
+        pollState = state
     }
 }

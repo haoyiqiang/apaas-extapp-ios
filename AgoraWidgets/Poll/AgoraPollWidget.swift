@@ -10,9 +10,8 @@ import AgoraLog
 import Masonry
 import Armin
 
-@objcMembers public class AgoraPollWidget: AgoraBaseWidget, AgoraWidgetLogTube {
+@objcMembers public class AgoraPollWidget: AgoraNativeWidget {
     private var serverAPI: AgoraPollServerAPI?
-    var logger: AgoraWidgetLogger
 
     // Origin Data
     private var roomData: AgoraPollRoomPropertiesData?
@@ -57,26 +56,12 @@ import Armin
     // View
     private let receiverView = AgoraPollReceiverView()
     
-    // Config
-    private let group = AgoraUIGroup()
-    
-    public override init(widgetInfo: AgoraWidgetInfo) {
-        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId,
-                                       logId: widgetInfo.localUserInfo.userUuid)
-        #if DEBUG
-        logger.isPrintOnConsole = true
-        #endif
-        
-        self.logger = logger
-        
-        super.init(widgetInfo: widgetInfo)
-    }
-    
     // MARK: widget callback
     public override func onLoad() {
         super.onLoad()
         initViews()
-        initConstraints()
+        initViewFrame()
+        updateViewProperties()
         
         updateRoomData()
         updateUserData()
@@ -93,10 +78,6 @@ import Armin
                                             operatorUser: operatorUser)
         updateRoomData()
         updateViewData()
-        
-        log(content: properties.jsonString() ?? "nil",
-            extra: cause?.jsonString(),
-            type: .info)
     }
     
     public override func onWidgetUserPropertiesUpdated(_ properties: [String : Any],
@@ -108,28 +89,23 @@ import Armin
                                             keyPaths: keyPaths,
                                             operatorUser: operatorUser)
         updateUserData()
-        
-        log(content: properties.jsonString() ?? "nil",
-            extra: cause?.jsonString(),
-            type: .info)
     }
 
     public override func onMessageReceived(_ message: String) {
         super.onMessageReceived(message)
         
-        if let baseInfo = message.toRequestKeys() {
-            serverAPI = AgoraPollServerAPI(baseInfo: baseInfo,
+        if let keys = message.toRequestKeys() {
+            serverAPI = AgoraPollServerAPI(host: keys.host,
+                                           appId: keys.agoraAppId,
+                                           token: keys.token,
                                            roomId: info.roomInfo.roomUuid,
-                                           uid: info.localUserInfo.userUuid,
-                                           logTube: self)
+                                           userId: info.localUserInfo.userUuid,
+                                           logTube: self.logger)
         }
         
         if message == "hideSubmit" {
             receiverView.submitButton.isHidden = true
         }
-        
-        log(content: message,
-            type: .info)
     }
     
     @objc func doButtonPressed(_ sender: UIButton) {
@@ -137,8 +113,8 @@ import Armin
     }
 }
 
-private extension AgoraPollWidget {
-    func initViews() {
+extension AgoraPollWidget: AgoraUIContentContainer {
+    public func initViews() {
         view.addSubview(receiverView)
         
         receiverView.tableView.delegate = self
@@ -147,19 +123,21 @@ private extension AgoraPollWidget {
         receiverView.submitButton.addTarget(self,
                                             action: #selector(doButtonPressed(_:)),
                                             for: .touchUpInside)
-        
-        view.backgroundColor = .clear
-        view.layer.shadowColor = UIColor(hexString: "#2F4192")?.cgColor
-        view.layer.shadowOffset = CGSize(width: 0,
-                                         height: 2)
-        view.layer.shadowOpacity = 0.15
-        view.layer.shadowRadius = 6
     }
     
-    func initConstraints() {
+    public func initViewFrame() {
         receiverView.mas_makeConstraints { (make) in
             make?.top.bottom()?.right()?.left()?.equalTo()(0)
         }
+    }
+    
+    public func updateViewProperties() {
+        let component = UIConfig.poll
+        
+        view.backgroundColor = .clear
+        view.layer.update(with: component.shadow)
+        
+        receiverView.updateViewProperties()
     }
     
     func updateViewFrame() {
@@ -216,6 +194,9 @@ private extension AgoraPollWidget {
             return
         }
         
+        let itemOption = UIConfig.poll.option
+        let itemResult = UIConfig.poll.result
+        
         if let state = data.toPollViewState() { // finished
             self.state = state
         } else if let _ = userData { // submited
@@ -223,7 +204,7 @@ private extension AgoraPollWidget {
         }
    
         // title
-        let titleFont = group.font.fcr_font9
+        let titleFont = FcrWidgetUIFontGroup.font9
         let poll_title_label_horizontal_space: CGFloat = 15
         let limitWidth = receiverView.neededSize.width - poll_title_label_horizontal_space * 2
         
@@ -232,27 +213,27 @@ private extension AgoraPollWidget {
         receiverView.titleLabel.text = title?.title
         
         // option
-        let optionLabelFont: UIFont = group.font.fcr_font9
+        let optionLabelFont: UIFont = FcrWidgetUIFontGroup.font9
         let optionWidth = receiverView.neededSize.width
         
-        let optionLabelInsets = UIEdgeInsets(top: group.frame.poll_option_label_vertical_space,
-                                             left: group.frame.poll_option_label_left_space,
-                                             bottom: group.frame.poll_option_label_vertical_space,
-                                             right: group.frame.poll_option_label_right_space)
+        let optionLabelInsets = UIEdgeInsets(top: itemOption.labelVerticalSpace,
+                                             left: itemOption.labelLeftSpace,
+                                             bottom: itemOption.labelVerticalSpace,
+                                             right: itemOption.labelRightSpace)
         
         optionList = data.toPollViewOptionList(optionFont: optionLabelFont,
                                                optionLabelInsets: optionLabelInsets,
                                                optionWidth: optionWidth)
         
         // result
-        let resultLabelFont = group.font.fcr_font9
+        let resultLabelFont = FcrWidgetUIFontGroup.font9
         let resultWidth = receiverView.neededSize.width
         
-        let resultTitleLabelInsetsRight = group.frame.poll_result_value_label_width + group.frame.poll_result_label_horizontal_space
+        let resultTitleLabelInsetsRight = (itemResult.labelWidth + itemResult.labelHorizontalSpace)
         
-        let resultTitleLabelInsets = UIEdgeInsets(top: group.frame.poll_result_label_vertical_space,
-                                                  left: group.frame.poll_result_label_horizontal_space,
-                                                  bottom: group.frame.poll_result_label_vertical_space,
+        let resultTitleLabelInsets = UIEdgeInsets(top: itemResult.labelVerticalSpace,
+                                                  left: itemResult.labelHorizontalSpace,
+                                                  bottom: itemResult.labelVerticalSpace,
                                                   right: resultTitleLabelInsetsRight)
         
         resultList = data.toPollViewResultList(resultFont: resultLabelFont,
@@ -393,28 +374,5 @@ extension AgoraPollWidget: UITableViewDataSource, UITableViewDelegate {
         } else {
             return 0
         }
-    }
-}
-
-extension AgoraPollWidget: ArLogTube {
-    public func log(info: String,
-                    extra: String?) {
-        log(content: info,
-            extra: extra,
-            type: .info)
-    }
-    
-    public func log(warning: String,
-                    extra: String?) {
-        log(content: warning,
-            extra: extra,
-            type: .info)
-    }
-    
-    public func log(error: ArError,
-                    extra: String?) {
-        log(content: error.localizedDescription,
-            extra: extra,
-            type: .info)
     }
 }

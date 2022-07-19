@@ -8,57 +8,25 @@
 
 import Armin
 
-class AgoraPollServerAPI: NSObject {
-    typealias FailBlock = (Error) -> ()
-    typealias SuccessBlock = () -> ()
-    
-    private var armin: Armin
-    
-    private let baseInfo: AgoraWidgetRequestKeys
-    private let roomId: String
-    private let uid: String
-    
-    init(baseInfo: AgoraWidgetRequestKeys,
-         roomId: String,
-         uid: String,
-         logTube: ArLogTube) {
-        self.baseInfo = baseInfo
-        self.roomId = roomId
-        self.uid = uid
-        
-        self.armin = Armin(delegate: nil,
-                           logTube: logTube)
-        
-        super.init()
-    }
-    
+class AgoraPollServerAPI: AgoraWidgetServerAPI {
     func submit(pollId: String,
                 selectList: [Int],
-                success: SuccessBlock? = nil,
-                fail: FailBlock? = nil) {
-        let path = "/edu/apps/\(baseInfo.agoraAppId)/v2/rooms/\(roomId)/widgets/polls/\(pollId)/users/\(uid)"
-        let urlString = baseInfo.host + path
+                success: SuccessCompletion? = nil,
+                failure: FailureCompletion? = nil) {
+        let path = "/edu/apps/\(appId)/v2/rooms/\(roomId)/widgets/polls/\(pollId)/users/\(userId)"
+        let urlString = host + path
         
-        let event = ArRequestEvent(name: "widget-poll-submit")
-        let type = ArRequestType.http(.post,
-                                      url: urlString)
-        let header = ["x-agora-token" : baseInfo.token,
-                      "x-agora-uid" : uid,
-                      "Authorization": "agora token=\"\(baseInfo.token)\""]
-        let parameters: [String : Any] = ["selectIndex" : selectList]
-        let task = ArRequestTask(event: event,
-                                 type: type,
-                                 header: header,
-                                 parameters: parameters)
+        let parameters: [String: Any] = ["selectIndex": selectList]
+       
         
-        armin.request(task: task,
-                      responseOnMainQueue: true,
-                      success: .data({ data in
+        request(event: "widget-poll-submit",
+                url: urlString,
+                method: .post,
+                parameters: parameters) { _ in
             success?()
-        }), failRetry: { error in
-            fail?(error)
-            return .resign
-        })
+        } failure: { error in
+            failure?(error)
+        }
     }
     
     func start() {

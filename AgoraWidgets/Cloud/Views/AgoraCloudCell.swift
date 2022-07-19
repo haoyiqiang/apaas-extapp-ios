@@ -17,7 +17,7 @@ import Masonry
  */
 
 class AgoraCloudCell: UITableViewCell {
-    
+    static let cellId = "AgoraCloudCell"
     let iconImageView = UIImageView(frame: .zero)
     let nameLabel = UILabel()
 
@@ -26,24 +26,24 @@ class AgoraCloudCell: UITableViewCell {
         super.init(style: style,
                    reuseIdentifier: reuseIdentifier)
 
-        backgroundColor = FcrWidgetsColorGroup.fcr_system_component_color
-        createViews()
-        createConstraints()
+        initViews()
+        initViewFrame()
+        updateViewProperties()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    private func createViews() {
-        nameLabel.textColor = FcrWidgetsColorGroup.fcr_text_level1_color
-        nameLabel.font = AgoraUIGroup().font.fcr_font13
-        
+}
+
+// MARK: - AgoraUIContentContainer
+extension AgoraCloudCell: AgoraUIContentContainer {
+    func initViews() {
         contentView.addSubview(nameLabel)
         contentView.addSubview(iconImageView)
     }
     
-    private func createConstraints() {
+    func initViewFrame() {
         iconImageView.mas_makeConstraints { make in
             make?.height.width().equalTo()(22)
             make?.left.equalTo()(16)
@@ -55,24 +55,12 @@ class AgoraCloudCell: UITableViewCell {
             make?.centerY.equalTo()(self.contentView)
         }
     }
-}
-
-class AgoraCloudListView: UITableView {
-    let cellId = "AgoraCloudCell"
     
-    override init(frame: CGRect, style: UITableView.Style) {
-        super.init(frame: frame,
-                   style: style)
-        contentInset = .zero
-        backgroundColor = FcrWidgetsColorGroup.fcr_system_component_color
-        tableFooterView = UIView()
-        separatorInset = .init(top: 0, left: 0, bottom: 0, right: 0)
+    func updateViewProperties() {
+        let config = UIConfig.cloudStorage.cell
+        backgroundColor = config.backgroundColor
         
-        register(AgoraCloudCell.self,
-                 forCellReuseIdentifier: cellId)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        nameLabel.textColor = config.label.color
+        nameLabel.font = config.label.font
     }
 }

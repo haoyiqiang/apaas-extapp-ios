@@ -8,7 +8,7 @@
 import Foundation
 import Armin
 
-class FcrWhiteBoardServerAPI: AgoraWidgetServerAPI {
+class FcrBoardServerAPI: AgoraWidgetServerAPI {
     func getWindowAttributes(success: JsonCompletion? = nil,
                              failure: FailureCompletion? = nil) {
         guard let roomId = roomId.split(separator: "-").first else {

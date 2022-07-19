@@ -29,7 +29,7 @@
 - (void)setupSubViews
 {
     self.nilAnnouncementImageView = [[UIImageView alloc] init];
-    self.nilAnnouncementImageView.image = [UIImage ag_image:@"icon_announcement_none"];
+    self.nilAnnouncementImageView.image = [UIImage agora_widget_image:@"icon_announcement_none"];
     [self addSubview:self.nilAnnouncementImageView];
     [self.nilAnnouncementImageView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(self);

@@ -47,7 +47,7 @@ const static NSInteger TAG_BASE = 1000;
     int width = 16;
     self.hideButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.hideButton.tag = TAG_BASE + 2;
-    [self.hideButton setImage:[UIImage ag_image:@"icon_hide"] forState:UIControlStateNormal];
+    [self.hideButton setImage:[UIImage agora_widget_image:@"icon_hide"] forState:UIControlStateNormal];
     [self.hideButton addTarget:self action:@selector(hideAction) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:self.hideButton];
     [self.hideButton mas_makeConstraints:^(MASConstraintMaker *make) {

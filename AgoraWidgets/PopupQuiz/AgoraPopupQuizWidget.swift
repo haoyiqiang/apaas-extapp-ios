@@ -10,10 +10,9 @@ import AgoraLog
 import Armin
 import UIKit
 
-@objcMembers public class AgoraPopupQuizWidget: AgoraBaseWidget, AgoraWidgetLogTube {
+@objcMembers public class AgoraPopupQuizWidget: AgoraNativeWidget {
     private var serverAPI: AgoraPopupQuizServerAPI?
     private var timer: Timer?
-    var logger: AgoraWidgetLogger
     
     // View
     private let contentView = AgoraPopupQuizView() // for mask shadowo
@@ -39,7 +38,7 @@ import UIKit
     }
     
     // Origin Data
-    private var baseInfo: AgoraWidgetRequestKeys?
+    private var requestKeys: AgoraWidgetRequestKeys?
     
     private var roomData: AgoraPopupQuizRoomPropertiesData?
     private var userData: AgoraPopupQuizUserPropertiesData?
@@ -53,22 +52,11 @@ import UIKit
         }
     }
     
-    public override init(widgetInfo: AgoraWidgetInfo) {
-        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId,
-                                       logId: widgetInfo.localUserInfo.userUuid)
-        #if DEBUG
-        logger.isPrintOnConsole = true
-        #endif
-        
-        self.logger = logger
-        
-        super.init(widgetInfo: widgetInfo)
-    }
-    
     public override func onLoad() {
         super.onLoad()
-        createViews()
-        createConstraint()
+        initViews()
+        initViewFrame()
+        updateViewProperties()
         
         updateRoomData()
         updateUserData()
@@ -81,8 +69,8 @@ import UIKit
     public override func onMessageReceived(_ message: String) {
         super.onMessageReceived(message)
         
-        if let info = message.toRequestKeys() {
-            baseInfo = info
+        if let keys = message.toRequestKeys() {
+            requestKeys = keys
             initServerAPI()
         }
         
@@ -95,9 +83,6 @@ import UIKit
         if message == "hideSubmit" {
             contentView.button.isHidden = true
         }
-        
-        log(content: message,
-            type: .info)
     }
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
@@ -112,10 +97,6 @@ import UIKit
         updateViewData()
         updateViewFrame()
         shouldStartTime()
-        
-        log(content: properties.jsonString() ?? "nil",
-            extra: cause?.jsonString(),
-            type: .info)
     }
     
     public override func onWidgetUserPropertiesUpdated(_ properties: [String : Any],
@@ -128,10 +109,6 @@ import UIKit
                                             operatorUser: operatorUser)
         
         updateUserData()
-        
-        log(content: properties.jsonString() ?? "nil",
-            extra: cause?.jsonString(),
-            type: .info)
     }
     
     @objc func doButtonPressed(_ sender: UIButton) {
@@ -151,8 +128,10 @@ import UIKit
 }
 
 // MARK: - View
-private extension AgoraPopupQuizWidget {
-    func createViews() {
+extension AgoraPopupQuizWidget: AgoraUIContentContainer {
+    public func initViews() {
+        let component = UIConfig.popupQuiz
+        
         quizState = .unselected
         
         view.addSubview(contentView)
@@ -165,22 +144,25 @@ private extension AgoraPopupQuizWidget {
         contentView.button.addTarget(self,
                                      action: #selector(doButtonPressed(_:)),
                                      for: .touchUpInside)
-        
-        view.backgroundColor = .clear
-        view.layer.shadowColor = UIColor(hexString: "#2F4192")?.cgColor
-        view.layer.shadowOffset = CGSize(width: 0,
-                                         height: 2)
-        view.layer.shadowOpacity = 0.15
-        view.layer.shadowRadius = 6
     }
     
-    func createConstraint() {
+    public func initViewFrame() {
         contentView.mas_makeConstraints { (make) in
             make?.top.left()?.right()?.bottom()?.equalTo()(0)
         }
     }
     
-    func updateViewFrame() {
+    public func updateViewProperties() {
+        let component = UIConfig.popupQuiz
+        
+        view.backgroundColor = .clear
+        
+        view.layer.update(with: component.shadow)
+        
+        contentView.updateViewProperties()
+    }
+    
+    private func updateViewFrame() {
         var size: [String: Any]
         
         if quizState != .finished {
@@ -342,7 +324,7 @@ private extension AgoraPopupQuizWidget {
 
 private extension AgoraPopupQuizWidget {
     func initServerAPI() {
-        guard let keys = baseInfo,
+        guard let keys = requestKeys,
               let data = roomData,
               serverAPI == nil else {
             return
@@ -353,7 +335,7 @@ private extension AgoraPopupQuizWidget {
                                             token: keys.token,
                                             roomId: info.roomInfo.roomUuid,
                                             userId: info.localUserInfo.userUuid,
-                                            logTube: self)
+                                            logTube: self.logger)
     }
     
     func shouldStartTime() {
@@ -466,29 +448,6 @@ extension AgoraPopupQuizWidget: UITableViewDataSource {
         }
         
         return cell
-    }
-}
-
-extension AgoraPopupQuizWidget: ArLogTube {
-    public func log(info: String,
-                    extra: String?) {
-        log(content: info,
-            extra: extra,
-            type: .info)
-    }
-    
-    public func log(warning: String,
-                    extra: String?) {
-        log(content: warning,
-            extra: extra,
-            type: .info)
-    }
-    
-    public func log(error: ArError,
-                    extra: String?) {
-        log(content: error.localizedDescription,
-            extra: extra,
-            type: .info)
     }
 }
 

@@ -73,7 +73,7 @@
     self.label.text = model.name;
     
     if ([model.imgName length] > 0) {
-        self.imgView.image = [UIImage ag_image:model.imgName];
+        self.imgView.image = [UIImage agora_widget_image:model.imgName];
     }
 }
 

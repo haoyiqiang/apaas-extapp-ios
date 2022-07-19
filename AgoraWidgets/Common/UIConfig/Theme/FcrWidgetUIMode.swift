@@ -13,15 +13,20 @@ enum FcrWidgetUIMode: Int {
     case agoraDark
 }
 
-var UIMode: FcrWidgetUIMode {
-    var mode: FcrWidgetUIMode = .agoraLight
-    
-    if #available(iOS 13.0, *) {
-        let style = UIViewController.ag_topViewController().overrideUserInterfaceStyle
-        
-        mode = (style == .light ? .agoraLight : .agoraDark)
-    }
-    
-    return mode
-}
+var UIMode: FcrWidgetUIMode = .agoraLight
+
+//var UIMode: FcrWidgetUIMode {
+//    get {
+//        var mode: FcrWidgetUIMode = .agoraLight
+//        
+//        if #available(iOS 13.0, *) {
+//            let topVc = UIViewController.ag_topViewController()
+//            let style = topVc.overrideUserInterfaceStyle
+//            
+//            mode = (style == .light ? .agoraLight : .agoraDark)
+//        }
+//        
+//        return mode
+//    }
+//}
 

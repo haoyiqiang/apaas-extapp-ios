@@ -65,33 +65,35 @@ struct AgoraPopupQuizRoomPropertiesData: Codable {
     func toViewSelectorResultList(font: UIFont,
                                   fontHeight: CGFloat,
                                   myAnswer: [String]?) -> [AgoraPopupQuizResult] {
+        let itemResult = UIConfig.popupQuiz.result
+        
         var list = [AgoraPopupQuizResult]()
         
         let postfix = ":   "
         
         // Submission
-        let submissionTitle = "fcr_popup_quiz_submission".ag_widget_localized() + postfix
+        let submissionTitle = itemResult.submissionTitle + postfix
         let submissionSize = submissionTitle.agora_size(font: font,
                                                         height: fontHeight)
         var tSelectedCount = selectedCount ?? 0
         let submissionResult = "\(tSelectedCount)/\(totalCount)"
         let submissionItem = AgoraPopupQuizResult(title: submissionTitle,
-                                                       result: submissionResult,
-                                                       titleSize: submissionSize)
+                                                  result: submissionResult,
+                                                  titleSize: submissionSize)
         list.append(submissionItem)
         
         // Accuracy
-        let accuracyTitle = "fcr_popup_quiz_accuracy".ag_widget_localized() + postfix
+        let accuracyTitle = itemResult.accuracyTitle + postfix
         let accuracySize = accuracyTitle.agora_size(font: font,
                                                     height: fontHeight)
         let accuracyResult = "\(averageAccuracy * 100)%"
         let accuracyItem = AgoraPopupQuizResult(title: accuracyTitle,
-                                                     result: accuracyResult,
-                                                     titleSize: accuracySize)
+                                                result: accuracyResult,
+                                                titleSize: accuracySize)
         list.append(accuracyItem)
         
         // Correct
-        let correctTitle = "fcr_popup_quiz_correct".ag_widget_localized() + postfix
+        let correctTitle = itemResult.correctTitle + postfix
         let correctSize = correctTitle.agora_size(font: font,
                                                   height: fontHeight)
         var correctResult = ""
@@ -106,7 +108,7 @@ struct AgoraPopupQuizRoomPropertiesData: Codable {
         list.append(correctItem)
         
         // My Answer
-        let myAnswerTitle = "fcr_popup_quiz_my_answer".ag_widget_localized() + postfix
+        let myAnswerTitle = itemResult.myAnswerTitle + postfix
         let myAnswerSize = myAnswerTitle.agora_size(font: font,
                                                     height: fontHeight)
         
@@ -121,9 +123,9 @@ struct AgoraPopupQuizRoomPropertiesData: Codable {
         var resultColor: UIColor?
         
         if myAnswerResult == correctResult {
-            resultColor = UIColor(hexString: "#0BAD69")
+            resultColor = itemResult.resultCorrectTextColor
         } else {
-            resultColor = UIColor(hexString: "#F04C36")
+            resultColor = itemResult.resultIncorrectTextColor
         }
         
         let myAnswerItem = AgoraPopupQuizResult(title: myAnswerTitle,
@@ -140,5 +142,5 @@ struct AgoraPopupQuizUserPropertiesData: Codable {
     var popupQuizId: String
     var selectedItems: [String]
     var lastCommitTime: Int64
-    var isCorrect: Bool  
+    var isCorrect: Bool
 }

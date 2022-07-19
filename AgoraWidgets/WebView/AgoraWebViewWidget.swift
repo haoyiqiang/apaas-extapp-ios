@@ -7,12 +7,8 @@
 
 import AgoraWidget
 
-@objcMembers public class AgoraWebViewWidget: AgoraBaseWidget, AgoraWidgetLogTube {
-    var logger: AgoraWidgetLogger
-    
-    private(set) lazy var contentView = AgoraWebViewContentView(uiDelegate: self,
-                                                                navigationDelegate: self,
-                                                                delegate: self)
+@objcMembers public class AgoraWebViewWidget: AgoraNativeWidget {
+    private(set) lazy var contentView = AgoraWebViewContentView(delegate: self)
     
     private var urlString: String? {
         didSet {
@@ -44,31 +40,15 @@ import AgoraWidget
         }
     }
     
-    public override init(widgetInfo: AgoraWidgetInfo) {
-        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId,
-                                       logId: widgetInfo.localUserInfo.userUuid)
-        #if DEBUG
-        logger.isPrintOnConsole = true
-        #endif
-        self.logger = logger
-        
-        super.init(widgetInfo: widgetInfo)
-        
-        log(content: "[WebView Widget]: create",
-            extra: "widgetId:\(widgetInfo.widgetId)",
-            type: .info)
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     public override func onLoad() {
         super.onLoad()
-        
-        view.addSubview(contentView)
-        
-        contentView.tabView.setOperationPrivilege(false)
-        
-        contentView.mas_makeConstraints { make in
-            make?.left.right().top().bottom().equalTo()(0)
-        }
+        initViews()
+        initViewFrame()
+        updateViewProperties()
         
         handleExtraInit()
     }
@@ -86,10 +66,6 @@ import AgoraWidget
             return
         }
         
-        let logContent = "[WebView Widget]: room properties" + (properties.jsonString() ?? "nil")
-        log(content: logContent,
-            extra: cause?.jsonString(),
-            type: .info)
         handleExtraUpdated()
     }
     
@@ -99,12 +75,36 @@ import AgoraWidget
         }
         switch signal {
         case .boardAuth(let granted):
-            contentView.tabView.setOperationPrivilege(granted)
+            contentView.headerView.setOperationPrivilege(granted)
         case .updateViewZIndex(let zIndex):
             updateRoomPropertiesZIndex(zIndex: zIndex)
         default:
             break
         }
+    }
+}
+
+extension AgoraWebViewWidget: AgoraUIContentContainer {
+    public func initViews() {
+        view.addSubview(contentView)
+        
+        contentView.headerView.setOperationPrivilege(false)
+        contentView.webView.uiDelegate = self
+        contentView.webView.navigationDelegate = self
+    }
+    
+    public func initViewFrame() {
+        contentView.mas_makeConstraints { make in
+            make?.left.right().top().bottom().equalTo()(0)
+        }
+    }
+    
+    public func updateViewProperties() {
+        let component = UIConfig.webView
+        
+        contentView.updateViewProperties()
+        
+        view.layer.update(with: component.shadow)
     }
 }
 
@@ -146,20 +146,14 @@ extension AgoraWebViewWidget {
         let properties = ["zIndex": zIndex]
         
         updateRoomProperties(properties,
-                             cause: nil) { [weak self] in
-            self?.log(content: "[WebView Widget]: update roomProperties success",
-                      extra: properties.jsonString(),
-                      type: .info)
-        } failure: { [weak self] error in
-            self?.log(content: "[WebView Widget]: update roomProperties error",
-                      extra: properties.jsonString(),
-                      type: .error)
-        }
+                             cause: nil,
+                             success: nil,
+                             failure: nil)
     }
     
     func sendMessage(signal: AgoraWebViewSignal) {
         guard let message = signal.toMessageString() else {
-            log(content: "[WebView Widget]: signal encode error!",
+            log(content: "signal encode error!",
                 type: .error)
             return
         }

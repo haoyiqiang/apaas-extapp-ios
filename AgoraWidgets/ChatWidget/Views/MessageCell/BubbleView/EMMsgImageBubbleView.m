@@ -91,17 +91,17 @@
     } else {
         BOOL isAutoDownloadThumbnail = ([AgoraChatClient sharedClient].options.isAutoDownloadThumbnail);
         if (isAutoDownloadThumbnail) {
-            [self sd_setImageWithURL:[NSURL URLWithString:aRemotePath] placeholderImage:[UIImage ag_image:@"msg_img_broken"] completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
+            [self sd_setImageWithURL:[NSURL URLWithString:aRemotePath] placeholderImage:[UIImage agora_widget_image:@"msg_img_broken"] completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
                     if (!error) {
                         weakself.image = image;
                         block(image.size);
                     } else {
-                        weakself.image = [UIImage ag_image:@"msg_img_broken"];
+                        weakself.image = [UIImage agora_widget_image:@"msg_img_broken"];
                         block(weakself.image.size);
                     }
             }];
         } else {
-            self.image = [UIImage ag_image:@"msg_img_broken"];
+            self.image = [UIImage agora_widget_image:@"msg_img_broken"];
         }
     }
 }

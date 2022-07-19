@@ -78,12 +78,12 @@ private extension AgoraCloudVM {
         var publicCoursewares = [AgoraCloudPublicCourseware]()
         for json in publicJsonArr {
             if let data = json.data(using: .utf8),
-            let courseware = try? JSONDecoder().decode(AgoraCloudPublicCourseware.self,
-                                                        from: data) {
+               let courseware = try? JSONDecoder().decode(AgoraCloudPublicCourseware.self,
+                                                          from: data) {
                 publicCoursewares.append(courseware)
             }
         }
-
+        
         self.publicFiles = publicCoursewares.toConfig()
     }
 }

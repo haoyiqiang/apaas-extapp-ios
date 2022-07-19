@@ -36,7 +36,7 @@ extension Convertable {
     public static func decode(_ dic: [String : Any]) -> Self? {
         guard JSONSerialization.isValidJSONObject(dic),
               let data = try? JSONSerialization.data(withJSONObject: dic,
-                                                      options: []),
+                                                     options: []),
               let model = try? JSONDecoder().decode(Self.self,
                                                     from: data) else {
                   return nil
@@ -117,7 +117,7 @@ extension String {
         return timestamp
     }
     
-    func ag_widget_localized() -> String {
+    func agora_widget_localized() -> String {
         let resource = "AgoraWidgets"
         return self.agora_localized(resource)
     }
@@ -141,18 +141,18 @@ extension String {
         return base64Str
     }
     
-    static func ag_localized_replacing() -> String {
+    static func agora_localized_replacing() -> String {
         return "{xxx}"
     }
 }
 
-extension UIImage {
-    static func ag_imageName(_ name: String) -> UIImage? {
+public extension UIImage {
+    @objc  static func agora_widget_image(_ name: String) -> UIImage? {
         let resource = "AgoraWidgets"
         let bundle = Bundle.agora_bundle(resource)
-        return UIImage.init(named: name,
-                            in: bundle,
-                            compatibleWith: nil)
+        return UIImage(named: name,
+                       in: bundle,
+                       compatibleWith: nil)
     }
 }
 
@@ -213,61 +213,29 @@ extension TimeInterval {
     }
 }
 
-extension CGRect {
-    func syncFrameFromDisplayFrame(superView: UIView) -> CGRect {
-        let MEDx = superView.width - self.width
-        let MEDy = superView.height - self.height
-        
-        let xaxis = (MEDx == 0) ? 0: (self.origin.x / MEDx)
-        let yaxis = (MEDy == 0) ? 0: (self.origin.y / MEDy)
-        
-        let displayWidth = (superView.width == 0) ? 0 : (self.width / superView.width)
-        let displayHeight = (superView.height == 0) ? 0 : (self.height / superView.height)
-        
-        let syncFrame = CGRect(x: xaxis,
-                               y: yaxis,
-                               width: displayWidth,
-                               height: displayHeight)
-        return syncFrame
-    }
-}
-
-// MARK: - resource
-public func GetWidgetImage(object: NSObject,
-                           _ name: String) -> UIImage? {
-    let resource = "AgoraWidgets"
-    return UIImage.agora_bundle(object: object,
-                                resource: resource,
-                                name: name)
-}
-
-public func GetWidgetLocalizableString(object: NSObject,
-                                       key: String) -> String {
-    let resource = "AgoraWidgets"
-    return String.agora_localized_string(key,
-                                         object: object,
-                                         resource: resource)
-}
-
-public func GetWidgetLogFolder() -> String {
-    let cachesFolder = NSSearchPathForDirectoriesInDomains(.cachesDirectory,
-                                                           .userDomainMask,
-                                                           true)[0]
-    let folder = cachesFolder.appending("/AgoraLog")
-    let manager = FileManager.default
-    
-    if !manager.fileExists(atPath: folder,
-                           isDirectory: nil) {
-        try? manager.createDirectory(atPath: folder,
-                                     withIntermediateDirectories: true,
-                                     attributes: nil)
-    }
-    return folder
-}
-
 extension AgoraBaseWidget {
     var isTeacher: Bool {
         return info.localUserInfo.userRole == "teacher"
+    }
+    
+    func setUIMode() {
+        var mode: FcrWidgetUIMode = .agoraLight
+        
+        if #available(iOS 13.0, *) {
+            let topVc = UIViewController.ag_topViewController()
+            let style = topVc.overrideUserInterfaceStyle
+            
+            mode = (style == .light ? .agoraLight : .agoraDark)
+        }
+        
+        UIMode = mode
+    }
+    
+    func setUIConfig() {
+        guard let config = info.roomInfo.roomType.toUIConfig else {
+            return
+        }
+        UIConfig = config
     }
 }
 
@@ -286,5 +254,25 @@ extension NSError {
         let error = NSError(domain: "",
                             code: -1)
         return error
+    }
+}
+
+extension CALayer {
+    func update(with shadow: FcrWidgetUIItemShadow) {
+        shadowColor = shadow.color
+        shadowOffset = shadow.offset
+        shadowOpacity = shadow.opacity
+        shadowRadius = shadow.radius
+    }
+}
+
+extension UInt {
+    var toUIConfig: FcrWidgetUIConfig? {
+        switch self {
+        case 0:     return FcrWidgetOneToOneUIConfig()
+        case 2:     return FcrWidgetLectrueUIConfig()
+        case 4:     return FcrWidgetSmallUIConfig()
+        default:    return nil
+        }
     }
 }

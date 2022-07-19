@@ -7,7 +7,7 @@
 
 import Foundation
 import AgoraLog
-
+import Armin
 
 protocol AgoraWidgetLogTube where Self: NSObject {
     var logger: AgoraWidgetLogger {set get}
@@ -48,11 +48,25 @@ class AgoraWidgetLogger: NSObject {
     private let logger: AgoraLogger
     private let queue = DispatchQueue(label: "io.agora.widgets.log.thread")
     private var traceId: String
+    private let widgetId: String
     var isPrintOnConsole: Bool = false
     
     init(widgetId: String,
          logId: String) {
-        let folderPath = GetWidgetLogFolder()
+        let cachesFolder = NSSearchPathForDirectoriesInDomains(.cachesDirectory,
+                                                               .userDomainMask,
+                                                               true)[0]
+        let folder = cachesFolder.appending("/AgoraLog")
+        let manager = FileManager.default
+
+        if !manager.fileExists(atPath: folder,
+                               isDirectory: nil) {
+            try? manager.createDirectory(atPath: folder,
+                                         withIntermediateDirectories: true,
+                                         attributes: nil)
+        }
+        
+        let folderPath = folder
         
         logger = AgoraLogger(folderPath: folderPath,
                              filePrefix: widgetId,
@@ -62,6 +76,8 @@ class AgoraWidgetLogger: NSObject {
         let timeStamp = "\(Date().timeIntervalSince1970.intValue)"
         
         traceId = "\(timeStamp)\(logId)".agora_md5()
+        
+        self.widgetId = widgetId
     }
     
     fileprivate func log(content: String,
@@ -100,6 +116,7 @@ class AgoraWidgetLogger: NSObject {
                                                          separator: ":")
                 
                 var consoleArray = [separator,
+                                    "[\(self.widgetId) Widget]",
                                     "TIME: \(currentDate)",
                                     "CLASS: \(classText)",
                                     "\(type.stringValue): \(content)",
@@ -116,6 +133,32 @@ class AgoraWidgetLogger: NSObject {
                 print(consoleLog.utf8)
             }
         }
+    }
+}
+
+extension AgoraWidgetLogger: ArLogTube {
+    func log(info: String,
+             extra: String?) {
+        log(content: info,
+            extra: extra,
+            type: .info,
+            from: AgoraWidgetServerAPI.self)
+    }
+    
+    func log(warning: String,
+             extra: String?) {
+        log(content: warning,
+            extra: extra,
+            type: .warning,
+            from: AgoraWidgetServerAPI.self)
+    }
+    
+    func log(error: ArError,
+             extra: String?) {
+        log(content: error.localizedDescription,
+            extra: extra,
+            type: .error,
+            from: AgoraWidgetServerAPI.self)
     }
 }
 
@@ -156,4 +199,3 @@ extension AgoraLogType {
         }
     }
 }
-

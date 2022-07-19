@@ -6,10 +6,11 @@
 //
 
 import Foundation
+
 // MARK: - Message
 enum AgoraCloudInteractionSignal: Convertable {
-    case OpenCourseware(AgoraCloudWhiteScenesInfo)
-    case CloseCloud
+    case openCourseware(AgoraCloudWhiteScenesInfo)
+    case closeCloud
     
     private enum CodingKeys: CodingKey {
         case OpenCourseware
@@ -20,10 +21,10 @@ enum AgoraCloudInteractionSignal: Convertable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         if let _ = try? container.decodeNil(forKey: .CloseCloud) {
-            self = .CloseCloud
+            self = .closeCloud
         } else if let value = try? container.decode(AgoraCloudWhiteScenesInfo.self,
                                                     forKey: .OpenCourseware) {
-            self = .OpenCourseware(value)
+            self = .openCourseware(value)
         } else {
             throw DecodingError.dataCorrupted(
                 .init(
@@ -38,9 +39,9 @@ enum AgoraCloudInteractionSignal: Convertable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         switch self {
-        case .CloseCloud:
+        case .closeCloud:
             try container.encodeNil(forKey: .CloseCloud)
-        case .OpenCourseware(let x):
+        case .openCourseware(let x):
             try container.encode(x,
                                  forKey: .OpenCourseware)
         }
@@ -258,32 +259,34 @@ class AgoraCloudCellInfo: NSObject {
          name: String) {
         self.name = name
         super.init()
-        let imageName = AgoraCloudCellInfo.imageName(ext: ext)
-        self.image = GetWidgetImage(object: self,
-                                    imageName)
+        
+        self.image =  ext.cloudTypeImage()
     }
-    
-    static func imageName(ext: String) -> String {
-        switch ext {
+}
+
+fileprivate extension String {
+    func cloudTypeImage() -> UIImage? {
+        let config = UIConfig.cloudStorage.cell.image
+        switch self {
         case "pptx", "ppt", "pptm":
-            return "format-PPT"
+            return config.pptImage
         case "docx", "doc":
-            return "format-word"
+            return config.docImage
         case "xlsx", "xls", "csv":
-            return "format-excel"
+            return config.excelImage
         case "pdf":
-            return "format-pdf"
+            return config.pdfImage
         case "jpeg", "jpg", "png", "bmp":
-            return "format-pic"
+            return config.picImage
         case "mp3", "wav", "wma", "aac", "flac", "m4a", "oga", "opu":
-            return "format-audio"
+            return config.audioImage
         case "mp4", "3gp", "mgp", "mpeg", "3g2", "avi", "flv", "wmv", "h264",
             "m4v", "mj2", "mov", "ogg", "ogv", "rm", "qt", "vob", "webm":
-            return "format-video"
+            return config.videoImage
         case "alf":
-            return "format-alf"
+            return config.alfImage
         default:
-            return "format-unknown"
+            return config.unknownImage
         }
     }
 }

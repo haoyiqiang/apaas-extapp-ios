@@ -10,9 +10,10 @@ import Armin
 
 public typealias SuccessCompletion = () -> ()
 public typealias JsonCompletion = ([String: Any]) -> ()
+public typealias JsonListCompletion = ([Dictionary<String, Any>]) -> ()
 public typealias FailureCompletion = (Error) -> ()
 
-public class AgoraWidgetServerAPI:NSObject {
+public class AgoraWidgetServerAPI: NSObject {
     private(set) var host: String
     private(set) var appId: String
     private(set) var token: String

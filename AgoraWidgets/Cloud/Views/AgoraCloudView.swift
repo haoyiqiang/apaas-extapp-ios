@@ -8,29 +8,42 @@
 import AgoraUIBaseViews
 
 class AgoraCloudView: UIView {
-    let topView = AgoraCloudTopView(frame: .zero)
-    let listView = AgoraCloudListView(frame: .zero)
+    private(set) lazy var topView = AgoraCloudTopView(frame: .zero)
+    private(set) lazy var listView = UITableView(frame: .zero)
         
     override init(frame: CGRect) {
         super.init(frame: frame)
         initViews()
-        initLayout()
+        initViewFrame()
+        updateViewProperties()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    private func initViews() {
-        backgroundColor = FcrWidgetsColorGroup.fcr_system_component_color
-        layer.cornerRadius = 6
-        layer.masksToBounds = true
+}
+
+// MARK: - AgoraUIContentContainer
+extension AgoraCloudView: AgoraUIContentContainer {
+    func initViews() {
+        let config = UIConfig.cloudStorage
         
+        layer.shadowColor = config.shadow.color
+        layer.shadowOffset = config.shadow.offset
+        layer.shadowOpacity = config.shadow.opacity
+        layer.shadowRadius = config.shadow.radius
+        
+        listView.contentInset = .zero
+        listView.tableFooterView = UIView()
+        listView.separatorInset = .zero
+        
+        listView.register(AgoraCloudCell.self,
+                          forCellReuseIdentifier: AgoraCloudCell.cellId)
         addSubview(topView)
         addSubview(listView)
     }
     
-    private func initLayout() {
+    func initViewFrame() {
         topView.mas_makeConstraints { make in
             make?.left.and().right().and().top().equalTo()(self)
             make?.height.equalTo()(90)
@@ -41,6 +54,12 @@ class AgoraCloudView: UIView {
             make?.top.equalTo()(self.topView.mas_bottom)
         }
     }
+    
+    func updateViewProperties() {
+        let config = UIConfig.cloudStorage
+        backgroundColor = config.backgroundColor
+        listView.backgroundColor = config.cell.backgroundColor
+        layer.cornerRadius = config.cornerRadius
+        layer.masksToBounds = true
+    }
 }
-
-

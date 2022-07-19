@@ -9,9 +9,8 @@ import AgoraWidget
 import AgoraLog
 import Masonry
 
-@objcMembers public class AgoraCountdownTimerWidget: AgoraBaseWidget, AgoraWidgetLogTube {
+@objcMembers public class AgoraCountdownTimerWidget: AgoraNativeWidget {
     private var timer: Timer?
-    var logger: AgoraWidgetLogger
     
     // View
     private var countdownView = AgoraCountdownView(frame: .zero)
@@ -48,18 +47,6 @@ import Masonry
         }
     }
     
-    public override init(widgetInfo: AgoraWidgetInfo) {
-        let logger = AgoraWidgetLogger(widgetId: widgetInfo.widgetId,
-                                       logId: widgetInfo.localUserInfo.userUuid)
-        #if DEBUG
-        logger.isPrintOnConsole = true
-        #endif
-        
-        self.logger = logger
-        
-        super.init(widgetInfo: widgetInfo)
-    }
-    
     public override func onLoad() {
         super.onLoad()
         initViews()
@@ -67,10 +54,6 @@ import Masonry
         updateRoomData()
         updateViewData()
         updateViewFrame()
-        
-        log(content: info.roomProperties?.jsonString() ?? "nil",
-            extra: nil,
-            type: .info)
     }
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
@@ -84,10 +67,6 @@ import Masonry
         updateRoomData()
         updateViewData()
         shouldStartTime()
-        
-        log(content: properties.jsonString() ?? "nil",
-            extra: cause?.jsonString(),
-            type: .info)
     }
     
     public override func onMessageReceived(_ message: String) {
@@ -98,9 +77,6 @@ import Masonry
             initCurrentTimestamp()
             shouldStartTime()
         }
-        
-        log(content: message,
-            type: .info)
     }
     
     deinit {
