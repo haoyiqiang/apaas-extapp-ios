@@ -74,7 +74,7 @@ struct FcrWidgetUIComponentCloudStorage: FcrWidgetUIComponentProtocol {
     
     let titleBackgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
     let cornerRadius: CGFloat         = FcrWidgetUIFrameGroup.containerCornerRadius
-    let selectedColor: UIColor        = FcrWidgetUIColorGroup.iconFillColor
+    let selectedColor: UIColor        = FcrWidgetUIColorGroup.systemBrandColor
     
     let refresh                       = FcrWidgetUIItemCloudStorageRefresh()
     let search                        = FcrWidgetUIItemCloudStorageSearch()
@@ -109,6 +109,27 @@ struct FcrWidgetUIComponentNetlessBoard: FcrWidgetUIComponentProtocol {
     var visible: Bool = true
     var enable: Bool = true
     var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemForegroundColor
+    /**Scene Builder Set**/
+    var mouse       = FcrWidgetUIItemNetlessBoardMouse()
+    var selector    = FcrWidgetUIItemNetlessBoardSelector()
+    var pencil      = FcrWidgetUIItemNetlessBoardPencil()
+    var text        = FcrWidgetUIItemNetlessBoardText()
+    var eraser      = FcrWidgetUIItemNetlessBoardEraser()
+    var clear       = FcrWidgetUIItemNetlessBoardClear()
+    var save        = FcrWidgetUIItemNetlessBoardSave()
+    /**iOS**/
+    
+    var paint       = FcrWidgetUIItemNetlessBoardPaint()
+    var prev        = FcrWidgetUIItemNetlessBoardPrev()
+    var next        = FcrWidgetUIItemNetlessBoardNext()
+    var line        = FcrWidgetUIItemNetlessBoardLine()
+    var rect        = FcrWidgetUIItemNetlessBoardRect()
+    var circle      = FcrWidgetUIItemNetlessBoardCircle()
+    var pentagram   = FcrWidgetUIItemNetlessBoardPentagram()
+    var rhombus     = FcrWidgetUIItemNetlessBoardRhombus()
+    var arrow       = FcrWidgetUIItemNetlessBoardArrow()
+    var triangle    = FcrWidgetUIItemNetlessBoardTriangle()
+    var pageControl = FcrWidgetUIItemNetlessBoardPageControl()
     // iOS ui
     let shadow = FcrWidgetUIItemShadow()
 }
@@ -116,13 +137,16 @@ struct FcrWidgetUIComponentNetlessBoard: FcrWidgetUIComponentProtocol {
 struct FcrWidgetUIComponentAgoraChat: FcrWidgetUIComponentProtocol {
     var visible: Bool = true
     var enable: Bool = true
-    var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemForegroundColor
-    
-    let muteAll = FcrWidgetUIItemAgoraChatMuteAll()
-    let emoji = FcrWidgetUIItemAgoraChatEmoji()
-    let picture = FcrWidgetUIItemAgoraChatPicture()
-    
-    // iOS ui
-    let shadow = FcrWidgetUIItemShadow()
-    let topBar = FcrWidgetUIItemAgoraChatTopBar()
+    var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
+    /**scene builder set**/
+    var muteAll      = FcrWidgetUIItemAgoraChatMuteAll()
+    var emoji        = FcrWidgetUIItemAgoraChatEmoji()
+    var picture      = FcrWidgetUIItemAgoraChatPicture()
+    /**ios**/
+    var announcement = FcrWidgetUIItemAnnouncement()
+    var mute         = FcrWidgetUIItemAgoraChatMute()
+    var message      = FcrWidgetUIItemAgoraChatMessage()
+    /**ui**/
+    let shadow       = FcrWidgetUIItemShadow()
+    let topBar       = FcrWidgetUIItemAgoraChatTopBar()
 }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AgoraUIBaseViews
 
 class AgoraPollReceiverView: UIView, AgoraUIContentContainer {
     // Data

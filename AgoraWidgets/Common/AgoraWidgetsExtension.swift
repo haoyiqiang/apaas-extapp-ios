@@ -7,6 +7,7 @@
 
 import CommonCrypto
 import Foundation
+import AgoraWidget
 
 struct AgoraWidgetRequestKeys {
     let agoraAppId: String
@@ -219,7 +220,7 @@ extension AgoraBaseWidget {
     }
     
     func setUIMode() {
-        var mode: FcrWidgetUIMode = .agoraLight
+        var mode: FcrWidgetsUIMode = .agoraLight
         
         if #available(iOS 13.0, *) {
             let topVc = UIViewController.ag_topViewController()
@@ -228,7 +229,7 @@ extension AgoraBaseWidget {
             mode = (style == .light ? .agoraLight : .agoraDark)
         }
         
-        UIMode = mode
+        FcrWidgetsUIGlobal.uiMode = mode
     }
     
     func setUIConfig() {

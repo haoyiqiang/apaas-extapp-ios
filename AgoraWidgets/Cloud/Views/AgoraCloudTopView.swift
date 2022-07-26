@@ -242,7 +242,7 @@ extension AgoraCloudTopView: AgoraUIContentContainer {
                               for: .normal)
         }
         
-        selectedLine.backgroundColor = FcrWidgetUIColorGroup.iconFillColor
+        selectedLine.backgroundColor = config.selectedColor
 
         closeButton.setImage(config.close.image,
                              for: .normal)

@@ -3,6 +3,26 @@
     {
       "filename" : "icon_message_none.png",
       "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ],
+      "filename" : "icon_message_none-1.png",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "编组 9@2x.png",
+      "idiom" : "universal"
     }
   ],
   "info" : {

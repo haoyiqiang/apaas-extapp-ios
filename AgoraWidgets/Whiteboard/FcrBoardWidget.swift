@@ -6,6 +6,7 @@
 //
 
 import AgoraUIBaseViews
+import AgoraWidget
 import AgoraLog
 import Photos
 import Armin
