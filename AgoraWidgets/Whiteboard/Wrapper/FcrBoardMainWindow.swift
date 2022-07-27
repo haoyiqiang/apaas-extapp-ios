@@ -290,6 +290,10 @@ extension FcrBoardMainWindow {
             }
             
             // Success
+            if isWritable {
+                self.whiteRoom.disableSerialization(false)
+                self.whiteRoom.disableCameraTransform(true)
+            }
             let disable = !isWritable
             self.whiteRoom.disableDeviceInputs(disable)
             self.whiteRoom.disableCameraTransform(true)
@@ -647,14 +651,25 @@ private extension FcrBoardMainWindow {
     }
     
     func setUpNetless() {
-        let disableSerialization = false
         let viewMode: WhiteViewMode = .broadcaster
+        whiteRoom.setViewMode(viewMode)
+        
+        
+        log(content: "set view mode",
+            extra: memberState.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "setViewMode")
+        
+        guard whiteRoom.isWritable else {
+            return
+        }
+        let disableSerialization = false
         let disableCamera = true
         
-        whiteRoom.setMemberState(memberState)
-        whiteRoom.disableSerialization(disableSerialization)
-        whiteRoom.setViewMode(.broadcaster)
         whiteRoom.disableCameraTransform(disableCamera)
+        whiteRoom.setMemberState(memberState)
+        whiteRoom.disableSerialization(false)
         
         log(content: "set member state",
             extra: memberState.agDescription,
@@ -667,12 +682,6 @@ private extension FcrBoardMainWindow {
             type: .info,
             fromClass: WhiteRoom.self,
             funcName: "disableSerialization")
-        
-        log(content: "set view mode",
-            extra: memberState.agDescription,
-            type: .info,
-            fromClass: WhiteRoom.self,
-            funcName: "setViewMode")
         
         log(content: "disable camera transform",
             extra: disableCamera.agDescription,
@@ -849,7 +858,7 @@ extension FcrBoardMainWindow: FcrBoardMainWindowNeedObserve {
             extra: extra.agDescription,
             type: .info,
             fromClass: WhiteSDK.self,
-            funcName: "fireCanRedoStepsUpdate")
+            funcName: "fireCanUndoStepsUpdate")
         
         let enable = (canUndoSteps > 0)
         
