@@ -253,7 +253,6 @@ struct FcrWidgetUIItemCloudStorageSearch: FcrWidgetUIItemProtocol {
     var enable: Bool                         = true
     
     let backgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
-    let cornerRadius: CGFloat    = FcrWidgetUIFrameGroup.containerCornerRadius
     let borderColor: UIColor     = FcrWidgetUIColorGroup.borderColor
     let borderWidth: CGFloat     = FcrWidgetUIFrameGroup.borderWidth
     let font: UIFont             = FcrWidgetUIFontGroup.font12
@@ -390,7 +389,6 @@ struct FcrWidgetUIItemAgoraChatInput: FcrWidgetUIItemProtocol {
     var sendButtonTitleColor: UIColor = FcrWidgetUIColorGroup.textContrastColor
     var sendButtonBackgroundColor: UIColor = FcrWidgetUIColorGroup.systemBrandColor
     var sendButtonTitleFont: UIFont   = FcrWidgetUIFontGroup.font14
-    
     var cornerRadius: CGFloat = FcrWidgetUIFrameGroup.containerCornerRadius
 }
 

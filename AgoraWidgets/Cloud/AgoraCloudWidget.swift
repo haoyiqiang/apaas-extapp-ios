@@ -26,6 +26,7 @@ import Darwin
     public override func onLoad() {
         super.onLoad()
         initViews()
+        updateViewProperties()
     }
     
     public override func onMessageReceived(_ message: String) {
@@ -155,6 +156,15 @@ private extension AgoraCloudWidget {
         cloudView.mas_makeConstraints { make in
             make?.left.right().top().bottom().equalTo()(self.view)
         }
+    }
+    
+    func updateViewProperties() {
+        let config = UIConfig.cloudStorage
+        
+        view.layer.shadowColor = config.shadow.color
+        view.layer.shadowOffset = config.shadow.offset
+        view.layer.shadowOpacity = config.shadow.opacity
+        view.layer.shadowRadius = config.shadow.radius
     }
 
     /// 获取个人数据

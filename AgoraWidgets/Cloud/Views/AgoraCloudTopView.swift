@@ -67,7 +67,7 @@ class AgoraCloudTopView: UIView {
         case .uiPublic:
             privateAreaButton.isSelected = false
             publicAreaButton.isSelected = true
-            pathNameLabel.text = "fcr_cloud_public_resource".agora_widget_localized()
+            pathNameLabel.text = "fcr_cloud_public_resource".widgets_localized()
             
             selectedLine.mas_remakeConstraints { make in
                 make?.width.equalTo()(66)
@@ -79,7 +79,7 @@ class AgoraCloudTopView: UIView {
         case .uiPrivate:
             publicAreaButton.isSelected = false
             privateAreaButton.isSelected = true
-            pathNameLabel.text = "fcr_cloud_private_resource".agora_widget_localized()
+            pathNameLabel.text = "fcr_cloud_private_resource".widgets_localized()
             
             selectedLine.mas_remakeConstraints { make in
                 make?.width.equalTo()(66)
@@ -91,7 +91,7 @@ class AgoraCloudTopView: UIView {
     }
     
     func set(fileNum: Int) {
-        let sumText = "fcr_cloud_total_item".agora_widget_localized()
+        let sumText = "fcr_cloud_total_item".widgets_localized()
         let final = sumText.replacingOccurrences(of: String.agora_localized_replacing(),
                                                  with: "\(fileNum)")
         fileCountLabel.text = final
@@ -126,8 +126,8 @@ extension AgoraCloudTopView: AgoraUIContentContainer {
     func initViews() {
         let config = UIConfig.cloudStorage
         /// 上半部分
-        publicAreaButton.setTitleForAllStates("fcr_cloud_public_resource".agora_widget_localized())
-        privateAreaButton.setTitleForAllStates("fcr_cloud_private_resource".agora_widget_localized())
+        publicAreaButton.setTitleForAllStates("fcr_cloud_public_resource".widgets_localized())
+        privateAreaButton.setTitleForAllStates("fcr_cloud_private_resource".widgets_localized())
 
         addSubview(contentView1)
         contentView1.addSubview(publicAreaButton)
@@ -140,7 +140,7 @@ extension AgoraCloudTopView: AgoraUIContentContainer {
         
         fileCountLabel.textAlignment = .right
         
-        searchBar.placeholder = "fcr_cloud_search".agora_widget_localized()
+        searchBar.placeholder = "fcr_cloud_search".widgets_localized()
         searchBar.delegate = self
         searchBar.textField?.clearButtonMode = .whileEditing
         searchBar.textField?.delegate = self
@@ -160,7 +160,7 @@ extension AgoraCloudTopView: AgoraUIContentContainer {
                           for: .touchUpInside)
         }
         // list header view
-        listHeaderLabel.text = "fcr_cloud_file_name".agora_widget_localized()
+        listHeaderLabel.text = "fcr_cloud_file_name".widgets_localized()
         addSubview(listHeaderLabel)
     }
     
@@ -250,8 +250,12 @@ extension AgoraCloudTopView: AgoraUIContentContainer {
         refreshButton.setImage(config.refresh.image,
                                for: .normal)
         let search = config.search
+        let pix = CGSize(width: 1,
+                         height: 1)
+        searchBar.backgroundImage = UIImage.init(color: .clear,
+                                                 size: pix)
         searchBar.backgroundColor = search.backgroundColor
-        searchBar.cornerRadius = search.cornerRadius
+        searchBar.cornerRadius = 11
         searchBar.layer.borderColor = search.borderColor.cgColor
         searchBar.layer.borderWidth = search.borderWidth
         searchBar.textField?.backgroundColor = search.backgroundColor

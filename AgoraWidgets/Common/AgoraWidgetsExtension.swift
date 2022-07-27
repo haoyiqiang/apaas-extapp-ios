@@ -118,11 +118,6 @@ extension String {
         return timestamp
     }
     
-    func agora_widget_localized() -> String {
-        let resource = "AgoraWidgets"
-        return self.agora_localized(resource)
-    }
-    
     func agora_md5() -> String {
         let CC_MD5_DIGEST_LENGTH = 16
         
@@ -214,7 +209,7 @@ extension TimeInterval {
     }
 }
 
-extension AgoraBaseWidget {
+extension AgoraBaseWidget {    
     var isTeacher: Bool {
         return info.localUserInfo.userRole == "teacher"
     }

@@ -26,13 +26,6 @@ class AgoraCloudView: UIView {
 // MARK: - AgoraUIContentContainer
 extension AgoraCloudView: AgoraUIContentContainer {
     func initViews() {
-        let config = UIConfig.cloudStorage
-        
-        layer.shadowColor = config.shadow.color
-        layer.shadowOffset = config.shadow.offset
-        layer.shadowOpacity = config.shadow.opacity
-        layer.shadowRadius = config.shadow.radius
-        
         listView.contentInset = .zero
         listView.tableFooterView = UIView()
         listView.separatorInset = .zero
