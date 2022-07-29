@@ -111,6 +111,32 @@ struct FcrWidgetUIItemPopupQuizResult: FcrWidgetUIItemProtocol {
     var myAnswerTitle: String              = "fcr_popup_quiz_my_answer".widgets_localized()
 }
 
+// MARK: - Counter
+struct FcrWidgetUIItemCounterHeader: FcrWidgetUIItemProtocol {
+    var visible: Bool                  = true
+    var enable: Bool                   = true
+   
+    var font: UIFont                   = FcrWidgetUIFontGroup.font9
+    var textColor: UIColor             = FcrWidgetUIColorGroup.textLevel1Color
+    var sepLineColor: UIColor          = FcrWidgetUIColorGroup.systemDividerColor
+}
+
+struct FcrWidgetUIItemCounterColon: FcrWidgetUIItemProtocol {
+    var visible: Bool                  = true
+    var enable: Bool                   = true
+   
+    var font: UIFont                   = FcrWidgetUIFontGroup.font10
+    var textColor: UIColor             = FcrWidgetUIColorGroup.textLevel2Color
+}
+
+struct FcrWidgetUIItemCounterTime: FcrWidgetUIItemProtocol {
+    var visible: Bool                  = true
+    var enable: Bool                   = true
+   
+    var textAlignment: NSTextAlignment = .left
+    var font: UIFont                   = FcrWidgetUIFontGroup.font9
+    var textColor: UIColor             = FcrWidgetUIColorGroup.textLevel1Color
+}
 // MARK: - Poll
 struct FcrWidgetUIItemPollName: FcrWidgetUIItemProtocol {
     var visible: Bool                  = true
@@ -230,15 +256,15 @@ struct FcrWidgetUIItemCloudStorageCellImage: FcrWidgetUIItemProtocol {
     var visible: Bool                        = true
     var enable: Bool                         = true
     
-    let pptImage: UIImage? = .agora_widget_image("format-PPT")
-    let docImage: UIImage? = .agora_widget_image("format-word")
-    let excelImage: UIImage? = .agora_widget_image("format-excel")
-    let pdfImage: UIImage? = .agora_widget_image("format-pdf")
-    let picImage: UIImage? = .agora_widget_image("format-pic")
-    let audioImage: UIImage? = .agora_widget_image("format-audio")
-    let videoImage: UIImage? = .agora_widget_image("format-video")
-    let alfImage: UIImage? = .agora_widget_image("format-alf")
-    let unknownImage: UIImage? = .agora_widget_image("format-unknown")
+    let pptImage: UIImage?      = .agora_widget_image("format-PPT")
+    let docImage: UIImage?      = .agora_widget_image("format-word")
+    let excelImage: UIImage?    = .agora_widget_image("format-excel")
+    let pdfImage: UIImage?      = .agora_widget_image("format-pdf")
+    let picImage: UIImage?      = .agora_widget_image("format-pic")
+    let audioImage: UIImage?    = .agora_widget_image("format-audio")
+    let videoImage: UIImage?    = .agora_widget_image("format-video")
+    let alfImage: UIImage?      = .agora_widget_image("format-alf")
+    let unknownImage: UIImage?  = .agora_widget_image("format-unknown")
 }
 
 struct FcrWidgetUIItemCloudStorageRefresh: FcrWidgetUIItemProtocol {
@@ -312,9 +338,9 @@ struct FcrWidgetUIItemAgoraChatMute: FcrWidgetUIItemProtocol {
     var visible: Bool    = true
     var enable: Bool     = true
     
-    var fieldtext: String         = "fcr_hyphenate_im_mute".widgets_localized()
-    var muteTextWithName: String = "fcr_hyphenate_im_muted_by_teacher".widgets_localized()
-    var unmuteTextWithName: String = "fcr_hyphenate_im_unmuted_by_teacher".widgets_localized()
+    var fieldtext: String           = "fcr_hyphenate_im_mute".widgets_localized()
+    var muteTextWithName: String    = "fcr_hyphenate_im_muted_by_teacher".widgets_localized()
+    var unmuteTextWithName: String  = "fcr_hyphenate_im_unmuted_by_teacher".widgets_localized()
 }
 
 struct FcrWidgetUIItemAgoraChatMessage: FcrWidgetUIItemProtocol {
@@ -323,8 +349,8 @@ struct FcrWidgetUIItemAgoraChatMessage: FcrWidgetUIItemProtocol {
     
     var placeholderText: String     = "fcr_hyphenate_im_input_placeholder".widgets_localized()
     var nilText: String             = "fcr_hyphenate_im_no_message".widgets_localized()
-    var nilLabelFont: UIFont         = FcrWidgetUIFontGroup.font12
-    var nilLabelColor: UIColor       = FcrWidgetUIColorGroup.textLevel2Color
+    var nilLabelFont: UIFont        = FcrWidgetUIFontGroup.font12
+    var nilLabelColor: UIColor      = FcrWidgetUIColorGroup.textLevel2Color
     var nilImage: UIImage?          = .agora_widget_image("icon_message_none")
     
     var sendBar = FcrWidgetUIItemAgoraChatMessageSendBar()
@@ -337,23 +363,23 @@ struct FcrWidgetUIItemAgoraChatMessageCell: FcrWidgetUIItemProtocol {
     var visible: Bool                        = true
     var enable: Bool                         = true
     
-    var backgroundColor: UIColor = FcrWidgetUIColorGroup.iconSelectedBackgroundColor
-    var borderColor: UIColor     = FcrWidgetUIColorGroup.systemDividerColor
+    var backgroundColor: UIColor        = FcrWidgetUIColorGroup.iconSelectedBackgroundColor
+    var borderColor: UIColor            = FcrWidgetUIColorGroup.systemDividerColor
     
-    var avatarCornerRadius: CGFloat = FcrWidgetUIFrameGroup.roundContainerCornerRadius
+    var avatarCornerRadius: CGFloat     = FcrWidgetUIFrameGroup.roundContainerCornerRadius
     
-    var nameColor: UIColor = FcrWidgetUIColorGroup.textLevel1Color
-    var nameFont: UIFont = FcrWidgetUIFontGroup.font13
+    var nameColor: UIColor              = FcrWidgetUIColorGroup.textLevel1Color
+    var nameFont: UIFont                = FcrWidgetUIFontGroup.font13
     
-    var roleColor: UIColor = FcrWidgetUIColorGroup.textLevel2Color
-    var roleFont: UIFont = FcrWidgetUIFontGroup.font12
-    var roleBorderColor: UIColor = FcrWidgetUIColorGroup.systemDividerColor
-    var roleBorderWidth: CGFloat = FcrWidgetUIFrameGroup.borderWidth
-    var roleCornerRadius: CGFloat = FcrWidgetUIFrameGroup.containerCornerRadius
+    var roleColor: UIColor              = FcrWidgetUIColorGroup.textLevel2Color
+    var roleFont: UIFont                = FcrWidgetUIFontGroup.font12
+    var roleBorderColor: UIColor        = FcrWidgetUIColorGroup.systemDividerColor
+    var roleBorderWidth: CGFloat        = FcrWidgetUIFrameGroup.borderWidth
+    var roleCornerRadius: CGFloat       = FcrWidgetUIFrameGroup.containerCornerRadius
     
-    var messageCornerRadius: CGFloat = FcrWidgetUIFrameGroup.containerCornerRadius
-    var messageColor: UIColor = FcrWidgetUIColorGroup.textLevel1Color
-    var messageFont: UIFont = FcrWidgetUIFontGroup.font13
+    var messageCornerRadius: CGFloat    = FcrWidgetUIFrameGroup.containerCornerRadius
+    var messageColor: UIColor           = FcrWidgetUIColorGroup.textLevel1Color
+    var messageFont: UIFont             = FcrWidgetUIFontGroup.font13
 }
 
 struct FcrWidgetUIItemAgoraChatMessageSendBar: FcrWidgetUIItemProtocol {
@@ -371,25 +397,25 @@ struct FcrWidgetUIItemAgoraChatNoticeCell: FcrWidgetUIItemProtocol {
     var visible: Bool                        = true
     var enable: Bool                         = true
     
-    var backgroundColor: UIColor = FcrWidgetUIColorGroup.iconSelectedBackgroundColor
-    var image: UIImage? = .agora_widget_image("icon_caution")
+    var backgroundColor: UIColor    = FcrWidgetUIColorGroup.iconSelectedBackgroundColor
+    var image: UIImage?             = .agora_widget_image("icon_caution")
     
-    var labelColor: UIColor = FcrWidgetUIColorGroup.textLevel1Color
-    var labelFont: UIFont   = FcrWidgetUIFontGroup.font13
+    var labelColor: UIColor         = FcrWidgetUIColorGroup.textLevel1Color
+    var labelFont: UIFont           = FcrWidgetUIFontGroup.font13
 }
 
 struct FcrWidgetUIItemAgoraChatInput: FcrWidgetUIItemProtocol {
     var visible: Bool                        = true
     var enable: Bool                         = true
     
-    var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemBackgroundColor
-    var fieldBackgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
-    var fieldTextColor: UIColor = FcrWidgetUIColorGroup.textLevel1Color
+    var backgroundColor: UIColor            = FcrWidgetUIColorGroup.systemBackgroundColor
+    var fieldBackgroundColor: UIColor       = FcrWidgetUIColorGroup.systemComponentColor
+    var fieldTextColor: UIColor             = FcrWidgetUIColorGroup.textLevel1Color
     
-    var sendButtonTitleColor: UIColor = FcrWidgetUIColorGroup.textContrastColor
-    var sendButtonBackgroundColor: UIColor = FcrWidgetUIColorGroup.systemBrandColor
-    var sendButtonTitleFont: UIFont   = FcrWidgetUIFontGroup.font14
-    var cornerRadius: CGFloat = FcrWidgetUIFrameGroup.containerCornerRadius
+    var sendButtonTitleColor: UIColor       = FcrWidgetUIColorGroup.textContrastColor
+    var sendButtonBackgroundColor: UIColor  = FcrWidgetUIColorGroup.systemBrandColor
+    var sendButtonTitleFont: UIFont         = FcrWidgetUIFontGroup.font14
+    var cornerRadius: CGFloat               = FcrWidgetUIFrameGroup.containerCornerRadius
 }
 
 struct FcrWidgetUIItemAgoraChatTopBar: FcrWidgetUIItemProtocol {
@@ -405,14 +431,19 @@ struct FcrWidgetUIItemAnnouncement: FcrWidgetUIItemProtocol {
     var visible: Bool                        = true
     var enable: Bool                         = true
     
-    var labelFont: UIFont =  FcrWidgetUIFontGroup.font13
-    var labelColor: UIColor = FcrWidgetUIColorGroup.textLevel1Color
+    var labelFont: UIFont               =  FcrWidgetUIFontGroup.font13
+    var labelColor: UIColor             = FcrWidgetUIColorGroup.textLevel1Color
     
-    var nilImage: UIImage? = .agora_widget_image("icon_announcement_none")
-    var nilText: String     = "fcr_hyphenate_im_no_announcement".widgets_localized()
+    var buttonBackgroundColor: UIColor  = FcrWidgetUIColorGroup.systemBackgroundColor
+    var buttonTitleFont: UIFont         =  FcrWidgetUIFontGroup.font12
+    var buttonTitleColor: UIColor       = FcrWidgetUIColorGroup.textLevel2Color
+    var buttonImage: UIImage?           = .agora_widget_image("icon_notice")
     
-    var nilLabelFont: UIFont         = FcrWidgetUIFontGroup.font12
-    var nilLabelColor: UIColor       = FcrWidgetUIColorGroup.textLevel2Color
+    var nilImage: UIImage?              = .agora_widget_image("icon_announcement_none")
+    var nilText: String                 = "fcr_hyphenate_im_no_announcement".widgets_localized()
+    
+    var nilLabelFont: UIFont            = FcrWidgetUIFontGroup.font12
+    var nilLabelColor: UIColor          = FcrWidgetUIColorGroup.textLevel2Color
 }
 
 // MARK: - NetlessBoard
@@ -423,9 +454,9 @@ struct FcrWidgetUIItemNetlessBoardPageControl: FcrWidgetUIItemProtocol {
     let backgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
     let cornerRadius: CGFloat    = FcrWidgetUIFrameGroup.roundContainerCornerRadius
     
-    let addPageImage: UIImage?  = .agora_widget_image("ic_board_page_add")
-    let prevPageImage: UIImage? = .agora_widget_image("ic_board_page_pre")
-    let nextPageImage: UIImage? = .agora_widget_image("ic_board_page_next")
+    let addPageImage: UIImage?   = .agora_widget_image("ic_board_page_add")
+    let prevPageImage: UIImage?  = .agora_widget_image("ic_board_page_pre")
+    let nextPageImage: UIImage?  = .agora_widget_image("ic_board_page_next")
     
     let sepLine        = FcrWidgetUIItemSepLine()
     let pageLabel      = FcrWidgetUIItemNetlessBoardPageLabel()
@@ -456,6 +487,12 @@ struct FcrWidgetUIItemNetlessBoardSelector: FcrWidgetUIItemProtocol {
     let selectedImage: UIImage?   = .agora_widget_image("toolcollection_selected_area")
 }
 
+struct FcrWidgetUIItemNetlessBoardCourseware: FcrWidgetUIItemProtocol {
+    var visible: Bool = true
+    var enable: Bool  = true
+    
+    var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
+}
 struct FcrWidgetUIItemNetlessBoardPaint: FcrWidgetUIItemProtocol {
     var visible: Bool = true
     var enable: Bool  = true

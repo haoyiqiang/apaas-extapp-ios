@@ -73,7 +73,10 @@ public class AgoraCountdownSingleTimeView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
         initViews()
+        initViewFrame()
+        updateViewProperties()
     }
     
     required init?(coder: NSCoder) {
@@ -111,8 +114,8 @@ extension AgoraCountdownSingleTimeGroup {
     }
 }
 
-// MARK: - Private
-private extension AgoraCountdownSingleTimeGroup {
+// MARK: - AgoraUIContentContainer
+extension AgoraCountdownSingleTimeGroup: AgoraUIContentContainer {
     func initViews() {
         upPageView.layer.transform = CATransform3DMakeRotation(CGFloat(Double.pi * -0.1),
                                                                1,
@@ -127,14 +130,26 @@ private extension AgoraCountdownSingleTimeGroup {
                                                                  0)
         addSubview(downPageView)
         addSubview(lineImgView)
+
+        self.isUserInteractionEnabled = false
+    }
+    
+    func initViewFrame() {
         lineImgView.mas_makeConstraints { make in
             make?.left.right().centerY().equalTo()(0)
             make?.height.equalTo()(1)
         }
-        
-        self.isUserInteractionEnabled = false
     }
     
+    func updateViewProperties() {
+        
+    }
+    
+    
+}
+
+// MARK: - Private
+private extension AgoraCountdownSingleTimeGroup {
     func maskTopView() {
         let height = self.bounds.height
         let path = UIBezierPath(rect: CGRect(x: 0,

@@ -123,6 +123,7 @@ extension AgoraChatMainView: AgoraUIContentContainer {
         addSubview(bottomBar)
         
         topBar.delegate = self
+        contentView.delegate = self
         bottomBar.delegate = self
     }
     
@@ -151,15 +152,25 @@ extension AgoraChatMainView: AgoraUIContentContainer {
 // MARK: - view delegate
 extension AgoraChatMainView: AgoraChatTopBarDelegate,
                              AgoraChatBottomBarDelegate,
+                             AgoraChatContentViewDelegate,
                              UIImagePickerControllerDelegate,
                              UINavigationControllerDelegate {
     // MARK: AgoraChatTopBarDelegate
     func didSelectMessage() {
+        topBar.foucusOnMessageTab(true)
         contentView.contentType = .messages
         bottomBar.agora_visible = true
     }
     
     func didSelectAnnouncement() {
+        topBar.foucusOnMessageTab(false)
+        contentView.contentType = .announcement
+        bottomBar.agora_visible = false
+    }
+    
+    // MARK: AgoraChatContentViewDelegate
+    func didTouchAnnouncement() {
+        topBar.foucusOnMessageTab(false)
         contentView.contentType = .announcement
         bottomBar.agora_visible = false
     }

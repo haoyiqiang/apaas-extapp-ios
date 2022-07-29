@@ -65,8 +65,8 @@ class AgoraPollReceiverView: UIView, AgoraUIContentContainer {
         
         backgroundColor = component.backgroundColor
         
-        layer.borderColor = component.boardColor.cgColor
-        layer.borderWidth = component.boardWidth
+        layer.borderColor = component.borderColor.cgColor
+        layer.borderWidth = component.borderWidth
         layer.cornerRadius = component.cornerRadius
         
         agora_all_sub_views_update_view_properties()

@@ -32,39 +32,48 @@ struct FcrWidgetUIComponentWebView: FcrWidgetUIComponentProtocol {
     var boardWidth: CGFloat = 1
     var cornerRadius: CGFloat = 4
     
-    let name = FcrWidgetUIItemWebViewName()
+    let name    = FcrWidgetUIItemWebViewName()
     let refresh = FcrWidgetUIItemWebViewRefresh()
-    let scale = FcrWidgetUIItemWebViewScale()
-    let close = FcrWidgetUIItemWebViewClose()
+    let scale   = FcrWidgetUIItemWebViewScale()
+    let close   = FcrWidgetUIItemWebViewClose()
     // iOS ui
     let sepLine = FcrWidgetUIItemSepLine()
-    let shadow = FcrWidgetUIItemShadow()
+    let shadow  = FcrWidgetUIItemShadow()
 }
 
 struct FcrWidgetUIComponentPopupQuiz: FcrWidgetUIComponentProtocol {
-    var visible: Bool = true
-    var enable: Bool = true
-    var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemForegroundColor
+    var visible: Bool                  = true
+    var enable: Bool                   = true
+    var backgroundColor: UIColor       = FcrWidgetUIColorGroup.systemForegroundColor
     
     var headerBackgroundColor: UIColor = FcrWidgetUIColorGroup.systemBackgroundColor
-    var boardColor: UIColor = FcrWidgetUIColorGroup.borderColor
-    var boardWidth: CGFloat = 1
-    var cornerRadius: CGFloat = 4
+    var boardColor: UIColor            = FcrWidgetUIColorGroup.borderColor
+    var boardWidth: CGFloat            = 1
+    var cornerRadius: CGFloat          = 4
     
-    let name = FcrWidgetUIItemPopupQuizName()
-    let time = FcrWidgetUIItemPopupQuizTime()
-    let option = FcrWidgetUIItemPopupQuizOption()
-    let submit = FcrWidgetUIItemPopupQuizSubmit()
-    let result = FcrWidgetUIItemPopupQuizResult()
+    let name    = FcrWidgetUIItemPopupQuizName()
+    let time    = FcrWidgetUIItemPopupQuizTime()
+    let option  = FcrWidgetUIItemPopupQuizOption()
+    let submit  = FcrWidgetUIItemPopupQuizSubmit()
+    let result  = FcrWidgetUIItemPopupQuizResult()
     // iOS ui
     let sepLine = FcrWidgetUIItemSepLine()
-    let shadow = FcrWidgetUIItemShadow()
+    let shadow  = FcrWidgetUIItemShadow()
 }
 
 struct FcrWidgetUIComponentCounter: FcrWidgetUIComponentProtocol {
-    var visible: Bool = true
-    var enable: Bool = true
-    var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemForegroundColor
+    var visible: Bool            = true
+    var enable: Bool             = true
+    var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
+    
+    let header                  = FcrWidgetUIItemCounterHeader()
+    let colon                   = FcrWidgetUIItemCounterColon()
+    let time                    = FcrWidgetUIItemCounterTime()
+    
+    let cornerRadius: CGFloat   = FcrWidgetUIFrameGroup.containerCornerRadius
+    var borderColor: UIColor    = FcrWidgetUIColorGroup.borderColor
+    var borderWidth: CGFloat    = FcrWidgetUIFrameGroup.borderWidth
+    let shadow                  = FcrWidgetUIItemShadow()
 }
 
 struct FcrWidgetUIComponentCloudStorage: FcrWidgetUIComponentProtocol {
@@ -88,26 +97,27 @@ struct FcrWidgetUIComponentCloudStorage: FcrWidgetUIComponentProtocol {
 }
 
 struct FcrWidgetUIComponentPoll: FcrWidgetUIComponentProtocol {
-    var visible: Bool = true
-    var enable: Bool = true
-    var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemForegroundColor
-    var headerBackgroundColor: UIColor = FcrWidgetUIColorGroup.systemBackgroundColor
-    var boardColor: UIColor = FcrWidgetUIColorGroup.borderColor
-    var boardWidth: CGFloat = FcrWidgetUIFrameGroup.borderWidth
-    var cornerRadius: CGFloat = 4
+    var visible: Bool                   = true
+    var enable: Bool                    = true
+    var backgroundColor: UIColor        = FcrWidgetUIColorGroup.systemForegroundColor
     
-    let name = FcrWidgetUIItemPollName()
-    let title = FcrWidgetUIItemPollTitle()
-    let option = FcrWidgetUIItemPollOption()
-    let result = FcrWidgetUIItemPollResult()
-    let submit = FcrWidgetUIItemPollSubmit()
-    let shadow = FcrWidgetUIItemShadow()
+    var headerBackgroundColor: UIColor  = FcrWidgetUIColorGroup.systemBackgroundColor
+    var borderColor: UIColor            = FcrWidgetUIColorGroup.borderColor
+    var borderWidth: CGFloat            = FcrWidgetUIFrameGroup.borderWidth
+    var cornerRadius: CGFloat           = 4
+    
+    let name    = FcrWidgetUIItemPollName()
+    let title   = FcrWidgetUIItemPollTitle()
+    let option  = FcrWidgetUIItemPollOption()
+    let result  = FcrWidgetUIItemPollResult()
+    let submit  = FcrWidgetUIItemPollSubmit()
+    let shadow  = FcrWidgetUIItemShadow()
     let sepLine = FcrWidgetUIItemSepLine()
 }
 
 struct FcrWidgetUIComponentNetlessBoard: FcrWidgetUIComponentProtocol {
-    var visible: Bool = true
-    var enable: Bool = true
+    var visible: Bool            = true
+    var enable: Bool             = true
     var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemForegroundColor
     /**Scene Builder Set**/
     var mouse       = FcrWidgetUIItemNetlessBoardMouse()
@@ -118,7 +128,7 @@ struct FcrWidgetUIComponentNetlessBoard: FcrWidgetUIComponentProtocol {
     var clear       = FcrWidgetUIItemNetlessBoardClear()
     var save        = FcrWidgetUIItemNetlessBoardSave()
     /**iOS**/
-    
+    var courseware  = FcrWidgetUIItemNetlessBoardCourseware()
     var paint       = FcrWidgetUIItemNetlessBoardPaint()
     var prev        = FcrWidgetUIItemNetlessBoardPrev()
     var next        = FcrWidgetUIItemNetlessBoardNext()
@@ -135,8 +145,8 @@ struct FcrWidgetUIComponentNetlessBoard: FcrWidgetUIComponentProtocol {
 }
 
 struct FcrWidgetUIComponentAgoraChat: FcrWidgetUIComponentProtocol {
-    var visible: Bool = true
-    var enable: Bool = true
+    var visible: Bool            = true
+    var enable: Bool             = true
     var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
     /**scene builder set**/
     var muteAll      = FcrWidgetUIItemAgoraChatMuteAll()

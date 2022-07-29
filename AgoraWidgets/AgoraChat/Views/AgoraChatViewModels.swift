@@ -44,7 +44,14 @@ enum AgoraChatMessageViewType {
     case notice(String)
 }
 
-struct AgoraChatTextMessageModel {
+protocol AgoraChatMessageModel {
+    var isLocal: Bool { get set }
+    var userRole: String { get set }
+    var userName: String { get set }
+    var avatar: String? { get set }
+}
+
+struct AgoraChatTextMessageModel: AgoraChatMessageModel {
     var isLocal: Bool = false
     var userRole: String
     var userName: String
@@ -52,7 +59,7 @@ struct AgoraChatTextMessageModel {
     var text: String
 }
 
-struct AgoraChatImageMessageModel {
+struct AgoraChatImageMessageModel: AgoraChatMessageModel {
     var isLocal: Bool = false
     var userRole: String
     var userName: String

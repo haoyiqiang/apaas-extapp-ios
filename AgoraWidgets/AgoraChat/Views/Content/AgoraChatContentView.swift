@@ -9,17 +9,23 @@ import AgoraUIBaseViews
 import SDWebImage
 import UIKit
 
+protocol AgoraChatContentViewDelegate: NSObjectProtocol {
+    func didTouchAnnouncement()
+}
+
 class AgoraChatContentView: UIView {
     /**views**/
     private lazy var messageListView = UITableView(frame: .zero,
                                                    style: .plain)
     
     private lazy var annoucementLabel = UILabel(frame: .zero)
+    private lazy var annoucementButton = UIButton(type: .custom)
     
     private lazy var nilImageView = UIImageView(frame: .zero)
     private lazy var nilLabel = UILabel(frame: .zero)
     
     /**data**/
+    weak var delegate: AgoraChatContentViewDelegate?
     var messageDataSource = [AgoraChatMessageViewType]() {
         didSet {
             updateMessageList()
@@ -38,10 +44,14 @@ class AgoraChatContentView: UIView {
             guard let text = announcementText,
                   text.count > 0 else {
                 annoucementLabel.text = nil
+                annoucementButton.setTitle(nil,
+                                           for: .normal)
                 updateContentType()
                 return
             }
             annoucementLabel.text = announcementText
+            annoucementButton.setTitle(announcementText,
+                                       for: .normal)
             updateContentType()
         }
     }
@@ -84,10 +94,18 @@ extension AgoraChatContentView: AgoraUIContentContainer {
         annoucementLabel.textAlignment = .left
         annoucementLabel.numberOfLines = 0
         
+        annoucementButton.titleLabel?.numberOfLines = 1
+        annoucementButton.titleLabel?.lineBreakMode = .byTruncatingTail
+        annoucementButton.imageView?.contentMode = .scaleAspectFit
+        annoucementButton.addTarget(self,
+                                    action: #selector(onClickAnnouncement(_:)),
+                                    for: .touchUpInside)
+        
         addSubviews([messageListView,
                      annoucementLabel,
                      nilImageView,
-                     nilLabel])
+                     nilLabel,
+                     annoucementButton])
         
         let config = UIConfig.agoraChat
         messageListView.agora_enable = config.message.enable
@@ -95,6 +113,8 @@ extension AgoraChatContentView: AgoraUIContentContainer {
         
         annoucementLabel.agora_enable = config.announcement.enable
         annoucementLabel.agora_visible = false
+        annoucementButton.agora_enable = config.announcement.enable
+        annoucementButton.agora_visible = false
         
         nilImageView.agora_visible = true
         nilLabel.agora_visible = true
@@ -122,6 +142,11 @@ extension AgoraChatContentView: AgoraUIContentContainer {
             make?.center.equalTo()(self)
             make?.width.height().lessThanOrEqualTo()(self)?.offset()(-14)
         }
+        
+        annoucementButton.mas_makeConstraints { make in
+            make?.width.left().top().equalTo()(self)
+            make?.height.equalTo()(24)
+        }
     }
     
     func updateViewProperties() {
@@ -131,6 +156,12 @@ extension AgoraChatContentView: AgoraUIContentContainer {
         
         annoucementLabel.font = config.announcement.labelFont
         annoucementLabel.textColor = config.announcement.labelColor
+        
+        annoucementButton.backgroundColor = config.announcement.buttonBackgroundColor
+        annoucementButton.titleLabel?.font = config.announcement.buttonTitleFont
+        annoucementButton.setTitleColorForAllStates(config.announcement.buttonTitleColor)
+        annoucementButton.setImage(config.announcement.buttonImage,
+                                   for: .normal)
     }
 }
 
@@ -154,15 +185,40 @@ extension AgoraChatContentView: UITableViewDelegate, UITableViewDataSource {
             let id = (model.isLocal) ? AgoraChatCommonMessageCell.sendId : AgoraChatCommonMessageCell.receiveId
             let cell = tableView.dequeueReusableCell(withIdentifier: id,
                                                      for: indexPath) as! AgoraChatCommonMessageCell
-            updateTextMessageCell(cell: cell,
-                                  model: model)
+            updateMessageCellBaseInfo(cell: cell,
+                                      model: model,
+                                      isText: true)
+            
+            cell.messageLabel.text = model.text
+            cell.updateFrame()
             return cell
         case .image(let model):
             let id = (model.isLocal) ? AgoraChatCommonMessageCell.sendId : AgoraChatCommonMessageCell.receiveId
             let cell = tableView.dequeueReusableCell(withIdentifier: id,
                                                      for: indexPath) as! AgoraChatCommonMessageCell
-            updateImageMessageCell(cell: cell,
-                                   model: model)
+            updateMessageCellBaseInfo(cell: cell,
+                                      model: model,
+                                      isText: false)
+            
+            if let image = model.image {
+                cell.messageImageView.image = image
+                let size = cell.sizeWithImage(image)
+                cell.messageImageView.size = size
+                cell.updateFrame()
+            } else {
+                let url = URL(string: model.imageRemoteUrl)
+                let brokenImage = UIConfig.agoraChat.picture.brokenImage
+                cell.messageImageView.sd_setImage(with: url,
+                                                  placeholderImage: brokenImage) { downloadImage, error, cacheType, url in
+                    cell.messageImageView.image = downloadImage
+                    let size = cell.sizeWithImage(downloadImage)
+                    cell.messageImageView.size = size
+                    cell.updateFrame()
+                    
+                    tableView.reloadRows(at: [indexPath],
+                                         with: .none)
+                }
+            }
             return cell
         case .notice(let noticeString):
             let cell = tableView.dequeueReusableCell(withIdentifier: AgoraChatNoticeMessageCell.id,
@@ -180,6 +236,8 @@ private extension AgoraChatContentView {
         let config = UIConfig.agoraChat
         switch contentType {
         case .messages:
+            annoucementButton.agora_visible = (annoucementButton.titleForNormal != nil)
+            
             guard messageDataSource.count > 0 else {
                 nilImageView.image = config.message.nilImage
                 
@@ -201,7 +259,9 @@ private extension AgoraChatContentView {
             messageListView.agora_visible = true
             annoucementLabel.agora_visible = false
         case .announcement:
-            guard let _ = annoucementLabel.text else {
+            annoucementButton.agora_visible = false
+            
+            guard let _ = announcementText else {
                 nilImageView.image = config.announcement.nilImage
                 nilLabel.text = config.announcement.nilText
                 
@@ -257,33 +317,10 @@ private extension AgoraChatContentView {
         cell.messageLabel.agora_visible = false
         cell.bubleView.agora_visible = false
         cell.messageImageView.agora_visible = true
-        
-        if let image = model.image {
-            cell.messageImageView.image = image
-            let size = cell.sizeWithImage(image)
-            cell.messageImageView.size = size
-        } else {
-            let url = URL(string: model.imageRemoteUrl)
-            cell.messageImageView.sd_setImage(with: url) { image, error, cacheType, url in
-                guard error == nil,
-                      let downloadImage = image else {
-                    let brokenImage = UIConfig.agoraChat.picture.brokenImage
-                    cell.messageImageView.image = brokenImage
-                    let size = cell.sizeWithImage(brokenImage)
-                    cell.messageImageView.size = size
-                    return
-                }
-                cell.messageImageView.image = downloadImage
-                let size = cell.sizeWithImage(downloadImage)
-                cell.messageImageView.size = size
-            }
-        }
-        
-        cell.updateFrame()
     }
-    
-    func updateTextMessageCell(cell: AgoraChatCommonMessageCell,
-                               model: AgoraChatTextMessageModel) {
+    func updateMessageCellBaseInfo(cell: AgoraChatCommonMessageCell,
+                                   model: AgoraChatMessageModel,
+                                   isText: Bool) {
         cell.nameLabel.text = model.userName
         
         if model.userRole.count > 0 {
@@ -297,16 +334,19 @@ private extension AgoraChatContentView {
            let url = URL(string: avatarUrl) {
             cell.avatarView.sd_setImage(with: url)
         }
-        cell.messageLabel.agora_visible = true
-        cell.bubleView.agora_visible = true
-        cell.messageImageView.agora_visible = false
         
-        cell.messageLabel.text = model.text
-        cell.updateFrame()
+        cell.messageLabel.agora_visible = isText
+        cell.bubleView.agora_visible = isText
+        cell.messageImageView.agora_visible = !isText
     }
     
     func updateNoticeMessageCell(cell: AgoraChatNoticeMessageCell,
                                  notice: String) {
         cell.noticeLabel.text = notice
       }
+    
+    // Actions
+    @objc func onClickAnnouncement(_ sender: UIButton) {
+        delegate?.didTouchAnnouncement()
+    }
 }

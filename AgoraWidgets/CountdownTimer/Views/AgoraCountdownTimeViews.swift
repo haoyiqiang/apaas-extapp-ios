@@ -5,29 +5,20 @@
 //  Created by Cavan on 2022/3/15.
 //
 
-import UIKit
+import AgoraUIBaseViews
 
-class AgoraCountdownHeaderView: UIView {
+class AgoraCountdownHeaderView: UIView, AgoraUIContentContainer {
     private let titleLabel = UILabel()
     private let lineLayer = CALayer()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
         initViews()
+        initViewFrame()
+        updateViewProperties()
     }
-    
-    private func initViews() {
-        titleLabel.text = "fcr_countdown_timer_title".widgets_localized()
-        titleLabel.textColor = UIColor(hexString: "#191919")
-        titleLabel.font = UIFont.systemFont(ofSize: 9)
-        lineLayer.backgroundColor = UIColor(hexString: "#EEEEF7")?.cgColor
-        
-        addSubview(titleLabel)
-        layer.addSublayer(lineLayer)
-        
-        backgroundColor = .white
-    }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -47,19 +38,57 @@ class AgoraCountdownHeaderView: UIView {
                                  width: bounds.width,
                                  height: 1)
     }
+    
+    
+    func initViews() {
+        titleLabel.text = "fcr_countdown_timer_title".widgets_localized()
+        
+        
+        addSubview(titleLabel)
+        layer.addSublayer(lineLayer)
+    }
+    
+    func initViewFrame() {
+        
+    }
+    
+    func updateViewProperties() {
+        let config = UIConfig.counter.header
+        backgroundColor = .white
+        
+        titleLabel.textColor = config.textColor
+        titleLabel.font = config.font
+        lineLayer.backgroundColor = config.sepLineColor.cgColor
+    }
 }
 
-class AgoraCountdownColonLabel: UILabel {
+class AgoraCountdownColonLabel: UILabel, AgoraUIContentContainer {
     override init(frame: CGRect) {
         super.init(frame: frame)
-        text = ":"
-        textColor = UIColor(hexString: "4D6277")
-        font = UIFont.boldSystemFont(ofSize: 10)
-        backgroundColor = .clear
-        textAlignment = .center
+        
+        initViews()
+        initViewFrame()
+        updateViewProperties()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func initViews() {
+        text = ":"
+        textAlignment = .center
+    }
+    
+    func initViewFrame() {
+        
+    }
+    
+    func updateViewProperties() {
+        let config = UIConfig.counter.colon
+        
+        backgroundColor = .clear
+        textColor = config.textColor
+        font = config.font
     }
 }

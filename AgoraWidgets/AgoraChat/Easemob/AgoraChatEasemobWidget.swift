@@ -364,6 +364,7 @@ extension AgoraChatEasemobWidget: AgoraChatEasemobDelegate {
     }
     
     func didReceiveAnnouncement(_ announcement: String?) {
+        sendSignal(.messageReceived)
         mainView.setAnnouncement(announcement)
     }
     

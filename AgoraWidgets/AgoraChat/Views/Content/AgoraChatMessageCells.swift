@@ -58,10 +58,7 @@ class AgoraChatCommonMessageCell: UITableViewCell, AgoraUIContentContainer {
     
     func updateFrame() {
         let toRight = (reuseIdentifier == AgoraChatCommonMessageCell.sendId)
-        messageImageView.mas_remakeConstraints { make in
 
-        }
-        
         guard !messageImageView.size.equalTo(.zero),
               messageImageView.agora_visible else {
             messageImageView.mas_remakeConstraints { make in
@@ -70,7 +67,6 @@ class AgoraChatCommonMessageCell: UITableViewCell, AgoraUIContentContainer {
                 } else {
                     make?.left.equalTo()(25)
                 }
-                
                 make?.top.equalTo()(avatarView.mas_bottom)?.offset()(17)
                 make?.size.equalTo()(0)
             }
@@ -83,10 +79,9 @@ class AgoraChatCommonMessageCell: UITableViewCell, AgoraUIContentContainer {
             } else {
                 make?.left.equalTo()(25)
             }
-            
             make?.top.equalTo()(avatarView.mas_bottom)?.offset()(17)
-            make?.size.equalTo()(size)
             make?.bottom.equalTo()(contentView)
+            make?.size.equalTo()(size)
         }
     }
     

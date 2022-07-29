@@ -166,11 +166,14 @@ private extension FcrBoardRoom {
         let length = UIDevice.current.agora_is_pad ? 34 : 32
         let left = UIDevice.current.agora_is_pad ? 15 : 12
         let bottom = UIDevice.current.agora_is_pad ? 20 : 15
+        let backgroundColor = UIConfig.netlessBoard.courseware.backgroundColor
+        
         let defaultCollectorStyles = ["position":"fixed",
                                       "left":"\(left)px",
                                       "bottom":"\(bottom)px",
                                       "width":"\(length)px",
-                                      "height":"\(length)px"]
+                                      "height":"\(length)px",
+                                      "backgroundColor": "\(backgroundColor.hexString)"]
         
         let params = WhiteWindowParams()
         params.chessboard = false

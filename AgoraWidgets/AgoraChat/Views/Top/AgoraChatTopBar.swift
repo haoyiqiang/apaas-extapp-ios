@@ -29,6 +29,24 @@ class AgoraChatTopBar: UIView {
         updateViewProperties()
     }
     
+    func foucusOnMessageTab(_ messageFlag: Bool) {
+        if messageFlag {
+            selectedLine.mas_remakeConstraints { make in
+                make?.width.equalTo()(buttonLength)
+                make?.height.equalTo()(2)
+                make?.bottom.equalTo()(0)
+                make?.centerX.equalTo()(messageButton.mas_centerX)
+            }
+        } else {
+            selectedLine.mas_remakeConstraints { make in
+                make?.width.equalTo()(buttonLength)
+                make?.height.equalTo()(2)
+                make?.bottom.equalTo()(0)
+                make?.centerX.equalTo()(announcementButton.mas_centerX)
+            }
+        }
+    }
+    
     func updateAnnouncementVisible(_ visible: Bool) {
         announcementButton.agora_visible = visible
         selectedLine.agora_visible = visible
@@ -90,22 +108,10 @@ extension AgoraChatTopBar: AgoraUIContentContainer {
 
 private extension AgoraChatTopBar {
     @objc func onClickMessage() {
-        selectedLine.mas_remakeConstraints { make in
-            make?.width.equalTo()(buttonLength)
-            make?.height.equalTo()(2)
-            make?.bottom.equalTo()(0)
-            make?.centerX.equalTo()(messageButton.mas_centerX)
-        }
         delegate?.didSelectMessage()
     }
     
     @objc func onClickAnnouncement() {
-        selectedLine.mas_remakeConstraints { make in
-            make?.width.equalTo()(buttonLength)
-            make?.height.equalTo()(2)
-            make?.bottom.equalTo()(0)
-            make?.centerX.equalTo()(announcementButton.mas_centerX)
-        }
         delegate?.didSelectAnnouncement()
     }
 }
