@@ -142,6 +142,31 @@ extension String {
     }
 }
 
+@objc public extension NSString {
+    func widgets_localized() -> String {
+        guard let widgetsBundle = Bundle.agora_bundle("AgoraWidgets") else {
+            return ""
+        }
+        
+        
+        if let language = agora_ui_language,
+           let languagePath = widgetsBundle.path(forResource: language,
+                                                 ofType: "lproj"),
+           let bundle = Bundle(path: languagePath) {
+            
+            return bundle.localizedString(forKey: self as String,
+                                          value: nil,
+                                          table: nil)
+        } else {
+            let text = widgetsBundle.localizedString(forKey: self as String,
+                                                     value: nil,
+                                                     table: nil)
+            
+            return text
+        }
+    }
+}
+
 public extension UIImage {
     @objc  static func agora_widget_image(_ name: String) -> UIImage? {
         let resource = "AgoraWidgets"
@@ -212,26 +237,6 @@ extension TimeInterval {
 extension AgoraBaseWidget {    
     var isTeacher: Bool {
         return info.localUserInfo.userRole == "teacher"
-    }
-    
-    func setUIMode() {
-        var mode: FcrWidgetsUIMode = .agoraLight
-        
-        if #available(iOS 13.0, *) {
-            let topVc = UIViewController.agora_top_view_controller()
-            let style = topVc.overrideUserInterfaceStyle
-            
-            mode = (style == .light ? .agoraLight : .agoraDark)
-        }
-        
-        FcrWidgetsUIGlobal.uiMode = mode
-    }
-    
-    func setUIConfig() {
-        guard let config = info.roomInfo.roomType.toUIConfig else {
-            return
-        }
-        UIConfig = config
     }
 }
 

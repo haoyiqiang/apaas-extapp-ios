@@ -20,10 +20,6 @@ public class AgoraNativeWidget: AgoraBaseWidget, AgoraWidgetLogTube {
         self.logger = logger
         
         super.init(widgetInfo: widgetInfo)
-        
-        // TODO: better
-        setUIMode()
-        setUIConfig()
     }
     
     public override func onLoad() {
