@@ -311,7 +311,7 @@ extension AgoraChatBottomBar: AgoraUIContentContainer {
 private extension AgoraChatBottomBar {
     func showImagePicker() {
         DispatchQueue.main.async { [weak self] in
-            let topVc = UIViewController.ag_topViewController()
+            let topVc = UIViewController.agora_top_view_controller()
             
             let imagePicker = UIImagePickerController()
             imagePicker.delegate = self

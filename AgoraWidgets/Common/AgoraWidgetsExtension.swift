@@ -218,7 +218,7 @@ extension AgoraBaseWidget {
         var mode: FcrWidgetsUIMode = .agoraLight
         
         if #available(iOS 13.0, *) {
-            let topVc = UIViewController.ag_topViewController()
+            let topVc = UIViewController.agora_top_view_controller()
             let style = topVc.overrideUserInterfaceStyle
             
             mode = (style == .light ? .agoraLight : .agoraDark)
