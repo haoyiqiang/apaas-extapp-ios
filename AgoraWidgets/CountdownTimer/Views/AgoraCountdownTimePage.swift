@@ -9,22 +9,10 @@
 import AgoraUIBaseViews
 import Foundation
 
-public class AgoraCountdownSingleTimeView: UIView {
-    private lazy var bgImageView: UIImageView = {
-        let image = UIImage.agora_widget_image("countdown_bg")
-        let view = UIImageView(image: image)
-        return view
-    }()
+public class AgoraCountdownSingleTimeView: UIView, AgoraUIContentContainer {
+    private lazy var bgImageView = UIImageView()
     
-    private(set) lazy var label: UILabel = {
-        let label = UILabel()
-        label.backgroundColor = .clear
-        label.text = "0"
-        label.textAlignment = .center
-        label.textColor = UIColor(hexString: "4D6277")
-        label.font = UIFont.boldSystemFont(ofSize: 17)
-        return label
-    }()
+    private(set) lazy var label = UILabel()
     
     public func turnColor(color: UIColor) {
         self.label.textColor = color
@@ -32,10 +20,24 @@ public class AgoraCountdownSingleTimeView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+   
+        initViews()
+        initViewFrame()
+        updateViewProperties()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    public func initViews() {
+        label.backgroundColor = .clear
+        label.text = "0"
         addSubview(bgImageView)
         addSubview(label)
-        
+    }
+    
+    public func initViewFrame() {
         bgImageView.mas_makeConstraints { make in
             make?.left.right().top().bottom().equalTo()(0)
         }
@@ -45,8 +47,13 @@ public class AgoraCountdownSingleTimeView: UIView {
         }
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    public func updateViewProperties() {
+        let config = UIConfig.counter.time
+        
+        bgImageView.image = config.image
+        label.textAlignment = config.textAlignment
+        label.textColor = config.normalTextColor
+        label.font = config.font
     }
 }
 
@@ -56,11 +63,7 @@ public class AgoraCountdownSingleTimeView: UIView {
     private lazy var upPageView: AgoraCountdownSingleTimeView = AgoraCountdownSingleTimeView(frame: .zero)
     private lazy var downPageView: AgoraCountdownSingleTimeView = AgoraCountdownSingleTimeView(frame: .zero)
     
-    private lazy var lineImgView: UIImageView = {
-        let image = UIImage.agora_widget_image("countdown_line")
-        let view = UIImageView(image: image)
-        return view
-    }()
+    private lazy var lineLayer = CALayer()
     
     private var timeStr: String = "" {
         didSet {
@@ -89,6 +92,11 @@ public class AgoraCountdownSingleTimeView: UIView {
         bottomView.frame = self.bounds
         upPageView.frame = self.bounds
         downPageView.frame = self.bounds
+        
+        lineLayer.frame = CGRect(center: self.center,
+                                 size: CGSize(width: self.width,
+                                              height: 1))
+        
         maskTopView()
         maskBottomView()
     }
@@ -129,23 +137,18 @@ extension AgoraCountdownSingleTimeGroup: AgoraUIContentContainer {
                                                                  0,
                                                                  0)
         addSubview(downPageView)
-        addSubview(lineImgView)
+        layer.addSublayer(lineLayer)
 
         self.isUserInteractionEnabled = false
     }
     
     func initViewFrame() {
-        lineImgView.mas_makeConstraints { make in
-            make?.left.right().centerY().equalTo()(0)
-            make?.height.equalTo()(1)
-        }
     }
     
     func updateViewProperties() {
-        
+        let config = UIConfig.counter
+        lineLayer.backgroundColor = config.sepColor.cgColor
     }
-    
-    
 }
 
 // MARK: - Private

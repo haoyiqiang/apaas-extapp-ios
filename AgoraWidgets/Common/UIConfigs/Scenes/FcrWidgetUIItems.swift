@@ -57,7 +57,7 @@ struct FcrWidgetUIItemPopupQuizOption: FcrWidgetUIItemProtocol {
     var selectedTextColor: UIColor         = FcrWidgetUIColorGroup.systemForegroundColor
     
     var unselectedBackgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
-    var unselectedBoardColor: UIColor      = FcrWidgetUIColorGroup.borderColor
+    var unselectedBoardColor: UIColor      = FcrWidgetUIColorGroup.systemDividerColor
     var unselectedTextColor: UIColor       = FcrWidgetUIColorGroup.textDisabledColor
     
     var disableBackgroundColor: UIColor    = UIColor(hex: 0xC0D6FF)!
@@ -116,6 +116,7 @@ struct FcrWidgetUIItemCounterHeader: FcrWidgetUIItemProtocol {
     var visible: Bool                  = true
     var enable: Bool                   = true
    
+    var backgroundColor: UIColor       = FcrWidgetUIColorGroup.iconSelectedBackgroundColor
     var font: UIFont                   = FcrWidgetUIFontGroup.font9
     var textColor: UIColor             = FcrWidgetUIColorGroup.textLevel1Color
     var sepLineColor: UIColor          = FcrWidgetUIColorGroup.systemDividerColor
@@ -133,9 +134,11 @@ struct FcrWidgetUIItemCounterTime: FcrWidgetUIItemProtocol {
     var visible: Bool                  = true
     var enable: Bool                   = true
    
-    var textAlignment: NSTextAlignment = .left
-    var font: UIFont                   = FcrWidgetUIFontGroup.font9
-    var textColor: UIColor             = FcrWidgetUIColorGroup.textLevel1Color
+    var image: UIImage?                = .agora_widget_image("countdown_bg")
+    var textAlignment: NSTextAlignment = .center
+    var font: UIFont                   = FcrWidgetUIFontGroup.font17.bold
+    var normalTextColor: UIColor       = FcrWidgetUIColorGroup.textLevel2Color
+    var warnTextColor: UIColor         = FcrWidgetUIColorGroup.systemErrorColor
 }
 // MARK: - Poll
 struct FcrWidgetUIItemPollName: FcrWidgetUIItemProtocol {
@@ -279,7 +282,7 @@ struct FcrWidgetUIItemCloudStorageSearch: FcrWidgetUIItemProtocol {
     var enable: Bool                         = true
     
     let backgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
-    let borderColor: UIColor     = FcrWidgetUIColorGroup.borderColor
+    let borderColor: UIColor     = FcrWidgetUIColorGroup.systemDividerColor
     let borderWidth: CGFloat     = FcrWidgetUIFrameGroup.borderWidth
     let font: UIFont             = FcrWidgetUIFontGroup.font12
 }
@@ -441,9 +444,76 @@ struct FcrWidgetUIItemAnnouncement: FcrWidgetUIItemProtocol {
     
     var nilImage: UIImage?              = .agora_widget_image("icon_announcement_none")
     var nilText: String                 = "fcr_hyphenate_im_no_announcement".widgets_localized()
+    var nilAndSetText: String           = "fcr_hyphenate_im_no_announcement_teacher".widgets_localized()
     
     var nilLabelFont: UIFont            = FcrWidgetUIFontGroup.font12
-    var nilLabelColor: UIColor          = FcrWidgetUIColorGroup.textLevel2Color
+    var nilLabelNormalColor: UIColor    = FcrWidgetUIColorGroup.textLevel2Color
+    var nilLabelLinkColor: UIColor      = FcrWidgetUIColorGroup.textEnabledColor
+    
+    var edit   = FcrWidgetUIItemAnnouncementEdit()
+    var delete = FcrWidgetUIItemAnnouncementDelete()
+    var field  = FcrWidgetUIItemAnnouncementField()
+    var cancel = FcrWidgetUIItemAnnouncementCancel()
+    var issue  = FcrWidgetUIItemAnnouncementIssue()
+}
+
+
+struct FcrWidgetUIItemAnnouncementEdit: FcrWidgetUIItemProtocol {
+    var visible: Bool                        = true
+    var enable: Bool                         = true
+    
+    var image: UIImage?  = .agora_widget_image("annoucement_edit")
+}
+
+
+struct FcrWidgetUIItemAnnouncementDelete: FcrWidgetUIItemProtocol {
+    var visible: Bool                        = true
+    var enable: Bool                         = true
+    
+    var image: UIImage?  = .agora_widget_image("annoucement_delete")
+}
+
+struct FcrWidgetUIItemAnnouncementField: FcrWidgetUIItemProtocol {
+    var visible: Bool                        = true
+    var enable: Bool                         = true
+    
+    var backgroundColor: UIColor        = FcrWidgetUIColorGroup.systemComponentColor
+    var borderColor: UIColor            = FcrWidgetUIColorGroup.systemDividerColor
+    var borderWidth: CGFloat            = FcrWidgetUIFrameGroup.borderWidth
+    var cornerRadius: CGFloat           = FcrWidgetUIFrameGroup.containerCornerRadius
+    var textColor: UIColor              = FcrWidgetUIColorGroup.textLevel1Color
+    var textFont: UIFont                = FcrWidgetUIFontGroup.font12
+    var textCountNormalColor: UIColor   = FcrWidgetUIColorGroup.textLevel1Color
+    var textCountWarnColor: UIColor     = FcrWidgetUIColorGroup.systemErrorColor
+    var textCountFont: UIFont           = FcrWidgetUIFontGroup.font12
+    var warnText: String                = "fcr_hyphenate_im_notice_up_to".widgets_localized()
+    var warnTextFont: UIFont            = FcrWidgetUIFontGroup.font10
+}
+
+struct FcrWidgetUIItemAnnouncementCancel: FcrWidgetUIItemProtocol {
+    var visible: Bool                        = true
+    var enable: Bool                         = true
+    
+    var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
+    var title: String            = "fcr_hyphenate_im_notice_cancel".widgets_localized()
+    var titleColor: UIColor      = FcrWidgetUIColorGroup.textLevel2Color
+    var titleFont: UIFont        = FcrWidgetUIFontGroup.font12
+    var borderColor: UIColor     = FcrWidgetUIColorGroup.systemDividerColor
+    var borderWidth: CGFloat     = FcrWidgetUIFrameGroup.borderWidth
+    let cornerRadius: CGFloat    = FcrWidgetUIFrameGroup.alertCornerRadius
+}
+
+struct FcrWidgetUIItemAnnouncementIssue: FcrWidgetUIItemProtocol {
+    var visible: Bool                        = true
+    var enable: Bool                         = true
+    
+    var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemBrandColor
+    var title: String            = "fcr_hyphenate_im_notice_send".widgets_localized()
+    var titleColor: UIColor      = FcrWidgetUIColorGroup.textContrastColor
+    var titleFont: UIFont        = FcrWidgetUIFontGroup.font12
+    var borderColor: UIColor     = FcrWidgetUIColorGroup.systemDividerColor
+    var borderWidth: CGFloat     = FcrWidgetUIFrameGroup.borderWidth
+    let cornerRadius: CGFloat    = FcrWidgetUIFrameGroup.alertCornerRadius
 }
 
 // MARK: - NetlessBoard

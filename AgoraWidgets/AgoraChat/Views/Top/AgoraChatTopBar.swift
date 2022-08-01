@@ -29,15 +29,16 @@ class AgoraChatTopBar: UIView {
         updateViewProperties()
     }
     
-    func foucusOnMessageTab(_ messageFlag: Bool) {
-        if messageFlag {
+    func foucusOnMessageTab(_ type: AgoraChatContentType) {
+        switch type {
+        case .messages:
             selectedLine.mas_remakeConstraints { make in
                 make?.width.equalTo()(buttonLength)
                 make?.height.equalTo()(2)
                 make?.bottom.equalTo()(0)
                 make?.centerX.equalTo()(messageButton.mas_centerX)
             }
-        } else {
+        case .announcement:
             selectedLine.mas_remakeConstraints { make in
                 make?.width.equalTo()(buttonLength)
                 make?.height.equalTo()(2)

@@ -1,58 +1,34 @@
 //
-//  AgoraChatMessageListView.swift
+//  AgoraChatMessageView.swift
 //  AgoraWidgets
 //
-//  Created by LYY on 2022/7/17.
+//  Created by DoubleCircle on 2022/7/30.
 //
 
 import AgoraUIBaseViews
 import SDWebImage
-import UIKit
 
-protocol AgoraChatContentViewDelegate: NSObjectProtocol {
-    func didTouchAnnouncement()
-}
-
-class AgoraChatContentView: UIView {
-    /**views**/
+class AgoraChatMessageView: UIView {
     private lazy var messageListView = UITableView(frame: .zero,
                                                    style: .plain)
-    
-    private lazy var annoucementLabel = UILabel(frame: .zero)
-    private lazy var annoucementButton = UIButton(type: .custom)
+    private(set) lazy var annoucementButton = UIButton(type: .custom)
     
     private lazy var nilImageView = UIImageView(frame: .zero)
     private lazy var nilLabel = UILabel(frame: .zero)
     
     /**data**/
-    weak var delegate: AgoraChatContentViewDelegate?
     var messageDataSource = [AgoraChatMessageViewType]() {
         didSet {
+            updateVisible()
             updateMessageList()
-            updateContentType()
         }
     }
     
-    var contentType: AgoraChatContentType = .messages {
+    var announcementText: String?  {
         didSet {
-            updateContentType()
-        }
-    }
-    
-    var announcementText: String? {
-        didSet {
-            guard let text = announcementText,
-                  text.count > 0 else {
-                annoucementLabel.text = nil
-                annoucementButton.setTitle(nil,
-                                           for: .normal)
-                updateContentType()
-                return
-            }
-            annoucementLabel.text = announcementText
             annoucementButton.setTitle(announcementText,
                                        for: .normal)
-            updateContentType()
+            annoucementButton.agora_visible = (announcementText != nil)
         }
     }
     
@@ -67,13 +43,24 @@ class AgoraChatContentView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    func updateVisible() {
+        guard messageDataSource.count > 0 else {
+            nilImageView.agora_visible = true
+            nilLabel.agora_visible = true
+            
+            messageListView.agora_visible = false
+            return
+        }
+        nilImageView.agora_visible = false
+        nilLabel.agora_visible = false
+        
+        messageListView.agora_visible = true
+    }
 }
 
-// MARK: - AgoraUIContentContainer
-extension AgoraChatContentView: AgoraUIContentContainer {
+extension AgoraChatMessageView: AgoraUIContentContainer {
     func initViews() {
-        messageListView.delegate = self
-        messageListView.dataSource = self
         messageListView.tableFooterView = UIView()
         messageListView.estimatedRowHeight = 60
         messageListView.estimatedSectionHeaderHeight = 0
@@ -82,6 +69,8 @@ extension AgoraChatContentView: AgoraUIContentContainer {
         messageListView.separatorStyle = .none
         messageListView.allowsMultipleSelection = false
         messageListView.allowsSelection = false
+        messageListView.delegate = self
+        messageListView.dataSource = self
         messageListView.register(AgoraChatCommonMessageCell.self,
                                  forCellReuseIdentifier: AgoraChatCommonMessageCell.sendId)
         messageListView.register(AgoraChatCommonMessageCell.self,
@@ -91,18 +80,11 @@ extension AgoraChatContentView: AgoraUIContentContainer {
         
         nilLabel.textAlignment = .center
         
-        annoucementLabel.textAlignment = .left
-        annoucementLabel.numberOfLines = 0
-        
         annoucementButton.titleLabel?.numberOfLines = 1
         annoucementButton.titleLabel?.lineBreakMode = .byTruncatingTail
         annoucementButton.imageView?.contentMode = .scaleAspectFit
-        annoucementButton.addTarget(self,
-                                    action: #selector(onClickAnnouncement(_:)),
-                                    for: .touchUpInside)
         
         addSubviews([messageListView,
-                     annoucementLabel,
                      nilImageView,
                      nilLabel,
                      annoucementButton])
@@ -111,8 +93,6 @@ extension AgoraChatContentView: AgoraUIContentContainer {
         messageListView.agora_enable = config.message.enable
         messageListView.agora_visible = false
         
-        annoucementLabel.agora_enable = config.announcement.enable
-        annoucementLabel.agora_visible = false
         annoucementButton.agora_enable = config.announcement.enable
         annoucementButton.agora_visible = false
         
@@ -138,11 +118,6 @@ extension AgoraChatContentView: AgoraUIContentContainer {
             make?.height.equalTo()(20);
         }
         
-        annoucementLabel.mas_makeConstraints { make in
-            make?.center.equalTo()(self)
-            make?.width.height().lessThanOrEqualTo()(self)?.offset()(-14)
-        }
-        
         annoucementButton.mas_makeConstraints { make in
             make?.width.left().top().equalTo()(self)
             make?.height.equalTo()(24)
@@ -154,19 +129,23 @@ extension AgoraChatContentView: AgoraUIContentContainer {
         
         messageListView.backgroundColor = config.backgroundColor
         
-        annoucementLabel.font = config.announcement.labelFont
-        annoucementLabel.textColor = config.announcement.labelColor
-        
         annoucementButton.backgroundColor = config.announcement.buttonBackgroundColor
         annoucementButton.titleLabel?.font = config.announcement.buttonTitleFont
         annoucementButton.setTitleColorForAllStates(config.announcement.buttonTitleColor)
         annoucementButton.setImage(config.announcement.buttonImage,
                                    for: .normal)
+        
+        nilImageView.image = config.message.nilImage
+        
+        nilLabel.text = config.message.nilText
+        
+        nilLabel.font = config.message.nilLabelFont
+        nilLabel.textColor = config.message.nilLabelColor
     }
 }
 
 // MARK: - table view
-extension AgoraChatContentView: UITableViewDelegate, UITableViewDataSource {
+extension AgoraChatMessageView: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -231,62 +210,12 @@ extension AgoraChatContentView: UITableViewDelegate, UITableViewDataSource {
 }
 
 // MARK: - private
-private extension AgoraChatContentView {
-    func updateContentType() {
-        let config = UIConfig.agoraChat
-        switch contentType {
-        case .messages:
-            annoucementButton.agora_visible = (annoucementButton.titleForNormal != nil)
-            
-            guard messageDataSource.count > 0 else {
-                nilImageView.image = config.message.nilImage
-                
-                nilLabel.text = config.message.nilText
-                
-                nilLabel.font = config.message.nilLabelFont
-                nilLabel.textColor = config.message.nilLabelColor
-                
-                nilImageView.agora_visible = true
-                nilLabel.agora_visible = true
-                
-                messageListView.agora_visible = false
-                annoucementLabel.agora_visible = false
-                return
-            }
-            nilImageView.agora_visible = false
-            nilLabel.agora_visible = false
-            
-            messageListView.agora_visible = true
-            annoucementLabel.agora_visible = false
-        case .announcement:
-            annoucementButton.agora_visible = false
-            
-            guard let _ = announcementText else {
-                nilImageView.image = config.announcement.nilImage
-                nilLabel.text = config.announcement.nilText
-                
-                nilLabel.font = config.announcement.nilLabelFont
-                nilLabel.textColor = config.announcement.nilLabelColor
-                
-                nilImageView.agora_visible = true
-                nilLabel.agora_visible = true
-                
-                messageListView.agora_visible = false
-                annoucementLabel.agora_visible = false
-                return
-            }
-            nilImageView.agora_visible = false
-            nilLabel.agora_visible = false
-            
-            messageListView.agora_visible = false
-            annoucementLabel.agora_visible = true
-        }
-    }
-    
+private extension AgoraChatMessageView {
     func updateMessageList() {
         if messageDataSource.count >= 150 {
             messageDataSource.removeSubrange(0..<50)
         }
+        
         DispatchQueue.main.async { [weak self] in
             guard let `self` = self else {
                 return
@@ -294,8 +223,8 @@ private extension AgoraChatContentView {
             self.messageListView.reloadData {
                 let index = IndexPath(row: self.messageDataSource.count - 1, section: 0)
                 self.messageListView.scrollToRow(at: index,
-                                                 at: .bottom,
-                                                 animated: true)
+                                                             at: .bottom,
+                                                             animated: true)
             }
         }
     }
@@ -344,9 +273,4 @@ private extension AgoraChatContentView {
                                  notice: String) {
         cell.noticeLabel.text = notice
       }
-    
-    // Actions
-    @objc func onClickAnnouncement(_ sender: UIButton) {
-        delegate?.didTouchAnnouncement()
-    }
 }

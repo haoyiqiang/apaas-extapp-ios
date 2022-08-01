@@ -100,9 +100,8 @@ import Armin
     }
 }
 
+// MARK: - AgoraChatMainViewDelegate
 extension AgoraChatRtmWidget: AgoraChatMainViewDelegate {
-    func onSendImageData(_ data: Data) {}
-    
     func onSendTextMessage(_ message: String) {
         let extra = ["message": message]
         log(content: "send text message",
@@ -112,15 +111,25 @@ extension AgoraChatRtmWidget: AgoraChatMainViewDelegate {
                                success: nil,
                                failure: nil)
     }
-    
-    func onClickAllMuted(_ isAllMuted: Bool) {}
-    
+        
     func onShowErrorMessage(_ errorMessage: String) {
         let extra = ["errorMessage": errorMessage]
         log(content: "error message",
             extra: extra.agDescription,
             type: .error)
         sendSignal(.error(errorMessage))
+    }
+    
+    func onSendImageData(_ data: Data) {
+        
+    }
+    
+    func onClickAllMuted(_ isAllMuted: Bool) {
+        
+    }
+    
+    func onSetAnnouncement(_ announcement: String?) {
+        
     }
 }
 

@@ -30,11 +30,12 @@ public class AgoraCountdownView: UIView {
             
             var color: UIColor
             
+            let config = UIConfig.counter.time
             switch timePageColor {
             case .normal:
-                color = UIColor(hexString: "4D6277")!
+                color = config.normalTextColor
             case .warning:
-                color = .red
+                color = config.warnTextColor
             }
             
             timePages.forEach { group in
@@ -47,6 +48,7 @@ public class AgoraCountdownView: UIView {
         super.init(frame: .zero)
         initViews()
         initViewFrame()
+        updateViewProperties()
     }
     
     func updateTimePages(timeList: [String]) {

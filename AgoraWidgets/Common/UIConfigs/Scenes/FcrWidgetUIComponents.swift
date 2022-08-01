@@ -20,7 +20,7 @@ struct FcrWidgetUIComponentStreamWindow: FcrWidgetUIComponentProtocol {
     
     let cornerRadius: CGFloat    = FcrWidgetUIFrameGroup.windowCornerRadius
     let borderWidth: CGFloat     = FcrWidgetUIFrameGroup.borderWidth
-    let borderColor: CGColor     = FcrWidgetUIColorGroup.borderColor.cgColor
+    let borderColor: CGColor     = FcrWidgetUIColorGroup.systemDividerColor.cgColor
 }
 
 struct FcrWidgetUIComponentWebView: FcrWidgetUIComponentProtocol {
@@ -28,7 +28,7 @@ struct FcrWidgetUIComponentWebView: FcrWidgetUIComponentProtocol {
     var enable: Bool = true
     var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemForegroundColor
     
-    var boardColor: UIColor = FcrWidgetUIColorGroup.borderColor
+    var boardColor: UIColor = FcrWidgetUIColorGroup.systemDividerColor
     var boardWidth: CGFloat = 1
     var cornerRadius: CGFloat = 4
     
@@ -47,7 +47,7 @@ struct FcrWidgetUIComponentPopupQuiz: FcrWidgetUIComponentProtocol {
     var backgroundColor: UIColor       = FcrWidgetUIColorGroup.systemForegroundColor
     
     var headerBackgroundColor: UIColor = FcrWidgetUIColorGroup.systemBackgroundColor
-    var boardColor: UIColor            = FcrWidgetUIColorGroup.borderColor
+    var boardColor: UIColor            = FcrWidgetUIColorGroup.systemDividerColor
     var boardWidth: CGFloat            = 1
     var cornerRadius: CGFloat          = 4
     
@@ -70,8 +70,9 @@ struct FcrWidgetUIComponentCounter: FcrWidgetUIComponentProtocol {
     let colon                   = FcrWidgetUIItemCounterColon()
     let time                    = FcrWidgetUIItemCounterTime()
     
+    let sepColor: UIColor       = FcrWidgetUIColorGroup.systemDividerColor.withAlphaComponent(0.3)
     let cornerRadius: CGFloat   = FcrWidgetUIFrameGroup.containerCornerRadius
-    var borderColor: UIColor    = FcrWidgetUIColorGroup.borderColor
+    var borderColor: UIColor    = FcrWidgetUIColorGroup.systemDividerColor
     var borderWidth: CGFloat    = FcrWidgetUIFrameGroup.borderWidth
     let shadow                  = FcrWidgetUIItemShadow()
 }
@@ -102,7 +103,7 @@ struct FcrWidgetUIComponentPoll: FcrWidgetUIComponentProtocol {
     var backgroundColor: UIColor        = FcrWidgetUIColorGroup.systemForegroundColor
     
     var headerBackgroundColor: UIColor  = FcrWidgetUIColorGroup.systemBackgroundColor
-    var borderColor: UIColor            = FcrWidgetUIColorGroup.borderColor
+    var borderColor: UIColor            = FcrWidgetUIColorGroup.systemDividerColor
     var borderWidth: CGFloat            = FcrWidgetUIFrameGroup.borderWidth
     var cornerRadius: CGFloat           = 4
     

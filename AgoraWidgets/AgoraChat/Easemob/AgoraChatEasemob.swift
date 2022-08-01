@@ -261,6 +261,24 @@ class AgoraChatEasemob: NSObject {
         // TODO: 移动端暂时没有该功能
     }
     
+    func setAnnouncement(_ announcement: String?) {
+        let extra = ["announcement": announcement ?? ""]
+        delegate?.onEasemobLog(content: "set announcement",
+                               extra: extra.agDescription,
+                               type: .info)
+        AgoraChatClient.shared().roomManager.updateChatroomAnnouncement(withId: chatRoomId,
+                                                                        announcement: announcement) { [weak self] (chatRoom,chatError) in
+            guard let error = chatError else {
+                return
+            }
+            let extra = ["announcement": announcement ?? "",
+                         "errorCode": "\(error.code)"]
+            self?.delegate?.onEasemobLog(content: "set announcement error",
+                                         extra: extra.agDescription,
+                                         type: .error)
+        }
+    }
+    
     func getAllMutedState(success: EasemobMuteStateCompletion?,
                           failure: EasemobFailureCompletion?) {
         let extra = ["chatRoomId": chatRoomId]

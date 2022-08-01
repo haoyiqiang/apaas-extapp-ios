@@ -143,14 +143,6 @@ struct FcrWidgetUIColorGroup {
         case .agoraDark:    return UIColor(hex: 0xFFFFFF)!
         }
     }
-     
-    // MARK: - UI Standard
-    static var borderColor: UIColor {
-        switch UIMode {
-        case .agoraLight:  return UIColor(hex: 0xEEEEF7)!
-        case .agoraDark:   return UIColor(hex: 0x373737)!
-        }
-    }
     
     // shadow
     static var textShadowColor: UIColor {

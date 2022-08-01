@@ -62,6 +62,7 @@ import AgoraChat
         super.onLoad()
         
         mainView.delegate = self
+        mainView.editAnnouncementEnabled = isTeacher
         view.addSubview(mainView)
 
         mainView.mas_makeConstraints { make in
@@ -142,6 +143,10 @@ extension AgoraChatEasemobWidget: AgoraChatMainViewDelegate {
             return
         }
         easemob?.muteAll(mute: isAllMuted)
+    }
+    
+    func onSetAnnouncement(_ announcement: String?) {
+        easemob?.setAnnouncement(announcement)
     }
     
     func onShowErrorMessage(_ errorMessage: String) {
@@ -260,7 +265,12 @@ private extension AgoraChatEasemobWidget {
         }
         
         easemob.getAnnouncement(success: { [weak self] announcement in
-            self?.mainView.setAnnouncement(announcement)
+            guard let text = announcement,
+            text.count > 0 else {
+                self?.mainView.setAnnouncement(nil)
+                return
+            }
+            self?.mainView.setAnnouncement(text)
         }, failure: failureHandle)
         
         fetchHistoryMessage()
@@ -364,8 +374,13 @@ extension AgoraChatEasemobWidget: AgoraChatEasemobDelegate {
     }
     
     func didReceiveAnnouncement(_ announcement: String?) {
+        guard let text = announcement,
+        text.count > 0 else {
+            mainView.setAnnouncement(nil)
+            return
+        }
         sendSignal(.messageReceived)
-        mainView.setAnnouncement(announcement)
+        mainView.setAnnouncement(text)
     }
     
     func didConnectionStateChaned(_ state: AgoraChatConnectionState) {

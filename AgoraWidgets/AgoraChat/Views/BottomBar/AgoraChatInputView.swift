@@ -84,8 +84,7 @@ extension AgoraChatInputView: UITextFieldDelegate {
 // MARK: - Actions
 private extension AgoraChatInputView {
     @objc func keyboardWillShow(noti: Notification) {
-        guard let duration = noti.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? CGFloat,
-              let frame = noti.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+        guard let frame = noti.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
             return
         }
         self.layoutIfNeeded()
@@ -94,21 +93,19 @@ private extension AgoraChatInputView {
             make?.bottom.equalTo()(-frame.size.height)
             make?.height.equalTo()(40)
         }
-        UIView.animate(withDuration: TimeInterval(duration)) {
+        
+        UIView.animate(withDuration: 0) {
             self.layoutIfNeeded()
         }
     }
     
     @objc func keyboardWillHide(noti: Notification) {
-        guard let duration = noti.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? CGFloat else {
-            return
-        }
         self.contentView.mas_remakeConstraints { make in
             make?.left.right().equalTo()(0)
             make?.bottom.equalTo()(0)
             make?.height.equalTo()(40)
         }
-        UIView.animate(withDuration: TimeInterval(duration)) {
+        UIView.animate(withDuration: 0) {
             self.layoutIfNeeded()
         } completion: { isFinish in
             self.removeFromSuperview()
@@ -217,7 +214,6 @@ extension AgoraChatInputView: AgoraUIContentContainer {
                 make?.left.equalTo()(20)
             }
             make?.right.equalTo()(self.emojiButton.mas_left)?.offset()(-10)
-            make?.height.equalTo()(40)
             make?.centerY.equalTo()(self.contentView)
         }
     }

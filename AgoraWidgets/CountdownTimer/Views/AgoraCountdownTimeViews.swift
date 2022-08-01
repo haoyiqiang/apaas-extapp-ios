@@ -43,7 +43,6 @@ class AgoraCountdownHeaderView: UIView, AgoraUIContentContainer {
     func initViews() {
         titleLabel.text = "fcr_countdown_timer_title".widgets_localized()
         
-        
         addSubview(titleLabel)
         layer.addSublayer(lineLayer)
     }
@@ -53,12 +52,13 @@ class AgoraCountdownHeaderView: UIView, AgoraUIContentContainer {
     }
     
     func updateViewProperties() {
-        let config = UIConfig.counter.header
-        backgroundColor = .white
+        let config = UIConfig.counter
+        backgroundColor = config.header.backgroundColor
         
-        titleLabel.textColor = config.textColor
-        titleLabel.font = config.font
-        lineLayer.backgroundColor = config.sepLineColor.cgColor
+        titleLabel.textColor = config.header.textColor
+        titleLabel.font = config.header.font
+        layer.cornerRadius = config.cornerRadius
+        lineLayer.backgroundColor = config.header.sepLineColor.cgColor
     }
 }
 
