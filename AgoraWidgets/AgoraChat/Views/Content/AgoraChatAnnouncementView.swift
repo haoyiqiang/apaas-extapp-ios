@@ -38,6 +38,9 @@ class AgoraChatAnnouncementView: UIView {
     var announcementText: String?  {
         didSet {
             annoucementLabel.text = announcementText
+            inputTextView.text = announcementText
+            let count = announcementText?.count ?? 0
+            textCountLabel.text = "\(count)/500"
             updateNilVisible()
         }
     }

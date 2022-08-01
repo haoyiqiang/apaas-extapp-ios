@@ -196,13 +196,13 @@ extension AgoraChatMainView: AgoraChatTopBarDelegate,
         bottomBar.agora_visible = false
     }
     
-    
     func didTouchAnnouncement() {
         updateContentType(.announcement)
         bottomBar.agora_visible = false
     }
     // MARK: AgoraChatAnnouncementViewDelegate
     func onSetAnnouncement(_ announcement: String?) {
+        messageView.announcementText = announcement
         delegate?.onSetAnnouncement(announcement)
     }
     
@@ -237,10 +237,12 @@ private extension AgoraChatMainView {
             topBar.foucusOnMessageTab(.messages)
             messageView.agora_visible = true
             announcementView.agora_visible = false
+            bottomBar.agora_visible = true
         case .announcement:
             topBar.foucusOnMessageTab(.announcement)
             messageView.agora_visible = false
             announcementView.agora_visible = true
+            bottomBar.agora_visible = false
         }
     }
     
