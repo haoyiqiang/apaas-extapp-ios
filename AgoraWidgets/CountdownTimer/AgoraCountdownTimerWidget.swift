@@ -35,9 +35,11 @@ import Masonry
             }
             switch countdownState {
             case .duration:
+                countdownView.isHidden = false
                 countdownView.timePageColor = .normal
                 startTimer()
             case .end:
+                countdownView.isHidden = true
                 countdownView.timePageColor = .warning
                 stopTimer()
             }
@@ -95,6 +97,7 @@ import Masonry
 // MARK: - View
 private extension AgoraCountdownTimerWidget {
     func initViews() {
+        countdownView.isHidden = true
         view.addSubview(countdownView)
     }
     

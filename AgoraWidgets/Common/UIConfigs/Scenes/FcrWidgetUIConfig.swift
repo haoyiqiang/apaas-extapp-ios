@@ -39,7 +39,7 @@ public func set_ui_config(value: Int) {
     case 1:
         UIConfig = FcrWidgetSmallUIConfig()
     // Lecture
-    case 3:
+    case 2:
         UIConfig = FcrWidgetLectrueUIConfig()
     default:
         fatalError("invalid value: \(value)")
