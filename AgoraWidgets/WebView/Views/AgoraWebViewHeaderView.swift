@@ -114,11 +114,11 @@ class AgoraWebViewHeaderView: UIView, AgoraUIContentContainer {
     }
     
     func updateViewProperties() {
-        let itemName = UIConfig.webView.name
-        titleLabel.textColor = itemName.textColor
+        let config = UIConfig.webView
         
-        let itemLine = UIConfig.webView.sepLine
-        line.backgroundColor = itemLine.backgroundColor.cgColor
+        backgroundColor = config.headerBackgroundColor
+        titleLabel.textColor = config.name.textColor
+        line.backgroundColor = config.sepLine.backgroundColor.cgColor
     }
     
     func setOperationPrivilege(_ hasPrivilege: Bool) {

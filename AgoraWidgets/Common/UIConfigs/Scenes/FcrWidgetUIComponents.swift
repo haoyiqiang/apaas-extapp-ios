@@ -26,11 +26,12 @@ struct FcrWidgetUIComponentStreamWindow: FcrWidgetUIComponentProtocol {
 struct FcrWidgetUIComponentWebView: FcrWidgetUIComponentProtocol {
     var visible: Bool = true
     var enable: Bool = true
-    var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemForegroundColor
+    var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
     
     var boardColor: UIColor = FcrWidgetUIColorGroup.systemDividerColor
     var boardWidth: CGFloat = 1
     var cornerRadius: CGFloat = 4
+    var headerBackgroundColor: UIColor = FcrWidgetUIColorGroup.iconSelectedBackgroundColor
     
     let name    = FcrWidgetUIItemWebViewName()
     let refresh = FcrWidgetUIItemWebViewRefresh()
