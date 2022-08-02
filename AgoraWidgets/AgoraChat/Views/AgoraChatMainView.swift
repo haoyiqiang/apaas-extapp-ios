@@ -27,6 +27,15 @@ class AgoraChatMainView: UIView {
     private(set) lazy var bottomBar = AgoraChatBottomBar()
     
     /**data**/
+    private var currentContentType: AgoraChatContentType = .messages {
+        didSet {
+            guard currentContentType != oldValue else {
+                return
+            }
+            updateContentType()
+        }
+    }
+    
     var editAnnouncementEnabled: Bool = false {
         didSet {
             announcementView.editAnnouncementEnabled = editAnnouncementEnabled
@@ -109,11 +118,23 @@ class AgoraChatMainView: UIView {
     func appendMessages(_ list: [AgoraChatMessageViewType]) {
         var originDataSource = messageView.messageDataSource
         messageView.messageDataSource = originDataSource + list
+        
+        if currentContentType == .announcement {
+            topBar.showRedDot(.messages)
+        }
     }
     
-    func setAnnouncement(_ announcement: String?) {
+    func setAnnouncement(_ announcement: String?,
+                         showRemind: Bool = true) {
         messageView.announcementText = announcement
         announcementView.announcementText = announcement
+        
+        guard showRemind,
+              let _ = announcement,
+              currentContentType == .messages else {
+            return
+        }
+        topBar.showRedDot(.announcement)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>,
@@ -122,6 +143,7 @@ class AgoraChatMainView: UIView {
                            with: event)
         UIApplication.shared.keyWindow?.endEditing(true)
     }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -187,19 +209,23 @@ extension AgoraChatMainView: AgoraChatTopBarDelegate,
                              UINavigationControllerDelegate {
     // MARK: AgoraChatTopBarDelegate
     func didSelectMessage() {
-        updateContentType(.messages)
+        currentContentType = .messages
         bottomBar.agora_visible = true
+        topBar.hideRedDot()
     }
     
     func didSelectAnnouncement() {
-        updateContentType(.announcement)
+        currentContentType = .announcement
         bottomBar.agora_visible = false
+        topBar.hideRedDot()
     }
     
     func didTouchAnnouncement() {
-        updateContentType(.announcement)
+        currentContentType = .announcement
         bottomBar.agora_visible = false
+        topBar.hideRedDot()
     }
+    
     // MARK: AgoraChatAnnouncementViewDelegate
     func onSetAnnouncement(_ announcement: String?) {
         messageView.announcementText = announcement
@@ -231,8 +257,8 @@ extension AgoraChatMainView: AgoraChatTopBarDelegate,
 
 // MARK: - private
 private extension AgoraChatMainView {
-    func updateContentType(_ type: AgoraChatContentType) {
-        switch type {
+    func updateContentType() {
+        switch currentContentType {
         case .messages:
             topBar.foucusOnMessageTab(.messages)
             messageView.agora_visible = true
@@ -247,6 +273,7 @@ private extension AgoraChatMainView {
     }
     
     @objc func onClickAnnouncement(_ sender: UIButton) {
-        updateContentType(.announcement)
+        currentContentType = .announcement
+        topBar.hideRedDot()
     }
 }

@@ -267,10 +267,12 @@ private extension AgoraChatEasemobWidget {
         easemob.getAnnouncement(success: { [weak self] announcement in
             guard let text = announcement,
             text.count > 0 else {
-                self?.mainView.setAnnouncement(nil)
+                self?.mainView.setAnnouncement(nil,
+                                               showRemind: false)
                 return
             }
-            self?.mainView.setAnnouncement(text)
+            self?.mainView.setAnnouncement(text,
+                                           showRemind: false)
         }, failure: failureHandle)
         
         fetchHistoryMessage()

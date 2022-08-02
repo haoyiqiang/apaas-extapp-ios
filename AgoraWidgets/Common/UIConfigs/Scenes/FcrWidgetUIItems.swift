@@ -428,6 +428,7 @@ struct FcrWidgetUIItemAgoraChatTopBar: FcrWidgetUIItemProtocol {
     let selectedColor: UIColor = FcrWidgetUIColorGroup.systemBrandColor
     let titleColor: UIColor    = FcrWidgetUIColorGroup.textLevel1Color
     let titleFont: UIFont      = FcrWidgetUIFontGroup.font13
+    let remindColor: UIColor   = FcrWidgetUIColorGroup.systemErrorColor
 }
 
 struct FcrWidgetUIItemAnnouncement: FcrWidgetUIItemProtocol {

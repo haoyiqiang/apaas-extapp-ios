@@ -20,6 +20,7 @@ class AgoraChatTopBar: UIView {
     private lazy var messageButton = UIButton()
     private lazy var announcementButton = UIButton()
     private lazy var selectedLine = UIView()
+    private lazy var redDot = UIView()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -48,6 +49,28 @@ class AgoraChatTopBar: UIView {
         }
     }
     
+    func showRedDot(_ type: AgoraChatContentType) {
+        redDot.agora_visible = true
+        switch type {
+        case .messages:
+            redDot.mas_remakeConstraints { make in
+                make?.width.height().equalTo()(4)
+                make?.top.equalTo()(5)
+                make?.right.equalTo()(messageButton.mas_right)?.offset()(-5)
+            }
+        case .announcement:
+            redDot.mas_remakeConstraints { make in
+                make?.width.height().equalTo()(4)
+                make?.top.equalTo()(5)
+                make?.right.equalTo()(announcementButton.mas_right)?.offset()(-5)
+            }
+        }
+    }
+    
+    func hideRedDot() {
+        redDot.agora_visible = false
+    }
+    
     func updateAnnouncementVisible(_ visible: Bool) {
         announcementButton.agora_visible = visible
         selectedLine.agora_visible = visible
@@ -68,10 +91,16 @@ extension AgoraChatTopBar: AgoraUIContentContainer {
         announcementButton.addTarget(self,
                                 action: #selector(onClickAnnouncement),
                                 for: .touchUpInside)
-
+        redDot.agora_visible = false
+        redDot.isUserInteractionEnabled = false
+        
+        redDot.layer.cornerRadius = 2
+        redDot.clipsToBounds = true
+        
         addSubview(messageButton)
         addSubview(announcementButton)
         addSubview(selectedLine)
+        addSubview(redDot)
     }
     
     func initViewFrame() {
@@ -93,6 +122,12 @@ extension AgoraChatTopBar: AgoraUIContentContainer {
             make?.bottom.equalTo()(0)
             make?.left.equalTo()(messageButton.mas_left)
         }
+        
+        redDot.mas_makeConstraints { make in
+            make?.width.height().equalTo()(4)
+            make?.top.equalTo()(5)
+            make?.right.equalTo()(messageButton.mas_right)?.offset()(-5)
+        }
     }
     
     func updateViewProperties() {
@@ -104,6 +139,7 @@ extension AgoraChatTopBar: AgoraUIContentContainer {
                                          for: .normal)
         announcementButton.titleLabel?.font = config.titleFont
         selectedLine.backgroundColor = config.selectedColor
+        redDot.backgroundColor = config.remindColor
     }
 }
 
