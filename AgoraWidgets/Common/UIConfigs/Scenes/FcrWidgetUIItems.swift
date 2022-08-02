@@ -390,7 +390,7 @@ struct FcrWidgetUIItemAgoraChatMessageSendBar: FcrWidgetUIItemProtocol {
     var enable: Bool                         = true
     
     var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
-    var inputBackgroundColor: UIColor = FcrWidgetUIColorGroup.systemBackgroundColor
+    var inputBackgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
     var cornerRadius: CGFloat       = FcrWidgetUIFrameGroup.roundContainerCornerRadius
     var inputButtonTitleColor: UIColor = FcrWidgetUIColorGroup.textLevel2Color
     var inputButtonTitleFont: UIFont = FcrWidgetUIFontGroup.font13
@@ -411,7 +411,7 @@ struct FcrWidgetUIItemAgoraChatInput: FcrWidgetUIItemProtocol {
     var visible: Bool                        = true
     var enable: Bool                         = true
     
-    var backgroundColor: UIColor            = FcrWidgetUIColorGroup.systemBackgroundColor
+    var backgroundColor: UIColor            = FcrWidgetUIColorGroup.systemComponentColor
     var fieldBackgroundColor: UIColor       = FcrWidgetUIColorGroup.systemComponentColor
     var fieldTextColor: UIColor             = FcrWidgetUIColorGroup.textLevel1Color
     
