@@ -15,6 +15,7 @@ class FcrBoardRoom: NSObject {
     private let listener: FcrBoardListener
     
     private var hasLeft: Bool = false
+    private var connection: FcrBoardRoomConnectionState = .disconnected
     private var joinConfig: FcrBoardRoomJoinConfig?
     private var mainWindow: FcrBoardMainWindow?
     
@@ -149,9 +150,15 @@ private extension FcrBoardRoom {
     }
     
     func callConnectionStateUpdatedCallback(state: FcrBoardRoomConnectionState) {
+        guard state != connection else {
+            return
+        }
+        
         log(content: "on connection state updated",
             extra: state.agDescription,
             type: .info)
+        
+        connection = state
         
         delegate?.onConnectionStateUpdated(state: state)
     }

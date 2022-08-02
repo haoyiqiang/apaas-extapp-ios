@@ -369,9 +369,10 @@ private extension FcrBoardWidget {
     }
     
     func joinWhiteboard() {
-        guard let config = info.roomProperties?.toObj(FcrBooardConfigOfExtra.self) else {
-            return
-        }
+        guard let config = info.roomProperties?.toObj(FcrBooardConfigOfExtra.self),
+              boardRoom == nil else {
+                  return
+              }
         
         // init
         let boardRegion = FcrBoardRegion(rawValue: config.boardRegion) ?? .cn
@@ -399,6 +400,9 @@ private extension FcrBoardWidget {
             guard let `self` = self else {
                 return
             }
+            
+            AgoraLoading.hide()
+            
             self.log(content: "join successfully",
                      extra: nil,
                      type: .info)
@@ -413,6 +417,9 @@ private extension FcrBoardWidget {
             guard let `self` = self else {
                 return
             }
+            
+            AgoraLoading.hide()
+            
             self.log(content: "join unsuccessfully",
                       extra: error.localizedDescription,
                       type: .error)
