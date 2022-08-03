@@ -29,6 +29,8 @@ class FcrBoardMainWindow: NSObject {
     
     private(set) var hasOperationPrivilege: Bool
     
+    private var isUpdatingPrivilege = false
+    
     weak var delegate: FcrBoardMainWindowDelegate?
     
     weak var logTube: FcrBoardLogTube?
@@ -240,6 +242,11 @@ extension FcrBoardMainWindow {
     func updateOperationPrivilege(hasPrivilege: Bool,
                                   success: @escaping () -> Void,
                                   failure: @escaping (Error) -> Void) {
+        guard !isUpdatingPrivilege else {
+            return
+        }
+        isUpdatingPrivilege = true
+        
         let extra = ["hasPrivilege": hasPrivilege.agDescription]
         
         log(content: "update operation privilege",
@@ -256,6 +263,7 @@ extension FcrBoardMainWindow {
         
         whiteRoom.setWritable(hasPrivilege) { [weak self] (isWritable,
                                                            error) in
+            self?.isUpdatingPrivilege = false
             // Failure
             guard let `self` = self else {
                 let error = NSError.defaultError()

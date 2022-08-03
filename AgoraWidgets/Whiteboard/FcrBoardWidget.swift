@@ -478,7 +478,8 @@ private extension FcrBoardWidget {
     }
     
     private func analyzeBoardConfigFromRoomProperties() {
-        if let configExtra = info.roomProperties?.toObj(FcrBooardConfigOfExtra.self) {
+        if !initCondition.configComplete,
+           let configExtra = info.roomProperties?.toObj(FcrBooardConfigOfExtra.self) {
             initCondition.configComplete = true
         }
     }
