@@ -161,4 +161,5 @@ struct FcrWidgetUIComponentAgoraChat: FcrWidgetUIComponentProtocol {
     /**ui**/
     let shadow       = FcrWidgetUIItemShadow()
     let topBar       = FcrWidgetUIItemAgoraChatTopBar()
+    let cornerRadius: CGFloat    = FcrWidgetUIFrameGroup.windowCornerRadius
 }

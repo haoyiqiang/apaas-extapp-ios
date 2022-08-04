@@ -32,6 +32,7 @@ class AgoraChatBottomBar: UIView {
     private let muteAllButtonLength: CGFloat = 30
     private let messageButtonLength: CGFloat = 20
     
+    private lazy var lineLayer = CALayer()
     private lazy var inputBackView = UIView()
     private(set) lazy var inputButton = UIButton()
     private lazy var emojiButton = UIButton()
@@ -53,6 +54,14 @@ class AgoraChatBottomBar: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        lineLayer.frame = CGRect(x: 0,
+                                 y: 0,
+                                 width: bounds.width,
+                                 height: 1)
     }
 }
 
@@ -254,6 +263,7 @@ extension AgoraChatBottomBar: AgoraUIContentContainer {
         inputBackView.addSubview(emojiButton)
         inputBackView.addSubview(pictureButton)
         addSubview(muteButton)
+        layer.addSublayer(lineLayer)
         
         muteButton.agora_enable = config.emoji.enable
         muteButton.agora_visible = config.emoji.visible
@@ -297,6 +307,8 @@ extension AgoraChatBottomBar: AgoraUIContentContainer {
     func updateViewProperties() {
         let config = UIConfig.agoraChat.message.sendBar
         backgroundColor = config.backgroundColor
+        
+        lineLayer.backgroundColor = config.sepLineColor.cgColor
         
         inputBackView.backgroundColor = config.inputBackgroundColor
         inputBackView.layer.cornerRadius = config.cornerRadius

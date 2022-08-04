@@ -389,6 +389,7 @@ struct FcrWidgetUIItemAgoraChatMessageSendBar: FcrWidgetUIItemProtocol {
     var visible: Bool                        = true
     var enable: Bool                         = true
     
+    var sepLineColor: UIColor = FcrWidgetUIColorGroup.systemDividerColor
     var backgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
     var inputBackgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
     var cornerRadius: CGFloat       = FcrWidgetUIFrameGroup.roundContainerCornerRadius

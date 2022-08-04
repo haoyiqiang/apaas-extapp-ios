@@ -198,6 +198,7 @@ extension AgoraChatMainView: AgoraUIContentContainer {
     func updateViewProperties() {
         let config = UIConfig.agoraChat
         backgroundColor = config.backgroundColor
+        layer.cornerRadius = config.cornerRadius
     }
 }
 
