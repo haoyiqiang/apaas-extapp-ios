@@ -125,7 +125,6 @@ struct FcrBoardInitCondition {
             case .BoardStepChanged(let changeType):
                 handleStepChange(changeType: changeType)
             case .ClearBoard:
-                // 清屏，保留ppt
                 mainWindow?.clean()
             case .OpenCourseware(let courseware):
                 handleOpenCourseware(info: courseware)
@@ -140,8 +139,9 @@ struct FcrBoardInitCondition {
     }
 }
 
+// MARK: - private
 private extension FcrBoardWidget {
-    // MARK: - message handle
+    // MARK:  message handle
     func handleOpenCourseware(info: FcrBoardCoursewareInfo) {
         if let scenes = info.scenes {
             var resourceHasAnimation = false
@@ -328,7 +328,7 @@ private extension FcrBoardWidget {
         mainWindow.setContainerSizeRatio(ratio: ratio)
     }
 
-    // MARK: - private
+    // MARK: private
     func initServerAPI(keys: AgoraWidgetRequestKeys) {
         serverAPI = FcrBoardServerAPI(host: keys.host,
                                       appId: keys.agoraAppId,

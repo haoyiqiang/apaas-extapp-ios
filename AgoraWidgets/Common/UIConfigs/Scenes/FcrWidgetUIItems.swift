@@ -419,6 +419,9 @@ struct FcrWidgetUIItemAgoraChatInput: FcrWidgetUIItemProtocol {
     var sendButtonTitleColor: UIColor       = FcrWidgetUIColorGroup.textContrastColor
     var sendButtonBackgroundColor: UIColor  = FcrWidgetUIColorGroup.systemBrandColor
     var sendButtonTitleFont: UIFont         = FcrWidgetUIFontGroup.font14
+    
+    var borderWidth: CGFloat                = 1
+    var borderColor: UIColor                = FcrWidgetUIColorGroup.systemDividerColor
     var cornerRadius: CGFloat               = FcrWidgetUIFrameGroup.containerCornerRadius
 }
 

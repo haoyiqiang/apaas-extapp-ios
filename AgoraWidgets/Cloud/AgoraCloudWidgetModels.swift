@@ -186,7 +186,7 @@ struct AgoraCloudPublicCourseware: Convertable {
 struct AgoraCloudPublicConversion: Convertable {
     let type: String
     let preview: Bool
-    let scale: Int64
+    let scale: Float
     let outputFormat: String
     let canvasVersion: Bool?
 }
