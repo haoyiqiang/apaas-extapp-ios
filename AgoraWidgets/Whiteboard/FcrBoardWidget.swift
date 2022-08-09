@@ -17,6 +17,10 @@ struct FcrBoardInitCondition {
 }
 
 @objcMembers public class FcrBoardWidget: AgoraNativeWidget {
+    /**views**/
+    private lazy var pageControl = FcrBoardPageControlView(frame: .zero)
+    
+    /**data**/
     private var boardRoom: FcrBoardRoom?
     private var mainWindow: FcrBoardMainWindow?
 
@@ -49,7 +53,14 @@ struct FcrBoardInitCondition {
     private var imageCountToSave: Int = 0
     
     // 教师角色加入房间成功时设置，学生角色监听grantedUsers变化设置
-    private var hasOperationPrivilege: Bool = false
+    private var hasOperationPrivilege: Bool = false {
+        didSet {
+            guard pageControl.agora_enable else {
+                return
+            }
+            pageControl.agora_visible = hasOperationPrivilege
+        }
+    }
     
     public override func onLoad() {
         super.onLoad()
@@ -120,8 +131,6 @@ struct FcrBoardInitCondition {
                 handleAudioMixing(data: audioMixingData)
             case .UpdateGrantedUsers(let type):
                 handleBoardGrant(type: type)
-            case .BoardPageChanged(let changeType):
-                handlePageChange(changeType: changeType)
             case .BoardStepChanged(let changeType):
                 handleStepChange(changeType: changeType)
             case .ClearBoard:
@@ -234,28 +243,6 @@ private extension FcrBoardWidget {
                           extra: keyPaths.agDescription,
                           type: .error)
             }
-        }
-    }
-    
-    func handlePageChange(changeType: FcrBoardPageChangeType) {
-        guard let `mainWindow` = mainWindow else {
-            return
-        }
-        switch changeType {
-        case .index(let index):
-            mainWindow.setPageIndex(index: UInt16(index < 0 ? 0 : index))
-        case .count(let count):
-            let pageCount = Int(mainWindow.getPageInfo().count)
-            var addFlag = (count >= pageCount)
-            let changeCount = abs(count - pageCount)
-            for _ in (0 ..< changeCount) {
-                if addFlag {
-                    mainWindow.addPage()
-                } else {
-                    mainWindow.removePage()
-                }
-            }
-            mainWindow.setPageIndex(index: UInt16(count - 1))
         }
     }
     
@@ -389,7 +376,7 @@ private extension FcrBoardWidget {
         let joinConfig = FcrBoardRoomJoinConfig(roomId: config.boardId,
                                                 roomToken: config.boardToken,
                                                 boardRatio: Float(ratio),
-                                                hasOperationPrivilege: isLocalTeacher(),
+                                                hasOperationPrivilege: isTeacher,
                                                 userId: info.localUserInfo.userUuid,
                                                 userName: info.localUserInfo.userName)
         
@@ -492,13 +479,13 @@ private extension FcrBoardWidget {
         }
         
         // 为保证逻辑，若本地为老师，将老师uuid加入grantedUsers中
-        if isLocalTeacher(),
+        if isTeacher,
            !grantedUsers.contains(info.localUserInfo.userUuid) {
             grantedUsers.append(info.localUserInfo.userUuid)
         }
         
         var newLocalPrivilege = true
-        if !isLocalTeacher(),
+        if !isTeacher,
            !grantedUsers.contains(info.localUserInfo.userUuid) {
             newLocalPrivilege = false
         }
@@ -533,26 +520,91 @@ private extension FcrBoardWidget {
     }
     
     func setUpInitialState() {
-        guard let `mainWindow` = mainWindow else {
-            return
-        }
-        if isLocalTeacher() {
+        if isTeacher {
             hasOperationPrivilege = true
         }
         
+        initViews()
         ifNeedSetWindowAttributes()
 
         analyzeGrantedUsersFromRoomProperties()
-        // 发送页数初始状态
-        let basePageInfo = mainWindow.getPageInfo()
-        let pageCount = Int(basePageInfo.count)
-        let pageIndex = Int(basePageInfo.showIndex)
-        sendMessage(signal: .BoardPageChanged(.count(pageCount)))
-        sendMessage(signal: .BoardPageChanged(.index(pageIndex)))
     }
     
-    func isLocalTeacher() -> Bool {
-        return (info.localUserInfo.userRole == "teacher")
+    func initViews() {
+        guard info.localUserInfo.userRole != "observer" else {
+            pageControl.agora_enable = false
+            return
+        }
+        view.addSubview(pageControl)
+        
+        pageControl.addBtn.addTarget(self,
+                                     action: #selector(onClickAddPage(_:)),
+                                     for: .touchUpInside)
+        pageControl.prevBtn.addTarget(self,
+                                      action: #selector(onClickPrePage(_:)),
+                                      for: .touchUpInside)
+        pageControl.nextBtn.addTarget(self,
+                                      action: #selector(onClickNextPage(_:)),
+                                      for: .touchUpInside)
+        
+        view.addSubview(pageControl)
+        
+        pageControl.agora_enable = UIConfig.netlessBoard.pageControl.enable
+        pageControl.agora_visible = hasOperationPrivilege
+        
+        pageControl.mas_makeConstraints { make in
+            make?.left.equalTo()(view)?.offset()(UIDevice.current.agora_is_pad ? 15 : 12)
+            make?.bottom.equalTo()(view)?.offset()(UIDevice.current.agora_is_pad ? -20 : -15)
+            make?.height.equalTo()(UIDevice.current.agora_is_pad ? 34 : 32)
+            make?.width.equalTo()(168)
+        }
+        
+        guard let `mainWindow` = mainWindow else {
+            return
+        }
+        
+        let info = mainWindow.getPageInfo()
+        
+        pageControl.updatePage(index: Int(info.showIndex) + 1,
+                               pages: Int(info.count))
+    }
+    
+    func movePageControl(isRight: Bool) {
+        UIView.animate(withDuration: TimeInterval.agora_animation,
+                       delay: 0,
+                       options: .curveEaseInOut,
+                       animations: { [weak self] in
+            guard let `self` = self else {
+                return
+            }
+            let move: CGFloat = UIDevice.current.agora_is_pad ? 49 : 44
+            self.pageControl.transform = CGAffineTransform(translationX: isRight ? move : 0,
+                                                           y: 0)
+        }, completion: nil)
+    }
+    
+    @objc func onClickAddPage(_ sender: UIButton) {
+        guard let `mainWindow` = mainWindow else {
+            return
+        }
+        mainWindow.addPage()
+    }
+    
+    @objc func onClickPrePage(_ sender: UIButton) {
+        guard let `mainWindow` = mainWindow else {
+            return
+        }
+        let index = mainWindow.getPageInfo().showIndex - 1
+        let finalIndex = (index < 0) ? 0 : index
+        mainWindow.setPageIndex(index: finalIndex)
+    }
+    
+    @objc func onClickNextPage(_ sender: UIButton) {
+        guard let `mainWindow` = mainWindow else {
+            return
+        }
+        let index = mainWindow.getPageInfo().showIndex + 1
+        mainWindow.setPageIndex(index: index)
     }
 }
 
@@ -581,8 +633,8 @@ extension FcrBoardWidget: FcrBoardRoomDelegate {
 // MARK: - FcrBoardMainWindowDelegate
 extension FcrBoardWidget: FcrBoardMainWindowDelegate {
     func onPageInfoUpdated(info: FcrBoardPageInfo) {
-        sendMessage(signal: .BoardPageChanged(.count(Int(info.count))))
-        sendMessage(signal: .BoardPageChanged(.index(Int(info.showIndex))))
+        pageControl.updatePage(index: Int(info.showIndex) + 1,
+                               pages: Int(info.count))
     }
     
     func onUndoStateUpdated(enable: Bool) {
@@ -595,6 +647,7 @@ extension FcrBoardWidget: FcrBoardMainWindowDelegate {
     
     func onWindowBoxStateChanged(state: FcrWindowBoxState) {
         sendMessage(signal: .WindowStateChanged(state.toWidget))
+        movePageControl(isRight: (state == .mini))
     }
     
     func onStartAudioMixing(filePath: String,

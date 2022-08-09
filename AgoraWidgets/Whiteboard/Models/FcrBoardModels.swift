@@ -15,7 +15,6 @@ enum FcrBoardInteractionSignal: Convertable {
     case UpdateGrantedUsers(FcrBoardGrantUsersChangeType)
     case AudioMixingStateChanged(FcrBoardAudioMixingData)
     case BoardAudioMixingRequest(FcrBoardAudioMixingRequestData)
-    case BoardPageChanged(FcrBoardPageChangeType)
     case BoardStepChanged(FcrBoardStepChangeType)
     case ClearBoard
     case OpenCourseware(FcrBoardCoursewareInfo)
@@ -61,9 +60,6 @@ enum FcrBoardInteractionSignal: Convertable {
         } else if let value = try? container.decode(FcrBoardGrantUsersChangeType.self,
                                                     forKey: .UpdateGrantedUsers) {
             self = .UpdateGrantedUsers(value)
-        } else if let value = try? container.decode(FcrBoardPageChangeType.self,
-                                                    forKey: .BoardPageChanged) {
-            self = .BoardPageChanged(value)
         } else if let value = try? container.decode(FcrBoardStepChangeType.self,
                                                     forKey: .BoardStepChanged) {
             self = .BoardStepChanged(value)
@@ -115,9 +111,6 @@ enum FcrBoardInteractionSignal: Convertable {
         case .BoardAudioMixingRequest(let x):
             try container.encode(x,
                                  forKey: .BoardAudioMixingRequest)
-        case .BoardPageChanged(let x):
-            try container.encode(x,
-                                 forKey: .BoardPageChanged)
         case .BoardStepChanged(let x):
             try container.encode(x,
                                  forKey: .BoardStepChanged)
@@ -328,40 +321,6 @@ enum FcrBoardStepChangeType: Convertable {
         case .redoAble(let x):
             try container.encode(x,
                                  forKey: .redoAble)
-        }
-    }
-}
-
-// MARK: - page
-enum FcrBoardPageChangeType: Convertable {
-    case index(Int)
-    case count(Int)
-    
-    private enum CodingKeys: CodingKey {
-        case index
-        case count
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        if let type1Value = try? container.decode(Int.self, forKey: .index) {
-            self = .index(type1Value)
-        } else {
-            let type2Value = try container.decode(Int.self, forKey: .count)
-            self = .count(type2Value)
-        }
-        
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        switch self {
-        case .index(let value):
-            try container.encode(value, forKey: .index)
-        case .count(let value):
-            try container.encode(value, forKey: .count)
         }
     }
 }
