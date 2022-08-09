@@ -12,8 +12,8 @@ import Foundation
         switch type {
         case .oneToOne: UIConfig = FcrWidgetOneToOneUIConfig()
         case .small:    UIConfig = FcrWidgetSmallUIConfig()
-        case .lecture:  UIConfig = FcrWidgetLectrueUIConfig()
-        case .vocation: UIConfig = FcrWidgetLectrueUIConfig()
+        case .lecture:  UIConfig = FcrWidgetLectureUIConfig()
+        case .vocation: UIConfig = FcrWidgetLectureUIConfig()
         }
     }
     
