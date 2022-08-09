@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct FcrWidgetLectrueUIConfig: FcrWidgetUIConfig {
+struct FcrWidgetLectureUIConfig: FcrWidgetUIConfig {
     let streamWindow    = FcrWidgetUIComponentStreamWindow()
     let webView         = FcrWidgetUIComponentWebView()
     let popupQuiz       = FcrWidgetUIComponentPopupQuiz()

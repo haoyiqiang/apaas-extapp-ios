@@ -271,7 +271,7 @@ extension UInt {
     var toUIConfig: FcrWidgetUIConfig? {
         switch self {
         case 0:     return FcrWidgetOneToOneUIConfig()
-        case 2:     return FcrWidgetLectrueUIConfig()
+        case 2:     return FcrWidgetLectureUIConfig()
         case 4:     return FcrWidgetSmallUIConfig()
         default:    return nil
         }
