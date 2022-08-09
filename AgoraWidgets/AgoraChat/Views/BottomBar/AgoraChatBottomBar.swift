@@ -29,8 +29,7 @@ class AgoraChatBottomBar: UIView {
         }
     }
     
-    private let muteAllButtonLength: CGFloat = 30
-    private let messageButtonLength: CGFloat = 20
+    private let buttonLength: CGFloat = 24
     
     private lazy var lineLayer = CALayer()
     private lazy var inputBackView = UIView()
@@ -205,21 +204,21 @@ private extension AgoraChatBottomBar {
         pictureButton.agora_visible = pictureVisible
         
         muteButton.mas_updateConstraints { make in
-            make?.width.equalTo()(muteVisible ? muteAllButtonLength : 0)
+            make?.width.equalTo()(muteVisible ? buttonLength : 0)
         }
 
         emojiButton.mas_updateConstraints { make in
-            make?.width.equalTo()(emojiVisible ? messageButtonLength : 0)
+            make?.width.equalTo()(emojiVisible ? buttonLength : 0)
         }
         chatInputView.emojiButton.mas_updateConstraints { make in
-            make?.width.equalTo()(emojiVisible ? chatInputView.messageButtonLength : 0)
+            make?.width.equalTo()(emojiVisible ? chatInputView.buttonLength : 0)
         }
         
         pictureButton.mas_updateConstraints { make in
-            make?.width.equalTo()(pictureVisible ? messageButtonLength : 0)
+            make?.width.equalTo()(pictureVisible ? buttonLength : 0)
         }
         chatInputView.imageButton.mas_updateConstraints { make in
-            make?.width.equalTo()(pictureVisible ? chatInputView.messageButtonLength : 0)
+            make?.width.equalTo()(pictureVisible ? chatInputView.buttonLength : 0)
         }
     }
 }
@@ -279,7 +278,7 @@ extension AgoraChatBottomBar: AgoraUIContentContainer {
         muteButton.mas_makeConstraints { make in
             make?.right.equalTo()(-5)
             make?.centerY.equalTo()(0)
-            make?.width.height().equalTo()(muteAllButtonLength)
+            make?.width.height().equalTo()(buttonLength)
         }
         
         inputBackView.mas_makeConstraints { make in
@@ -290,12 +289,12 @@ extension AgoraChatBottomBar: AgoraUIContentContainer {
         pictureButton.mas_makeConstraints { make in
             make?.right.equalTo()(-5)
             make?.centerY.equalTo()(0)
-            make?.width.height().equalTo()(messageButtonLength)
+            make?.width.height().equalTo()(buttonLength)
         }
         emojiButton.mas_makeConstraints { make in
             make?.right.equalTo()(pictureButton.mas_left)
             make?.centerY.equalTo()(0)
-            make?.width.height().equalTo()(messageButtonLength)
+            make?.width.height().equalTo()(buttonLength)
         }
         inputButton.mas_makeConstraints { make in
             make?.left.equalTo()(5)
