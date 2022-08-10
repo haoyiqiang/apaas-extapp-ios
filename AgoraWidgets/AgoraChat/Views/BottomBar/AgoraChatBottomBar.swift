@@ -264,11 +264,11 @@ extension AgoraChatBottomBar: AgoraUIContentContainer {
         addSubview(muteButton)
         layer.addSublayer(lineLayer)
         
-        muteButton.agora_enable = config.emoji.enable
-        muteButton.agora_visible = config.emoji.visible
+        muteButton.agora_enable = config.muteAll.enable
+        muteButton.agora_visible = config.muteAll.visible
         
-        emojiButton.agora_enable = config.muteAll.enable
-        emojiButton.agora_visible = config.muteAll.visible
+        emojiButton.agora_enable = config.emoji.enable
+        emojiButton.agora_visible = config.emoji.visible
         
         pictureButton.agora_enable = config.picture.enable
         pictureButton.agora_visible = config.picture.visible
