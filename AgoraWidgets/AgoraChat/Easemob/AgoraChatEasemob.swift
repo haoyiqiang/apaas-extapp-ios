@@ -261,6 +261,24 @@ class AgoraChatEasemob: NSObject {
         // TODO: 移动端暂时没有该功能
     }
     
+    func setAnnouncement(_ announcement: String?) {
+        let extra = ["announcement": announcement ?? ""]
+        delegate?.onEasemobLog(content: "set announcement",
+                               extra: extra.agDescription,
+                               type: .info)
+        AgoraChatClient.shared().roomManager.updateChatroomAnnouncement(withId: chatRoomId,
+                                                                        announcement: announcement) { [weak self] (chatRoom,chatError) in
+            guard let error = chatError else {
+                return
+            }
+            let extra = ["announcement": announcement ?? "",
+                         "errorCode": "\(error.code)"]
+            self?.delegate?.onEasemobLog(content: "set announcement error",
+                                         extra: extra.agDescription,
+                                         type: .error)
+        }
+    }
+    
     func getAllMutedState(success: EasemobMuteStateCompletion?,
                           failure: EasemobFailureCompletion?) {
         let extra = ["chatRoomId": chatRoomId]
@@ -387,21 +405,17 @@ private extension AgoraChatEasemob {
             guard let `self` = self else {
                 return
             }
-            guard let loginError = aLoginError else {
+            guard let loginError = aLoginError,
+                  loginError.code != .userAlreadyLoginSame else {
                 self.retryCount = 0
                 self.delegate?.onEasemobLog(content: "login success",
                                             extra: nil,
                                             type: .info)
+                self.updateLocalUserInfo()
                 success?()
                 return
             }
             switch loginError.code {
-            case .userAlreadyLoginSame:
-                self.retryCount = 0
-                self.delegate?.onEasemobLog(content: "login success",
-                                            extra: nil,
-                                            type: .info)
-                success?()
             case .userNotFound:
                 AgoraChatClient.shared().register(withUsername: self.userConfig.userName,
                                                   password: self.userConfig.password) { (userName, chatError) in
@@ -470,6 +484,41 @@ private extension AgoraChatEasemob {
             self.retryCount += 1
             self._join(success: success,
                        failure: failure)
+        }
+    }
+    
+    func updateLocalUserInfo() {
+        let userInfo = AgoraChatUserInfo()
+        userInfo.nickname = userConfig.nickName
+        let extDic = ["role": userConfig.role]
+        
+        if let data = extDic.jsonData() {
+            let extString = String(data: data,
+                                   encoding: .utf8)
+            userInfo.ext = extString
+        }
+        
+        if let avatarUrl = userConfig.avatarurl {
+            userInfo.avatarUrl = avatarUrl
+        }
+        AgoraChatClient.shared().userInfoManager.updateOwn(userInfo) { [weak self] (chatUserInfo, chatError) in
+            guard let `self` = self else {
+                return
+            }
+            guard let `chatError` = chatError else {
+                let extra = ["ext": userInfo.ext ?? ""]
+                self.delegate?.onEasemobLog(content: "update user info success",
+                                            extra: extra.agDescription,
+                                            type: .info)
+                return
+            }
+            
+            let extra = ["ext": userInfo.ext ?? "",
+                         "code": "\(chatError.code.rawValue)"]
+            self.delegate?.onEasemobLog(content: "update user info fail",
+                                        extra: extra.agDescription,
+                                        type: .error)
+            self.delegate?.didOccurError(type: .updateUserInfo)
         }
     }
     

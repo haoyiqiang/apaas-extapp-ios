@@ -17,7 +17,7 @@ protocol AgoraChatInputViewDelegate: NSObjectProtocol {
 }
 
 class AgoraChatInputView: UIView {
-    let messageButtonLength: CGFloat = 20
+    let buttonLength: CGFloat = 24
     
     public weak var delegate: AgoraChatInputViewDelegate?
     private(set) lazy var inputField = UITextField()
@@ -84,33 +84,27 @@ extension AgoraChatInputView: UITextFieldDelegate {
 // MARK: - Actions
 private extension AgoraChatInputView {
     @objc func keyboardWillShow(noti: Notification) {
-        guard let duration = noti.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? CGFloat,
-              let frame = noti.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+        guard let frame = noti.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
             return
         }
-        self.layoutIfNeeded()
         self.contentView.mas_remakeConstraints { make in
             make?.left.right().equalTo()(0)
             make?.bottom.equalTo()(-frame.size.height)
             make?.height.equalTo()(40)
         }
-        UIView.animate(withDuration: TimeInterval(duration)) {
+        
+        UIView.animate(withDuration: TimeInterval.agora_animation) {
             self.layoutIfNeeded()
         }
     }
     
     @objc func keyboardWillHide(noti: Notification) {
-        guard let duration = noti.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? CGFloat else {
-            return
-        }
         self.contentView.mas_remakeConstraints { make in
             make?.left.right().equalTo()(0)
             make?.bottom.equalTo()(0)
             make?.height.equalTo()(40)
         }
-        UIView.animate(withDuration: TimeInterval(duration)) {
-            self.layoutIfNeeded()
-        } completion: { isFinish in
+        UIView.animate(withDuration: TimeInterval.agora_animation) {
             self.removeFromSuperview()
         }
     }
@@ -165,14 +159,12 @@ extension AgoraChatInputView: AgoraUIContentContainer {
                              for: .normal)
         emojiButton.setImage(config.emoji.selectedImage,
                              for: .selected)
-        emojiButton.contentMode = .scaleAspectFit
         emojiButton.addTarget(self,
                              action: #selector(onClickEmoji),
                              for: .touchUpInside)
         
         imageButton.setImage(config.picture.image,
                              for: .normal)
-        imageButton.contentMode = .scaleAspectFit
         imageButton.addTarget(self,
                              action: #selector(onClickImage),
                              for: .touchUpInside)
@@ -187,7 +179,7 @@ extension AgoraChatInputView: AgoraUIContentContainer {
         contentView.mas_makeConstraints { make in
             make?.left.right().equalTo()(0)
             make?.bottom.equalTo()(frame.maxY)
-            make?.height.equalTo()(self)
+            make?.height.equalTo()(40)
         }
         sendButton.mas_makeConstraints { make in
             make?.height.equalTo()(30)
@@ -217,8 +209,8 @@ extension AgoraChatInputView: AgoraUIContentContainer {
                 make?.left.equalTo()(20)
             }
             make?.right.equalTo()(self.emojiButton.mas_left)?.offset()(-10)
-            make?.height.equalTo()(40)
             make?.centerY.equalTo()(self.contentView)
+            make?.height.equalTo()(sendButton)
         }
     }
     
@@ -235,9 +227,11 @@ extension AgoraChatInputView: AgoraUIContentContainer {
         
         inputField.backgroundColor = config.fieldBackgroundColor
         inputField.textColor = config.fieldTextColor
+        inputField.layer.borderWidth = config.borderWidth
+        inputField.layer.borderColor = config.borderColor.cgColor
+        inputField.layer.cornerRadius = config.cornerRadius
         
-        self.inputField.layer.cornerRadius = config.cornerRadius
-        self.sendButton.layer.cornerRadius = config.cornerRadius
+        sendButton.layer.cornerRadius = config.cornerRadius
     }
 }
  

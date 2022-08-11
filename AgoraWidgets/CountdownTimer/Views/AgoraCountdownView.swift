@@ -6,7 +6,7 @@
 //  Copyright © 2021 Agora. All rights reserved.
 //
 
-import UIKit
+import AgoraUIBaseViews
 
 public class AgoraCountdownView: UIView {
     enum Color {
@@ -30,11 +30,12 @@ public class AgoraCountdownView: UIView {
             
             var color: UIColor
             
+            let config = UIConfig.counter.time
             switch timePageColor {
             case .normal:
-                color = UIColor(hexString: "4D6277")!
+                color = config.normalTextColor
             case .warning:
-                color = .red
+                color = config.warnTextColor
             }
             
             timePages.forEach { group in
@@ -47,6 +48,7 @@ public class AgoraCountdownView: UIView {
         super.init(frame: .zero)
         initViews()
         initViewFrame()
+        updateViewProperties()
     }
     
     func updateTimePages(timeList: [String]) {
@@ -63,10 +65,8 @@ public class AgoraCountdownView: UIView {
 }
 
 // MARK: - View
-private extension AgoraCountdownView {
-    func initViews() {
-        backgroundColor = .white
-        
+extension AgoraCountdownView: AgoraUIContentContainer {
+    public func initViews() {
         addSubview(headerView)
         addSubview(colonView)
         
@@ -77,16 +77,9 @@ private extension AgoraCountdownView {
         }
         
         layer.masksToBounds = true
-        layer.cornerRadius = 4
-        
-        layer.borderWidth = 1
-        layer.borderColor = UIColor(red: 0.89,
-                                    green: 0.89,
-                                    blue: 0.93,
-                                    alpha: 1).cgColor
     }
     
-    func initViewFrame() {
+    public func initViewFrame() {
         // Header View
         let titleViewHeight: CGFloat = 17
         
@@ -128,6 +121,21 @@ private extension AgoraCountdownView {
                                     width: timePageWidth,
                                     height: timePageHeight)
         }
+    }
+    
+    public func updateViewProperties() {
+        let config = UIConfig.counter
+        
+        layer.shadowColor = config.shadow.color
+        layer.shadowOffset = config.shadow.offset
+        layer.shadowOpacity = config.shadow.opacity
+        layer.shadowRadius = config.shadow.radius
+        
+        backgroundColor = config.backgroundColor
+        layer.cornerRadius = config.cornerRadius
+        
+        layer.borderWidth = config.borderWidth
+        layer.borderColor = config.borderColor.cgColor
     }
 }
 

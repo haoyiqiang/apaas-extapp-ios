@@ -29,6 +29,8 @@ class FcrBoardMainWindow: NSObject {
     
     private(set) var hasOperationPrivilege: Bool
     
+    private var isUpdatingPrivilege = false
+    
     weak var delegate: FcrBoardMainWindowDelegate?
     
     weak var logTube: FcrBoardLogTube?
@@ -240,6 +242,11 @@ extension FcrBoardMainWindow {
     func updateOperationPrivilege(hasPrivilege: Bool,
                                   success: @escaping () -> Void,
                                   failure: @escaping (Error) -> Void) {
+        guard !isUpdatingPrivilege else {
+            return
+        }
+        isUpdatingPrivilege = true
+        
         let extra = ["hasPrivilege": hasPrivilege.agDescription]
         
         log(content: "update operation privilege",
@@ -256,6 +263,7 @@ extension FcrBoardMainWindow {
         
         whiteRoom.setWritable(hasPrivilege) { [weak self] (isWritable,
                                                            error) in
+            self?.isUpdatingPrivilege = false
             // Failure
             guard let `self` = self else {
                 let error = NSError.defaultError()
@@ -290,6 +298,10 @@ extension FcrBoardMainWindow {
             }
             
             // Success
+            if isWritable {
+                self.whiteRoom.disableSerialization(false)
+                self.whiteRoom.disableCameraTransform(true)
+            }
             let disable = !isWritable
             self.whiteRoom.disableDeviceInputs(disable)
             self.whiteRoom.disableCameraTransform(true)
@@ -647,14 +659,25 @@ private extension FcrBoardMainWindow {
     }
     
     func setUpNetless() {
-        let disableSerialization = false
         let viewMode: WhiteViewMode = .broadcaster
+        whiteRoom.setViewMode(viewMode)
+        
+        
+        log(content: "set view mode",
+            extra: memberState.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "setViewMode")
+        
+        guard whiteRoom.isWritable else {
+            return
+        }
+        let disableSerialization = false
         let disableCamera = true
         
-        whiteRoom.setMemberState(memberState)
-        whiteRoom.disableSerialization(disableSerialization)
-        whiteRoom.setViewMode(.broadcaster)
         whiteRoom.disableCameraTransform(disableCamera)
+        whiteRoom.setMemberState(memberState)
+        whiteRoom.disableSerialization(false)
         
         log(content: "set member state",
             extra: memberState.agDescription,
@@ -667,12 +690,6 @@ private extension FcrBoardMainWindow {
             type: .info,
             fromClass: WhiteRoom.self,
             funcName: "disableSerialization")
-        
-        log(content: "set view mode",
-            extra: memberState.agDescription,
-            type: .info,
-            fromClass: WhiteRoom.self,
-            funcName: "setViewMode")
         
         log(content: "disable camera transform",
             extra: disableCamera.agDescription,
@@ -849,7 +866,7 @@ extension FcrBoardMainWindow: FcrBoardMainWindowNeedObserve {
             extra: extra.agDescription,
             type: .info,
             fromClass: WhiteSDK.self,
-            funcName: "fireCanRedoStepsUpdate")
+            funcName: "fireCanUndoStepsUpdate")
         
         let enable = (canUndoSteps > 0)
         

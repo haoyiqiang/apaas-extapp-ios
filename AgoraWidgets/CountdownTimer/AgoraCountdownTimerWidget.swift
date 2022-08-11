@@ -17,30 +17,45 @@ import Masonry
 
     // Original Data
     private var roomData: AgoraCountdownRoomData?
-    private var objectCreateTimestamp: Int64?  // millisecond
+    // 客户端与服务端时间差(milliseconds)
+    private var timeDiff: Int64 = 0 {
+        didSet {
+            guard timeDiff != oldValue else {
+                return
+            }
+            updateRemainSeconds()
+        }
+    }
     
     // View Data
     private var countdownState: AgoraCountdownState = .end {
         didSet {
+            guard countdownState != oldValue else {
+                return
+            }
             switch countdownState {
             case .duration:
+                countdownView.isHidden = false
                 countdownView.timePageColor = .normal
+                startTimer()
             case .end:
+                countdownView.isHidden = true
                 countdownView.timePageColor = .warning
+                stopTimer()
             }
         }
     }
-    
-    private var countdownTimestamp: Int64 = 0 { // second
+    // 计时器剩余秒(second)
+    private var remainSeconds: Int64 = 0 {
         didSet {
-            if countdownTimestamp > 3 {
+            if remainSeconds > 3 {
                 countdownView.timePageColor = .normal
             } else {
                 countdownView.timePageColor = .warning
             }
             
-            let timeString = countdownTimestamp.formatStringMS.replacingOccurrences(of: ":",
-                                                                                    with: "")
+            let timeString = remainSeconds.formatStringMS.replacingOccurrences(of: ":",
+                                                                               with: "")
             let array = timeString.map({String($0)})
             
             countdownView.updateTimePages(timeList: array)
@@ -51,8 +66,7 @@ import Masonry
         super.onLoad()
         initViews()
         initConstraints()
-        updateRoomData()
-        updateViewData()
+        updateData()
         updateViewFrame()
     }
     
@@ -64,18 +78,14 @@ import Masonry
                                             cause: cause,
                                             keyPaths: keyPaths,
                                             operatorUser: operatorUser)
-        updateRoomData()
-        updateViewData()
-        shouldStartTime()
+        updateData()
     }
     
     public override func onMessageReceived(_ message: String) {
         super.onMessageReceived(message)
         
-        if let timestamp = message.toSyncTimestamp() {
-            objectCreateTimestamp = timestamp
-            initCurrentTimestamp()
-            shouldStartTime()
+        if let serverTime = message.toSyncTimestamp() {
+            timeDiff = serverTime - Int64(Date().timeIntervalSince1970)*1000
         }
     }
     
@@ -87,14 +97,8 @@ import Masonry
 // MARK: - View
 private extension AgoraCountdownTimerWidget {
     func initViews() {
+        countdownView.isHidden = true
         view.addSubview(countdownView)
-        
-        view.backgroundColor = .clear
-        view.layer.shadowColor = UIColor(hexString: "#2F4192")?.cgColor
-        view.layer.shadowOffset = CGSize(width: 0,
-                                         height: 2)
-        view.layer.shadowOpacity = 0.15
-        view.layer.shadowRadius = 6
     }
     
     func initConstraints() {
@@ -117,46 +121,34 @@ private extension AgoraCountdownTimerWidget {
 
 // MARK: - Data
 private extension AgoraCountdownTimerWidget {
-    func updateRoomData() {
+    func updateData() {
         guard let roomProperties = info.roomProperties,
               let data = roomProperties.toObj(AgoraCountdownRoomData.self) else {
             return
         }
-        
         roomData = data
-    }
-    
-    func updateViewData() {
-        guard let data = roomData else {
-            return
-        }
-        
+        updateRemainSeconds()
         countdownState = data.state
     }
     
-    func initCurrentTimestamp() {
-        guard let data = roomData,
-              let objectCreate = objectCreateTimestamp else {
+    func updateRemainSeconds() {
+        guard let data = roomData else {
             return
         }
-        
-        let end = data.startTime + (data.duration * 1000)                      // millisecond
-        let countdownMillisecond = end - objectCreate                          // millisecond
-        let countdown = (countdownMillisecond < 0) ? 0 : countdownMillisecond  // millisecond
-        countdownTimestamp = Int64(ceil(TimeInterval(countdown) / 1000))       // second
+        if data.duration == 0 {
+            remainSeconds = 0
+        } else {
+            // 服务端预期结束时间: milliseconds
+            let serverEndTime = data.startTime + (data.duration * 1000)
+            // 本地预期结束时间: milliseconds
+            // equation: serverTime - localtime = serverEndTime - localEndTime
+            let localEndTime = serverEndTime - timeDiff
+            remainSeconds = (localEndTime / 1000) - Int64(Date().timeIntervalSince1970)
+        }
     }
 }
 
 private extension AgoraCountdownTimerWidget {
-    func shouldStartTime() {
-        switch countdownState {
-        case .duration:
-            startTimer()
-        case .end:
-            stopTimer()
-        }
-    }
-    
     func startTimer() {
         guard self.timer == nil else {
             return
@@ -166,17 +158,15 @@ private extension AgoraCountdownTimerWidget {
             let timer = Timer.scheduledTimer(withTimeInterval: 1,
                                              repeats: true,
                                              block: { [weak self] _ in
-                                                guard let strongSelf = self else {
-                                                    return
-                                                }
-                                                
-                                                if strongSelf.countdownTimestamp <= 0 {
-                                                    strongSelf.stopTimer()
-                                                    strongSelf.objectCreateTimestamp = nil
-                                                } else {
-                                                    strongSelf.countdownTimestamp -= 1
-                                                }
-
+                guard let strongSelf = self else {
+                    return
+                }
+                
+                if strongSelf.remainSeconds <= 0 {
+                    strongSelf.stopTimer()
+                } else {
+                    strongSelf.remainSeconds -= 1
+                }
             })
             
             RunLoop.main.add(timer,
@@ -191,6 +181,9 @@ private extension AgoraCountdownTimerWidget {
     }
     
     func stopTimer() {
+        guard timer != nil else {
+            return
+        }
         timer?.invalidate()
         timer = nil
     }

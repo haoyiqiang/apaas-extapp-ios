@@ -11,14 +11,14 @@ struct FcrWidgetUIColorGroup {
     // MARK: - UI Config
     // 品牌色
     static var systemBrandColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0x357BF6)!
         case .agoraDark:    return UIColor(hex: 0x317AF7)!
         }
     }
     // 背景色
     static var systemBackgroundColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight: return UIColor(hex: 0xF9F9FC)!
         case .agoraDark:  return UIColor(hex: 0x262626)!
         }
@@ -26,7 +26,7 @@ struct FcrWidgetUIColorGroup {
     
     // 前景色
     static var systemForegroundColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:  return UIColor(hex: 0xFFFFFF)!
         case .agoraDark:   return UIColor(hex: 0x1D1D1D)!
         }
@@ -34,7 +34,7 @@ struct FcrWidgetUIColorGroup {
     
     // 组件背景色
     static var systemComponentColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0xFFFFFF)!
         case .agoraDark:    return UIColor(hex: 0x2F2F2F)!
         }
@@ -42,7 +42,7 @@ struct FcrWidgetUIColorGroup {
     
     // 边框/分割线色
     static var systemDividerColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0xEEEEF7)!
         case .agoraDark:    return UIColor(hex: 0x373737)!
         }
@@ -50,7 +50,7 @@ struct FcrWidgetUIColorGroup {
 
     // 警告色
     static var systemErrorColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0xF5655C)!
         case .agoraDark:    return UIColor(hex: 0xF5655C)!
         }
@@ -58,7 +58,7 @@ struct FcrWidgetUIColorGroup {
     
     // 警示色
     static var systemWarningColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0xFFB554)!
         case .agoraDark:    return UIColor(hex: 0xFFB554)!
         }
@@ -66,7 +66,7 @@ struct FcrWidgetUIColorGroup {
     
     // 安全色
     static var systemSafeColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0x64BB5C)!
         case .agoraDark:    return UIColor(hex: 0x69C42E)!
         }
@@ -74,7 +74,7 @@ struct FcrWidgetUIColorGroup {
     
     // 图标被选背景色
     static var iconSelectedBackgroundColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0xF8F9FC)!
         case .agoraDark:    return UIColor(hex: 0x424242)!
         }
@@ -82,7 +82,7 @@ struct FcrWidgetUIColorGroup {
     
     // 图标色
     static var iconNormalBackgroundColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0x7B88A0)!
         case .agoraDark:    return UIColor(hex: 0x8E8E8E)!
         }
@@ -90,7 +90,7 @@ struct FcrWidgetUIColorGroup {
     
     // 线框按钮色
     static var iconLineColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0xEEEEF7)!
         case .agoraDark:    return UIColor(hex: 0x373737)!
         }
@@ -98,7 +98,7 @@ struct FcrWidgetUIColorGroup {
     
     // 一级文本色
     static var textLevel1Color: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0x191919)!
         case .agoraDark:    return UIColor(hex: 0xFFFFFF)!.withAlphaComponent(0.80)
         }
@@ -106,7 +106,7 @@ struct FcrWidgetUIColorGroup {
     
     // 二级文本色
     static var textLevel2Color: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0x586376)!
         case .agoraDark:    return UIColor(hex: 0xFFFFFF)!.withAlphaComponent(0.60)
         }
@@ -114,7 +114,7 @@ struct FcrWidgetUIColorGroup {
     
     // 三级文本色
     static var textLevel3Color: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0x7B88A0)!
         case .agoraDark:    return UIColor(hex: 0xFFFFFF)!.withAlphaComponent(0.60)
         }
@@ -122,7 +122,7 @@ struct FcrWidgetUIColorGroup {
     
     // 不可用文本色
     static var textDisabledColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0xBDBDCA)!
         case .agoraDark:    return UIColor(hex: 0xFFFFFF)!.withAlphaComponent(0.38)
         }
@@ -130,7 +130,7 @@ struct FcrWidgetUIColorGroup {
     
     // 可点击/链接色
     static var textEnabledColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0x357BF6)!
         case .agoraDark:    return UIColor(hex: 0x317AF7)!
         }
@@ -138,23 +138,15 @@ struct FcrWidgetUIColorGroup {
     
     // 主按钮文本色
     static var textContrastColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0xFFFFFF)!
         case .agoraDark:    return UIColor(hex: 0xFFFFFF)!
-        }
-    }
-     
-    // MARK: - UI Standard
-    static var borderColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
-        case .agoraLight:  return UIColor(hex: 0xEEEEF7)!
-        case .agoraDark:   return UIColor(hex: 0x373737)!
         }
     }
     
     // shadow
     static var textShadowColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:  return UIColor(hex: 0x0D1D3D,
                                           transparency: 0.8)!
         case .agoraDark:   return UIColor(hex: 0x0D1D3D,
@@ -163,7 +155,7 @@ struct FcrWidgetUIColorGroup {
     }
     
     static var containerShadowColor: UIColor {
-        switch FcrWidgetsUIGlobal.uiMode {
+        switch UIMode {
         case .agoraLight:   return UIColor(hex: 0x2F4192,
                                            transparency: 0.15)!
         case .agoraDark:    return UIColor(hex: 0x000000,

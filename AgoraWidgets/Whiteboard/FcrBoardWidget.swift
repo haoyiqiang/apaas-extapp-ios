@@ -125,7 +125,6 @@ struct FcrBoardInitCondition {
             case .BoardStepChanged(let changeType):
                 handleStepChange(changeType: changeType)
             case .ClearBoard:
-                // 清屏，保留ppt
                 mainWindow?.clean()
             case .OpenCourseware(let courseware):
                 handleOpenCourseware(info: courseware)
@@ -140,8 +139,9 @@ struct FcrBoardInitCondition {
     }
 }
 
+// MARK: - private
 private extension FcrBoardWidget {
-    // MARK: - message handle
+    // MARK:  message handle
     func handleOpenCourseware(info: FcrBoardCoursewareInfo) {
         if let scenes = info.scenes {
             var resourceHasAnimation = false
@@ -328,7 +328,7 @@ private extension FcrBoardWidget {
         mainWindow.setContainerSizeRatio(ratio: ratio)
     }
 
-    // MARK: - private
+    // MARK: private
     func initServerAPI(keys: AgoraWidgetRequestKeys) {
         serverAPI = FcrBoardServerAPI(host: keys.host,
                                       appId: keys.agoraAppId,
@@ -369,9 +369,10 @@ private extension FcrBoardWidget {
     }
     
     func joinWhiteboard() {
-        guard let config = info.roomProperties?.toObj(FcrBooardConfigOfExtra.self) else {
-            return
-        }
+        guard let config = info.roomProperties?.toObj(FcrBooardConfigOfExtra.self),
+              boardRoom == nil else {
+                  return
+              }
         
         // init
         let boardRegion = FcrBoardRegion(rawValue: config.boardRegion) ?? .cn
@@ -399,6 +400,9 @@ private extension FcrBoardWidget {
             guard let `self` = self else {
                 return
             }
+            
+            AgoraLoading.hide()
+            
             self.log(content: "join successfully",
                      extra: nil,
                      type: .info)
@@ -413,6 +417,9 @@ private extension FcrBoardWidget {
             guard let `self` = self else {
                 return
             }
+            
+            AgoraLoading.hide()
+            
             self.log(content: "join unsuccessfully",
                       extra: error.localizedDescription,
                       type: .error)
@@ -471,7 +478,8 @@ private extension FcrBoardWidget {
     }
     
     private func analyzeBoardConfigFromRoomProperties() {
-        if let configExtra = info.roomProperties?.toObj(FcrBooardConfigOfExtra.self) {
+        if !initCondition.configComplete,
+           let configExtra = info.roomProperties?.toObj(FcrBooardConfigOfExtra.self) {
             initCondition.configComplete = true
         }
     }

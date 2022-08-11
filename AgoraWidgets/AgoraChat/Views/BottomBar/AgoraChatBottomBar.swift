@@ -29,9 +29,9 @@ class AgoraChatBottomBar: UIView {
         }
     }
     
-    private let muteAllButtonLength: CGFloat = 30
-    private let messageButtonLength: CGFloat = 20
+    private let buttonLength: CGFloat = 24
     
+    private lazy var lineLayer = CALayer()
     private lazy var inputBackView = UIView()
     private(set) lazy var inputButton = UIButton()
     private lazy var emojiButton = UIButton()
@@ -53,6 +53,14 @@ class AgoraChatBottomBar: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        lineLayer.frame = CGRect(x: 0,
+                                 y: 0,
+                                 width: bounds.width,
+                                 height: 1)
     }
 }
 
@@ -196,21 +204,21 @@ private extension AgoraChatBottomBar {
         pictureButton.agora_visible = pictureVisible
         
         muteButton.mas_updateConstraints { make in
-            make?.width.equalTo()(muteVisible ? muteAllButtonLength : 0)
+            make?.width.equalTo()(muteVisible ? buttonLength : 0)
         }
 
         emojiButton.mas_updateConstraints { make in
-            make?.width.equalTo()(emojiVisible ? messageButtonLength : 0)
+            make?.width.equalTo()(emojiVisible ? buttonLength : 0)
         }
         chatInputView.emojiButton.mas_updateConstraints { make in
-            make?.width.equalTo()(emojiVisible ? chatInputView.messageButtonLength : 0)
+            make?.width.equalTo()(emojiVisible ? chatInputView.buttonLength : 0)
         }
         
         pictureButton.mas_updateConstraints { make in
-            make?.width.equalTo()(pictureVisible ? messageButtonLength : 0)
+            make?.width.equalTo()(pictureVisible ? buttonLength : 0)
         }
         chatInputView.imageButton.mas_updateConstraints { make in
-            make?.width.equalTo()(pictureVisible ? chatInputView.messageButtonLength : 0)
+            make?.width.equalTo()(pictureVisible ? chatInputView.buttonLength : 0)
         }
     }
 }
@@ -254,12 +262,13 @@ extension AgoraChatBottomBar: AgoraUIContentContainer {
         inputBackView.addSubview(emojiButton)
         inputBackView.addSubview(pictureButton)
         addSubview(muteButton)
+        layer.addSublayer(lineLayer)
         
-        muteButton.agora_enable = config.emoji.enable
-        muteButton.agora_visible = config.emoji.visible
+        muteButton.agora_enable = config.muteAll.enable
+        muteButton.agora_visible = config.muteAll.visible
         
-        emojiButton.agora_enable = config.muteAll.enable
-        emojiButton.agora_visible = config.muteAll.visible
+        emojiButton.agora_enable = config.emoji.enable
+        emojiButton.agora_visible = config.emoji.visible
         
         pictureButton.agora_enable = config.picture.enable
         pictureButton.agora_visible = config.picture.visible
@@ -269,7 +278,7 @@ extension AgoraChatBottomBar: AgoraUIContentContainer {
         muteButton.mas_makeConstraints { make in
             make?.right.equalTo()(-5)
             make?.centerY.equalTo()(0)
-            make?.width.height().equalTo()(muteAllButtonLength)
+            make?.width.height().equalTo()(buttonLength)
         }
         
         inputBackView.mas_makeConstraints { make in
@@ -280,12 +289,12 @@ extension AgoraChatBottomBar: AgoraUIContentContainer {
         pictureButton.mas_makeConstraints { make in
             make?.right.equalTo()(-5)
             make?.centerY.equalTo()(0)
-            make?.width.height().equalTo()(messageButtonLength)
+            make?.width.height().equalTo()(buttonLength)
         }
         emojiButton.mas_makeConstraints { make in
             make?.right.equalTo()(pictureButton.mas_left)
             make?.centerY.equalTo()(0)
-            make?.width.height().equalTo()(messageButtonLength)
+            make?.width.height().equalTo()(buttonLength)
         }
         inputButton.mas_makeConstraints { make in
             make?.left.equalTo()(5)
@@ -297,6 +306,8 @@ extension AgoraChatBottomBar: AgoraUIContentContainer {
     func updateViewProperties() {
         let config = UIConfig.agoraChat.message.sendBar
         backgroundColor = config.backgroundColor
+        
+        lineLayer.backgroundColor = config.sepLineColor.cgColor
         
         inputBackView.backgroundColor = config.inputBackgroundColor
         inputBackView.layer.cornerRadius = config.cornerRadius
@@ -311,7 +322,7 @@ extension AgoraChatBottomBar: AgoraUIContentContainer {
 private extension AgoraChatBottomBar {
     func showImagePicker() {
         DispatchQueue.main.async { [weak self] in
-            let topVc = UIViewController.ag_topViewController()
+            let topVc = UIViewController.agora_top_view_controller()
             
             let imagePicker = UIImagePickerController()
             imagePicker.delegate = self

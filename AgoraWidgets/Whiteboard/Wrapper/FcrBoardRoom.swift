@@ -15,6 +15,7 @@ class FcrBoardRoom: NSObject {
     private let listener: FcrBoardListener
     
     private var hasLeft: Bool = false
+    private var connection: FcrBoardRoomConnectionState = .disconnected
     private var joinConfig: FcrBoardRoomJoinConfig?
     private var mainWindow: FcrBoardMainWindow?
     
@@ -149,9 +150,15 @@ private extension FcrBoardRoom {
     }
     
     func callConnectionStateUpdatedCallback(state: FcrBoardRoomConnectionState) {
+        guard state != connection else {
+            return
+        }
+        
         log(content: "on connection state updated",
             extra: state.agDescription,
             type: .info)
+        
+        connection = state
         
         delegate?.onConnectionStateUpdated(state: state)
     }
@@ -166,11 +173,14 @@ private extension FcrBoardRoom {
         let length = UIDevice.current.agora_is_pad ? 34 : 32
         let left = UIDevice.current.agora_is_pad ? 15 : 12
         let bottom = UIDevice.current.agora_is_pad ? 20 : 15
+        let backgroundColor = UIConfig.netlessBoard.courseware.backgroundColor
+        
         let defaultCollectorStyles = ["position":"fixed",
                                       "left":"\(left)px",
                                       "bottom":"\(bottom)px",
                                       "width":"\(length)px",
-                                      "height":"\(length)px"]
+                                      "height":"\(length)px",
+                                      "backgroundColor": "\(backgroundColor.hexString)"]
         
         let params = WhiteWindowParams()
         params.chessboard = false
@@ -185,7 +195,9 @@ private extension FcrBoardRoom {
         roomConfig.isWritable = config.hasOperationPrivilege
         roomConfig.disableNewPencil = false
         roomConfig.windowParams = params
-        
+#if DEBUG
+        roomConfig.enableWritableAssert = true
+#endif  
         return roomConfig
     }
     

@@ -101,7 +101,7 @@ extension AgoraCloudServerAPI {
     struct Conversion: Convertable {
         let type: String
         let preview: Bool
-        let scale: Double
+        let scale: Float
         let canvasVersion: Bool?
         let outputFormat: String
     }

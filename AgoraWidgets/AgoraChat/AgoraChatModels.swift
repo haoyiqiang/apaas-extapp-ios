@@ -55,7 +55,7 @@ enum AgoraChatInteractionSignal: Convertable {
 }
 
 enum AgoraChatErrorType {
-    case loginFailed, joinFailed, loginedFromRemote, forcedLogOut, fetchError(Int), sendFailed(Int), muteFailed(Int)
+    case loginFailed, joinFailed, updateUserInfo, loginedFromRemote, forcedLogOut, fetchError(Int), sendFailed(Int), muteFailed(Int)
 }
 
 extension String {

@@ -94,6 +94,8 @@ class AgoraWebViewContentView: UIView, AgoraUIContentContainer {
         layer.cornerRadius = component.cornerRadius
         
         backgroundColor = component.backgroundColor
+        webView.isOpaque = false
+        webView.backgroundColor = component.backgroundColor
         
         agora_all_sub_views_update_view_properties()
     }

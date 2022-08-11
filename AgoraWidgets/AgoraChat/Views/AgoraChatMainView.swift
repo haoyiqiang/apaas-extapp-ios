@@ -7,11 +7,13 @@
 
 import AgoraUIBaseViews
 import Masonry
+import UIKit
 
 protocol AgoraChatMainViewDelegate: NSObjectProtocol {
     func onSendImageData(_ data: Data)
     func onSendTextMessage(_ message: String)
     func onClickAllMuted(_ isAllMuted: Bool)
+    func onSetAnnouncement(_ announcement: String?)
     func onShowErrorMessage(_ errorMessage: String)
 }
 
@@ -19,11 +21,27 @@ class AgoraChatMainView: UIView {
     /**views**/
     private lazy var topBar = AgoraChatTopBar()
     
-    private lazy var contentView = AgoraChatContentView(frame: .zero)
+    private lazy var messageView = AgoraChatMessageView(frame: .zero)
+    private lazy var announcementView = AgoraChatAnnouncementView(frame: .zero)
     
     private(set) lazy var bottomBar = AgoraChatBottomBar()
     
     /**data**/
+    private var currentContentType: AgoraChatContentType = .messages {
+        didSet {
+            guard currentContentType != oldValue else {
+                return
+            }
+            updateContentType()
+        }
+    }
+    
+    var editAnnouncementEnabled: Bool = false {
+        didSet {
+            announcementView.editAnnouncementEnabled = editAnnouncementEnabled
+        }
+    }
+    
     weak var delegate: AgoraChatMainViewDelegate?
     
     private override init(frame: CGRect) {
@@ -93,17 +111,37 @@ class AgoraChatMainView: UIView {
         guard list.count > 0 else {
             return
         }
-        var originDataSource = contentView.messageDataSource
-        contentView.messageDataSource = list + originDataSource
+        var originDataSource = messageView.messageDataSource
+        messageView.messageDataSource = list + originDataSource
     }
     
     func appendMessages(_ list: [AgoraChatMessageViewType]) {
-        var originDataSource = contentView.messageDataSource
-        contentView.messageDataSource = originDataSource + list
+        var originDataSource = messageView.messageDataSource
+        messageView.messageDataSource = originDataSource + list
+        
+        if currentContentType == .announcement {
+            topBar.showRedDot(.messages)
+        }
     }
     
-    func setAnnouncement(_ announcement: String?) {
-        contentView.announcementText = announcement
+    func setAnnouncement(_ announcement: String?,
+                         showRemind: Bool = true) {
+        messageView.announcementText = announcement
+        announcementView.announcementText = announcement
+        
+        guard showRemind,
+              let _ = announcement,
+              currentContentType == .messages else {
+            return
+        }
+        topBar.showRedDot(.announcement)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>,
+                               with event: UIEvent?) {
+        super.touchesBegan(touches,
+                           with: event)
+        UIApplication.shared.keyWindow?.endEditing(true)
     }
     
     required init?(coder: NSCoder) {
@@ -116,14 +154,24 @@ extension AgoraChatMainView: AgoraUIContentContainer {
         let config = UIConfig.agoraChat
         addSubview(topBar)
         
-        contentView.contentType = .messages
-        addSubview(contentView)
+        addSubview(messageView)
+        messageView.annoucementButton.addTarget(self,
+                                                action: #selector(onClickAnnouncement(_:)),
+                                                for: .touchUpInside)
+        addSubview(announcementView)
         
         bottomBar.updateInputText(config.message.placeholderText)
         addSubview(bottomBar)
         
         topBar.delegate = self
+        announcementView.delegate = self
         bottomBar.delegate = self
+        
+        messageView.agora_enable = config.message.enable
+        messageView.agora_visible = true
+        
+        announcementView.agora_enable = config.announcement.enable
+        announcementView.agora_visible = false
     }
     
     func initViewFrame() {
@@ -135,7 +183,12 @@ extension AgoraChatMainView: AgoraUIContentContainer {
             make?.left.right().bottom().equalTo()(0)
             make?.height.equalTo()(40)
         }
-        contentView.mas_makeConstraints { make in
+        announcementView.mas_remakeConstraints { make in
+            make?.left.right().equalTo()(0)
+            make?.top.equalTo()(topBar.mas_bottom)?.offset()(0)
+            make?.bottom.equalTo()(0)
+        }
+        messageView.mas_makeConstraints { make in
             make?.left.right().equalTo()(0)
             make?.top.equalTo()(topBar.mas_bottom)?.offset()(0)
             make?.bottom.equalTo()(bottomBar.mas_top)?.offset()(0)
@@ -145,23 +198,39 @@ extension AgoraChatMainView: AgoraUIContentContainer {
     func updateViewProperties() {
         let config = UIConfig.agoraChat
         backgroundColor = config.backgroundColor
+        layer.cornerRadius = config.cornerRadius
     }
 }
 
 // MARK: - view delegate
 extension AgoraChatMainView: AgoraChatTopBarDelegate,
                              AgoraChatBottomBarDelegate,
+                             AgoraChatAnnouncementViewDelegate,
                              UIImagePickerControllerDelegate,
                              UINavigationControllerDelegate {
     // MARK: AgoraChatTopBarDelegate
     func didSelectMessage() {
-        contentView.contentType = .messages
+        currentContentType = .messages
         bottomBar.agora_visible = true
+        topBar.hideRedDot()
     }
     
     func didSelectAnnouncement() {
-        contentView.contentType = .announcement
+        currentContentType = .announcement
         bottomBar.agora_visible = false
+        topBar.hideRedDot()
+    }
+    
+    func didTouchAnnouncement() {
+        currentContentType = .announcement
+        bottomBar.agora_visible = false
+        topBar.hideRedDot()
+    }
+    
+    // MARK: AgoraChatAnnouncementViewDelegate
+    func onSetAnnouncement(_ announcement: String?) {
+        messageView.announcementText = announcement
+        delegate?.onSetAnnouncement(announcement)
     }
     
     // MARK: AgoraChatBottomBarDelegate
@@ -184,5 +253,28 @@ extension AgoraChatMainView: AgoraChatTopBarDelegate,
             return
         }
         delegate?.onSendImageData(data)
+    }
+}
+
+// MARK: - private
+private extension AgoraChatMainView {
+    func updateContentType() {
+        switch currentContentType {
+        case .messages:
+            topBar.foucusOnMessageTab(.messages)
+            messageView.agora_visible = true
+            announcementView.agora_visible = false
+            bottomBar.agora_visible = true
+        case .announcement:
+            topBar.foucusOnMessageTab(.announcement)
+            messageView.agora_visible = false
+            announcementView.agora_visible = true
+            bottomBar.agora_visible = false
+        }
+    }
+    
+    @objc func onClickAnnouncement(_ sender: UIButton) {
+        currentContentType = .announcement
+        topBar.hideRedDot()
     }
 }

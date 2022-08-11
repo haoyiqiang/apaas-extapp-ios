@@ -33,8 +33,30 @@ struct AgoraChatEasemobUserConfig {
     var nickName: String
     var avatarurl: String?
     var fcrRoomId: String
-    var password: String = ""
+    var password: String
     var role: Int
+    
+    init(userName: String,
+         nickName: String,
+         avatarurl: String?,
+         fcrRoomId: String,
+         password: String? = "",
+         role: Int) {
+        var finalAvatarUrl = "https://download-sdk.oss-cn-beijing.aliyuncs.com/downloads/IMDemo/avatar/Image1.png"
+        var finalPassword = userName
+        if let avatarurl = avatarurl {
+            finalAvatarUrl = avatarurl
+        }
+        if let password = password {
+            finalPassword = password
+        }
+        self.userName = userName
+        self.nickName = nickName
+        self.avatarurl = finalAvatarUrl
+        self.fcrRoomId = fcrRoomId
+        self.password = finalPassword
+        self.role = role
+    }
 }
 
 enum AgoraChatEasemobCmdMessageBodyActionType: String {
