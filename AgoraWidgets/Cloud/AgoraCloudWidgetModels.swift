@@ -13,7 +13,7 @@ enum AgoraCloudInteractionSignal: Convertable {
     case closeCloud
     
     private enum CodingKeys: CodingKey {
-        case OpenCourseware
+        case openCourseware
         case CloseCloud
     }
     
@@ -23,7 +23,7 @@ enum AgoraCloudInteractionSignal: Convertable {
         if let _ = try? container.decodeNil(forKey: .CloseCloud) {
             self = .closeCloud
         } else if let value = try? container.decode(AgoraCloudWhiteScenesInfo.self,
-                                                    forKey: .OpenCourseware) {
+                                                    forKey: .openCourseware) {
             self = .openCourseware(value)
         } else {
             throw DecodingError.dataCorrupted(
@@ -43,7 +43,7 @@ enum AgoraCloudInteractionSignal: Convertable {
             try container.encodeNil(forKey: .CloseCloud)
         case .openCourseware(let x):
             try container.encode(x,
-                                 forKey: .OpenCourseware)
+                                 forKey: .openCourseware)
         }
     }
     

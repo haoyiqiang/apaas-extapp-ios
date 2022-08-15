@@ -9,77 +9,77 @@ import Foundation
 
 // MARK: signal
 enum FcrBoardInteractionSignal: Convertable {
-    case JoinBoard
-    case ChangeAssistantType(FcrBoardAssistantType)
-    case GetBoardGrantedUsers([String])
-    case UpdateGrantedUsers(FcrBoardGrantUsersChangeType)
-    case AudioMixingStateChanged(FcrBoardAudioMixingData)
-    case BoardAudioMixingRequest(FcrBoardAudioMixingRequestData)
-    case BoardStepChanged(FcrBoardStepChangeType)
-    case ClearBoard
-    case OpenCourseware(FcrBoardCoursewareInfo)
-    case WindowStateChanged(FcrBoardWindowState)
-    case SaveBoard
-    case ChangeRatio
-    case OnBoardSaveResult(FcrBoardSnapshotResult)
-    case CloseBoard
+    case joinBoard
+    case changeAssistantType(FcrBoardAssistantType)
+    case getBoardGrantedUsers([String])
+    case updateGrantedUsers(FcrBoardGrantUsersChangeType)
+    case audioMixingStateChanged(FcrBoardAudioMixingData)
+    case boardAudioMixingRequest(FcrBoardAudioMixingRequestData)
+    case boardStepChanged(FcrBoardStepChangeType)
+    case clearBoard
+    case openCourseware(FcrBoardCoursewareInfo)
+    case windowStateChanged(FcrBoardWindowState)
+    case saveBoard
+    case changeRatio
+    case onBoardSaveResult(FcrBoardSnapshotResult)
+    case closeBoard
     
     private enum CodingKeys: CodingKey {
-        case JoinBoard
+        case joinBoard
         case BoardPhaseChanged
-        case ChangeAssistantType
-        case GetBoardGrantedUsers
-        case UpdateGrantedUsers
-        case AudioMixingStateChanged
-        case BoardAudioMixingRequest
+        case changeAssistantType
+        case getBoardGrantedUsers
+        case updateGrantedUsers
+        case audioMixingStateChanged
+        case boardAudioMixingRequest
         case BoardPageChanged
-        case BoardStepChanged
-        case ClearBoard
-        case OpenCourseware
-        case WindowStateChanged
-        case SaveBoard
-        case ChangeRatio
-        case OnBoardSaveResult
-        case CloseBoard
+        case boardStepChanged
+        case clearBoard
+        case openCourseware
+        case windowStateChanged
+        case saveBoard
+        case changeRatio
+        case onBoardSaveResult
+        case closeBoard
     }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        if let _ = try? container.decodeNil(forKey: .JoinBoard) {
-            self = .JoinBoard
+        if let _ = try? container.decodeNil(forKey: .joinBoard) {
+            self = .joinBoard
         } else if let value = try? container.decode(FcrBoardAssistantType.self,
-                                                    forKey: .ChangeAssistantType) {
-            self = .ChangeAssistantType(value)
+                                                    forKey: .changeAssistantType) {
+            self = .changeAssistantType(value)
         } else if let value = try? container.decode(FcrBoardAudioMixingData.self,
-                                                    forKey: .AudioMixingStateChanged) {
-            self = .AudioMixingStateChanged(value)
+                                                    forKey: .audioMixingStateChanged) {
+            self = .audioMixingStateChanged(value)
         } else if let value = try? container.decode([String].self,
-                                                    forKey: .GetBoardGrantedUsers) {
-            self = .GetBoardGrantedUsers(value)
+                                                    forKey: .getBoardGrantedUsers) {
+            self = .getBoardGrantedUsers(value)
         } else if let value = try? container.decode(FcrBoardGrantUsersChangeType.self,
-                                                    forKey: .UpdateGrantedUsers) {
-            self = .UpdateGrantedUsers(value)
+                                                    forKey: .updateGrantedUsers) {
+            self = .updateGrantedUsers(value)
         } else if let value = try? container.decode(FcrBoardStepChangeType.self,
-                                                    forKey: .BoardStepChanged) {
-            self = .BoardStepChanged(value)
-        } else if let value = try? container.decodeNil(forKey: .ClearBoard) {
-            self = .ClearBoard
+                                                    forKey: .boardStepChanged) {
+            self = .boardStepChanged(value)
+        } else if let value = try? container.decodeNil(forKey: .clearBoard) {
+            self = .clearBoard
         } else if let value = try? container.decode(FcrBoardCoursewareInfo.self,
-                                                    forKey: .OpenCourseware) {
-            self = .OpenCourseware(value)
+                                                    forKey: .openCourseware) {
+            self = .openCourseware(value)
         } else if let value = try? container.decode(FcrBoardWindowState.self,
-                                                    forKey: .WindowStateChanged) {
-            self = .WindowStateChanged(value)
-        } else if let _ = try? container.decodeNil(forKey: .SaveBoard) {
-            self = .SaveBoard
-        } else if let _ = try? container.decodeNil(forKey: .ChangeRatio) {
-            self = .ChangeRatio
+                                                    forKey: .windowStateChanged) {
+            self = .windowStateChanged(value)
+        } else if let _ = try? container.decodeNil(forKey: .saveBoard) {
+            self = .saveBoard
+        } else if let _ = try? container.decodeNil(forKey: .changeRatio) {
+            self = .changeRatio
         } else if let value = try? container.decode(FcrBoardSnapshotResult.self,
-                                                    forKey: .OnBoardSaveResult) {
-            self = .OnBoardSaveResult(value)
-        } else if let _ = try? container.decodeNil(forKey: .CloseBoard) {
-            self = .CloseBoard
+                                                    forKey: .onBoardSaveResult) {
+            self = .onBoardSaveResult(value)
+        } else if let _ = try? container.decodeNil(forKey: .closeBoard) {
+            self = .closeBoard
         } else {
             throw DecodingError.dataCorrupted(
                 .init(
@@ -94,43 +94,43 @@ enum FcrBoardInteractionSignal: Convertable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         switch self {
-        case .JoinBoard:
-            try container.encodeNil(forKey: .JoinBoard)
-        case .ChangeAssistantType(let x):
+        case .joinBoard:
+            try container.encodeNil(forKey: .joinBoard)
+        case .changeAssistantType(let x):
             try container.encode(x,
-                                 forKey: .ChangeAssistantType)
-        case .GetBoardGrantedUsers(let x):
+                                 forKey: .changeAssistantType)
+        case .getBoardGrantedUsers(let x):
             try container.encode(x,
-                                 forKey: .GetBoardGrantedUsers)
-        case .UpdateGrantedUsers(let x):
+                                 forKey: .getBoardGrantedUsers)
+        case .updateGrantedUsers(let x):
             try container.encode(x,
-                                 forKey: .UpdateGrantedUsers)
-        case .AudioMixingStateChanged(let x):
+                                 forKey: .updateGrantedUsers)
+        case .audioMixingStateChanged(let x):
             try container.encode(x,
-                                 forKey: .AudioMixingStateChanged)
-        case .BoardAudioMixingRequest(let x):
+                                 forKey: .audioMixingStateChanged)
+        case .boardAudioMixingRequest(let x):
             try container.encode(x,
-                                 forKey: .BoardAudioMixingRequest)
-        case .BoardStepChanged(let x):
+                                 forKey: .boardAudioMixingRequest)
+        case .boardStepChanged(let x):
             try container.encode(x,
-                                 forKey: .BoardStepChanged)
-        case .ClearBoard:
-            try container.encodeNil(forKey: .ClearBoard)
-        case .OpenCourseware(let x):
+                                 forKey: .boardStepChanged)
+        case .clearBoard:
+            try container.encodeNil(forKey: .clearBoard)
+        case .openCourseware(let x):
             try container.encode(x,
-                                 forKey: .OpenCourseware)
-        case .WindowStateChanged(let x):
+                                 forKey: .openCourseware)
+        case .windowStateChanged(let x):
             try container.encode(x,
-                                 forKey: .WindowStateChanged)
-        case .SaveBoard:
-            try container.encodeNil(forKey: .SaveBoard)
-        case .ChangeRatio:
-            try container.encodeNil(forKey: .ChangeRatio)
-        case .OnBoardSaveResult(let x):
+                                 forKey: .windowStateChanged)
+        case .saveBoard:
+            try container.encodeNil(forKey: .saveBoard)
+        case .changeRatio:
+            try container.encodeNil(forKey: .changeRatio)
+        case .onBoardSaveResult(let x):
             try container.encode(x,
-                                 forKey: .OnBoardSaveResult)
-        case .CloseBoard:
-            try container.encodeNil(forKey: .CloseBoard)
+                                 forKey: .onBoardSaveResult)
+        case .closeBoard:
+            try container.encodeNil(forKey: .closeBoard)
         }
     }
     
