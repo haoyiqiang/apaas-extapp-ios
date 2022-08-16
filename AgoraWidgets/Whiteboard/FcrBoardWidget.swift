@@ -123,23 +123,23 @@ struct FcrBoardInitCondition {
         
         if let signal = message.toBoardWidgetSignal() {
             switch signal {
-            case .JoinBoard:
+            case .joinBoard:
                 initCondition.needJoin = true
-            case .ChangeAssistantType(let assistantType):
+            case .changeAssistantType(let assistantType):
                 handleChangeAssistantType(type: assistantType)
-            case .AudioMixingStateChanged(let audioMixingData):
+            case .audioMixingStateChanged(let audioMixingData):
                 handleAudioMixing(data: audioMixingData)
-            case .UpdateGrantedUsers(let type):
+            case .updateGrantedUsers(let type):
                 handleBoardGrant(type: type)
-            case .BoardStepChanged(let changeType):
+            case .boardStepChanged(let changeType):
                 handleStepChange(changeType: changeType)
-            case .ClearBoard:
+            case .clearBoard:
                 mainWindow?.clean()
-            case .OpenCourseware(let courseware):
+            case .openCourseware(let courseware):
                 handleOpenCourseware(info: courseware)
-            case .SaveBoard:
+            case .saveBoard:
                 handleSaveBoardImage()
-            case .ChangeRatio:
+            case .changeRatio:
                 updateViewRatio()
             default:
                 break
@@ -285,7 +285,7 @@ private extension FcrBoardWidget {
                     guard status != .authorized else {
                         return
                     }
-                    self.sendMessage(signal: .OnBoardSaveResult(.noAlbumAuth))
+                    self.sendMessage(signal: .onBoardSaveResult(.noAlbumAuth))
                 }
             } else {
                 // Fallback on earlier versions
@@ -293,7 +293,7 @@ private extension FcrBoardWidget {
                     guard status != .authorized else {
                         return
                     }
-                    self.sendMessage(signal: .OnBoardSaveResult(.noAlbumAuth))
+                    self.sendMessage(signal: .onBoardSaveResult(.noAlbumAuth))
                 }
             }
             return
@@ -452,7 +452,7 @@ private extension FcrBoardWidget {
         
         AgoraLoading.hide()
         
-        sendMessage(signal: .OnBoardSaveResult(.savedToAlbum))
+        sendMessage(signal: .onBoardSaveResult(.savedToAlbum))
       }
     
     func sendMessage(signal: FcrBoardInteractionSignal) {
@@ -493,7 +493,7 @@ private extension FcrBoardWidget {
         var privilegeNeedChanged = (newLocalPrivilege != hasOperationPrivilege)
         
         guard privilegeNeedChanged else {
-            sendMessage(signal: .GetBoardGrantedUsers(grantedUsers))
+            sendMessage(signal: .getBoardGrantedUsers(grantedUsers))
             return
         }
         
@@ -508,7 +508,7 @@ private extension FcrBoardWidget {
                      type: .info)
             
             self.hasOperationPrivilege = newLocalPrivilege
-            self.sendMessage(signal: .GetBoardGrantedUsers(grantedUsers))
+            self.sendMessage(signal: .getBoardGrantedUsers(grantedUsers))
         }, failure: { [weak self] error in
             guard let `self` = self else {
                 return
@@ -638,15 +638,15 @@ extension FcrBoardWidget: FcrBoardMainWindowDelegate {
     }
     
     func onUndoStateUpdated(enable: Bool) {
-        sendMessage(signal: .BoardStepChanged(.undoAble(enable)))
+        sendMessage(signal: .boardStepChanged(.undoAble(enable)))
     }
     
     func onRedoStateUpdated(enable: Bool) {
-        sendMessage(signal: .BoardStepChanged(.redoAble(enable)))
+        sendMessage(signal: .boardStepChanged(.redoAble(enable)))
     }
     
     func onWindowBoxStateChanged(state: FcrWindowBoxState) {
-        sendMessage(signal: .WindowStateChanged(state.toWidget))
+        sendMessage(signal: .windowStateChanged(state.toWidget))
         movePageControl(isRight: (state == .mini))
     }
     
@@ -659,18 +659,18 @@ extension FcrBoardWidget: FcrBoardMainWindowDelegate {
                                                      loopback: loopback,
                                                      replace: replace,
                                                      cycle: cycle)
-        sendMessage(signal: .BoardAudioMixingRequest(request))
+        sendMessage(signal: .boardAudioMixingRequest(request))
     }
     
     func onStopAudioMixing() {
         let request = FcrBoardAudioMixingRequestData(requestType: .stop)
-        sendMessage(signal: .BoardAudioMixingRequest(request))
+        sendMessage(signal: .boardAudioMixingRequest(request))
     }
     
     func onAudioMixingPositionUpdated(position: Int) {
         let request = FcrBoardAudioMixingRequestData(requestType: .setPosition,
                                                      position: position)
-        sendMessage(signal: .BoardAudioMixingRequest(request))
+        sendMessage(signal: .boardAudioMixingRequest(request))
     }
 }
 
