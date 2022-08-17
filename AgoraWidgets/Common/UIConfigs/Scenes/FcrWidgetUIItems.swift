@@ -529,12 +529,14 @@ struct FcrWidgetUIItemNetlessBoardPageControl: FcrWidgetUIItemProtocol {
     let backgroundColor: UIColor = FcrWidgetUIColorGroup.systemComponentColor
     let cornerRadius: CGFloat    = FcrWidgetUIFrameGroup.roundContainerCornerRadius
     
-    let addPageImage: UIImage?   = .agora_widget_image("ic_board_page_add")
-    let prevPageImage: UIImage?  = .agora_widget_image("ic_board_page_pre")
-    let nextPageImage: UIImage?  = .agora_widget_image("ic_board_page_next")
+    let addPageImage: UIImage?          = .agora_widget_image("ic_board_page_add")
+    let prevPageImage: UIImage?         = .agora_widget_image("ic_board_page_pre")
+    let nextPageImage: UIImage?         = .agora_widget_image("ic_board_page_next")
+    let disabledPrevPageImage: UIImage? = .agora_widget_image("ic_board_page_disabled_pre")
+    let disabledNextPageImage: UIImage? = .agora_widget_image("ic_board_page_disabled_next")
     
     let sepLine        = FcrWidgetUIItemSepLine()
-    let pageLabel      = FcrWidgetUIItemNetlessBoardPageLabel()
+    var pageLabel      = FcrWidgetUIItemNetlessBoardPageLabel()
     let shadow         = FcrWidgetUIItemShadow()
 }
 
