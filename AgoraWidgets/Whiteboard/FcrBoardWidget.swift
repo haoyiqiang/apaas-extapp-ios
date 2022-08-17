@@ -654,23 +654,32 @@ extension FcrBoardWidget: FcrBoardMainWindowDelegate {
                             loopback: Bool,
                             replace: Bool,
                             cycle: Int) {
-        let request = FcrBoardAudioMixingRequestData(requestType: .start,
-                                                     filePath: filePath,
-                                                     loopback: loopback,
-                                                     replace: replace,
-                                                     cycle: cycle)
-        sendMessage(signal: .boardAudioMixingRequest(request))
+        let data = FcrBoardAudioMixingStartData(filePath: filePath,
+                                                loopback: loopback,
+                                                replace: replace,
+                                                cycle: cycle)
+        let type = FcrBoardAudioMixingRequestType.start(data)
+        sendMessage(signal: .boardAudioMixingRequest(type))
+    }
+    
+    func onPauseAudioMixing() {
+        let type = FcrBoardAudioMixingRequestType.pause
+        sendMessage(signal:.boardAudioMixingRequest(type))
+    }
+    
+    func onResumeAudioMixing() {
+        let type = FcrBoardAudioMixingRequestType.resume
+        sendMessage(signal:.boardAudioMixingRequest(type))
     }
     
     func onStopAudioMixing() {
-        let request = FcrBoardAudioMixingRequestData(requestType: .stop)
-        sendMessage(signal: .boardAudioMixingRequest(request))
+        let type = FcrBoardAudioMixingRequestType.stop
+        sendMessage(signal: .boardAudioMixingRequest(type))
     }
     
     func onAudioMixingPositionUpdated(position: Int) {
-        let request = FcrBoardAudioMixingRequestData(requestType: .setPosition,
-                                                     position: position)
-        sendMessage(signal: .boardAudioMixingRequest(request))
+        let type = FcrBoardAudioMixingRequestType.setPosition(position)
+        sendMessage(signal: .boardAudioMixingRequest(type))
     }
 }
 

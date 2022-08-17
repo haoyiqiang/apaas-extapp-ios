@@ -662,7 +662,6 @@ private extension FcrBoardMainWindow {
         let viewMode: WhiteViewMode = .broadcaster
         whiteRoom.setViewMode(viewMode)
         
-        
         log(content: "set view mode",
             extra: memberState.agDescription,
             type: .info,
@@ -896,6 +895,20 @@ extension FcrBoardMainWindow: FcrBoardMainWindowNeedObserve {
                                      loopback: loopback,
                                      replace: replace,
                                      cycle: cycle)
+    }
+    
+    func onPauseAudioMixing() {
+        log(content: "on pause audio mixing",
+            type: .info)
+        
+        delegate?.onPauseAudioMixing()
+    }
+    
+    func onResumeAudioMixing() {
+        log(content: "on resume audio mixing",
+            type: .info)
+        
+        delegate?.onResumeAudioMixing()
     }
     
     func onStopAudioMixing() {

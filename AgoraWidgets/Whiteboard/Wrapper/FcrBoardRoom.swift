@@ -197,7 +197,7 @@ private extension FcrBoardRoom {
         roomConfig.windowParams = params
 #if DEBUG
         roomConfig.enableWritableAssert = true
-#endif  
+#endif
         return roomConfig
     }
     
@@ -312,7 +312,7 @@ private extension FcrBoardRoom {
             
             self.log(content: joinText + " success",
                      extra: roomConfig.agDescription,
-                     type: .error)
+                     type: .info)
             
             success(whiteRoom)
         }
