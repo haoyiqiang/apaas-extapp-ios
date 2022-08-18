@@ -300,11 +300,9 @@ extension FcrBoardMainWindow {
             // Success
             if isWritable {
                 self.whiteRoom.disableSerialization(false)
-                self.whiteRoom.disableCameraTransform(true)
             }
             let disable = !isWritable
             self.whiteRoom.disableDeviceInputs(disable)
-            self.whiteRoom.disableCameraTransform(true)
             
             let extra = ["disable": disable.agDescription]
             
@@ -674,7 +672,6 @@ private extension FcrBoardMainWindow {
         let disableSerialization = false
         let disableCamera = true
         
-        whiteRoom.disableCameraTransform(disableCamera)
         whiteRoom.setMemberState(memberState)
         whiteRoom.disableSerialization(false)
         

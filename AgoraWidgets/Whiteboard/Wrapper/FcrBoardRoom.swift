@@ -195,6 +195,7 @@ private extension FcrBoardRoom {
         roomConfig.isWritable = config.hasOperationPrivilege
         roomConfig.disableNewPencil = false
         roomConfig.windowParams = params
+        roomConfig.disableCameraTransform = true
 #if DEBUG
         roomConfig.enableWritableAssert = true
 #endif
