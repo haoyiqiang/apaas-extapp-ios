@@ -195,9 +195,10 @@ private extension FcrBoardRoom {
         roomConfig.isWritable = config.hasOperationPrivilege
         roomConfig.disableNewPencil = false
         roomConfig.windowParams = params
+        roomConfig.disableCameraTransform = true
 #if DEBUG
         roomConfig.enableWritableAssert = true
-#endif  
+#endif
         return roomConfig
     }
     
@@ -312,7 +313,7 @@ private extension FcrBoardRoom {
             
             self.log(content: joinText + " success",
                      extra: roomConfig.agDescription,
-                     type: .error)
+                     type: .info)
             
             success(whiteRoom)
         }

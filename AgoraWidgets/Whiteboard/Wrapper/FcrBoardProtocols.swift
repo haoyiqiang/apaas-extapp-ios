@@ -50,6 +50,10 @@ protocol FcrBoardAudioMixingDelegate: NSObjectProtocol {
                             replace: Bool,
                             cycle: Int)
     
+    func onPauseAudioMixing()
+    
+    func onResumeAudioMixing()
+    
     func onStopAudioMixing()
     
     func onAudioMixingPositionUpdated(position: Int)
