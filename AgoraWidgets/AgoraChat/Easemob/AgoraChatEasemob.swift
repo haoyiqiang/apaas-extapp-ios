@@ -170,7 +170,7 @@ class AgoraChatEasemob: NSObject {
             }
             guard let message = chatMessage,
                   chatError == nil else {
-                    self.delegate?.didOccurError(type: .joinFailed)
+                self.delegate?.didOccurError(type: .sendFailed(chatError!.code.rawValue))
                     return
             }
             self.delegate?.didSendMessages(list: [message])
