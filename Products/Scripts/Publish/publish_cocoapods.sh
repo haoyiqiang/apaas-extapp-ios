@@ -1,29 +1,61 @@
 #!/bin/sh
 SDK_Name=$1
-SDK_Version=$2
 
-if [ ${#SDK_Name} -le 0 ]; then
-    echo "parameter 1 nil"
-    exit -1
-fi
-
-if [ ${#SDK_Version} -le 0 ]; then
-    echo "parameter 2 nil"
-    exit -1
-fi
-
+cd $(dirname $0)
 cd ../../../
+pwd
 
-#开源库需要先提交 tag 才能验证
+Podspec_Path=${SDK_Name}.podspec
+
+# params check
+if [ ${#SDK_Name} -le 0 ]; then
+    echo "SDK name nil"
+    exit -1
+fi
+
+if [[ ! -f $Podspec_Path ]]; then
+    echo "podspec not found"
+    exit 1
+fi
+
+# get version
+Version_Cmd=`grep "spec.version\s*=\s*\"\d.\d.\d\"" "${Podspec_Path}" | sed -r 's/.*"(.+)".*/\1/'`
+
+SDK_Version=$Version_Cmd
+if [[ -z $SDK_Version ]]; then
+    echo "get version unsuccessfully"
+    exit -1
+fi
+
+echo "$SDK_Name version: $SDK_Version"
+
+# originGithub check
+Remote_Cmd=`git remote | grep 'originGithub'`
+if [[ -z $Remote_Cmd ]]; then
+    echo "add remote originGithub"
+    git remote add originGithub 'git@github.com:AgoraIO-Community/apaas-extapp-ios.git'
+fi
+
+# tag check
 Tag=${SDK_Name}_v${SDK_Version}
+Tag_Check_Cmd=`git ls-remote --tags originGithub | grep "refs/tags/$Tag"`
+if [[ -n ${Tag_Check_Cmd} ]]; then
+    echo "Tag exists in originGithub"
+    exit -1
+fi
 
-git add ${SDK_Name}.podspec
-git commit -m "[ENH]:${Tag}"
+# push tag
 git tag -d ${Tag}
-git push originGithub :refs/tags/${Tag}
+git push origin :refs/tags/${Tag}
 git tag ${Tag}
+git push origin ${Tag}
 git push originGithub ${Tag}
 
-pod spec lint ${SDK_Name}.podspec --allow-warnings --verbose
-pod trunk push ${SDK_Name}.podspec --allow-warnings --verbose
+# pod push
+pod spec lint ${Podspec_Path} --allow-warnings --verbose
+pod trunk push ${Podspec_Path} --allow-warnings --verbose
 pod trunk info ${SDK_Name}
+
+# push branch to originGithub
+Branch_Name=release/${SDK_Version}
+git push originGithub ${Branch_Name}
