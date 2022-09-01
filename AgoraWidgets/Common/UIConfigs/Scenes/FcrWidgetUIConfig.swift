@@ -19,4 +19,3 @@ protocol FcrWidgetUIConfig {
 }
 
 var UIConfig: FcrWidgetUIConfig!
-
