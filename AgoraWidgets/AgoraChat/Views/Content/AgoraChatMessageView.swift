@@ -202,7 +202,10 @@ extension AgoraChatMessageView: UITableViewDelegate, UITableViewDataSource {
                 let url = URL(string: model.imageRemoteUrl)
                 let brokenImage = UIConfig.agoraChat.picture.brokenImage
                 cell.messageImageView.sd_setImage(with: url,
-                                                  placeholderImage: brokenImage) { downloadImage, error, cacheType, url in
+                                                  placeholderImage: brokenImage) { [weak self] downloadImage, error, cacheType, url in
+                    guard let `self` = self else {
+                        return
+                    }
                     cell.messageImageView.image = downloadImage
                     let size = cell.sizeWithImage(downloadImage)
                     cell.messageImageView.size = size
