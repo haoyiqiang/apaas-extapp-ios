@@ -97,7 +97,6 @@ import Masonry
 // MARK: - View
 private extension AgoraCountdownTimerWidget {
     func initViews() {
-        countdownView.isHidden = true
         view.addSubview(countdownView)
     }
     
