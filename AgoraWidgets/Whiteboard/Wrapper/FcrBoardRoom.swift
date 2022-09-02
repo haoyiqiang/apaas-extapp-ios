@@ -205,14 +205,16 @@ private extension FcrBoardRoom {
     func reJoin() {
         callConnectionStateUpdatedCallback(state: .reconnecting)
         
-        joinRoom(isRejoin: true) { [weak self] (whiteRoom) in
-            guard let `self` = self else {
-                return
-            }
-            
+        guard let `mainWindow` = mainWindow else {
+            self.log(content: "mainWindow nil",
+                     type: .warning)
+            return
+        }
+        
+        joinRoom(isRejoin: true) { [weak mainWindow] (whiteRoom) in
             // Success
-            guard let `mainWindow` = self.mainWindow else {
-                self.log(content: "mainWindow nil",
+            guard let `mainWindow` = mainWindow else {
+                self.log(content: "rejoin successfully, but mainWindow nil",
                          type: .error)
                 return
             }

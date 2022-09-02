@@ -364,12 +364,12 @@ private extension FcrBoardWidget {
         // init
         let boardRegion = FcrBoardRegion(rawValue: config.boardRegion) ?? .cn
         let backgroundColor = UIConfig.netlessBoard.backgroundColor
-        boardRoom = FcrBoardRoom(appId: config.boardAppId,
+        let room = FcrBoardRoom(appId: config.boardAppId,
                                  region: boardRegion,
                                  backgroundColor: backgroundColor)
-        boardRoom?.delegate = self
+        room.delegate = self
         
-        boardRoom?.logTube = self
+        room.logTube = self
         
         let ratio = view.ratio()
         
@@ -382,8 +382,8 @@ private extension FcrBoardWidget {
         
         AgoraLoading.loading(in: view)
         
-        boardRoom!.join(config: joinConfig,
-                        superView: view) { [weak self] mainWindow in
+        joinBoardRoom(room,
+                      config: joinConfig) { [weak self] mainWindow in
             guard let `self` = self else {
                 return
             }
@@ -393,6 +393,7 @@ private extension FcrBoardWidget {
             self.log(content: "join successfully",
                      extra: nil,
                      type: .info)
+            
             self.mainWindow = mainWindow
             mainWindow.delegate = self
             mainWindow.logTube = self
@@ -400,12 +401,24 @@ private extension FcrBoardWidget {
             self.initCondition.needJoin = false
             
             self.setUpInitialState()
-        } failure: { [weak self] error in
-            guard let `self` = self else {
+        }
+        
+        boardRoom = room
+    }
+    
+    func joinBoardRoom(_ room: FcrBoardRoom,
+                       config: FcrBoardRoomJoinConfig,
+                       success: @escaping (FcrBoardMainWindow) -> Void) {
+        room.join(config: config,
+                  superView: view,
+                  success: success) { [weak room] error in
+            guard let `room` = room else {
                 return
             }
             
-            AgoraLoading.hide()
+            self.joinBoardRoom(room,
+                               config: config,
+                               success: success)
             
             self.log(content: "join unsuccessfully",
                       extra: error.localizedDescription,
