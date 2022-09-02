@@ -18,4 +18,4 @@ protocol FcrWidgetUIConfig {
     var agoraChat: FcrWidgetUIComponentAgoraChat { get }
 }
 
-var UIConfig: FcrWidgetUIConfig!
+var UIConfig: FcrWidgetUIConfig = FcrWidgetOneToOneUIConfig()

@@ -607,8 +607,8 @@ private extension FcrBoardWidget {
         guard let `mainWindow` = mainWindow else {
             return
         }
-        let index = mainWindow.getPageInfo().showIndex - 1
-        let finalIndex = (index < 0) ? 0 : index
+        let showIndex: UInt16 = mainWindow.getPageInfo().showIndex
+        let finalIndex: UInt16 = (showIndex > 1) ? (showIndex - 1) : 0
         mainWindow.setPageIndex(index: finalIndex)
     }
     
