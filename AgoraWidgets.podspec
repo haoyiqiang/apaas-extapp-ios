@@ -25,7 +25,7 @@ Pod::Spec.new do |spec|
                       "AgoraWidgets/WebView/**/*.{h,m,swift}",
                       "AgoraWidgets/AgoraChat/**/*.{h,m,swift}"
   
-  spec.dependency "AgoraUIBaseViews", ">=2.7.0"
+  spec.dependency "AgoraUIBaseViews", ">=2.7.2"
   spec.dependency "AgoraWidget", ">=2.6.0"
   spec.dependency "AgoraLog", "1.0.2"
   spec.dependency "Armin", ">=1.1.0"
