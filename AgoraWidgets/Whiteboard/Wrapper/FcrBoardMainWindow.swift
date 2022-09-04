@@ -300,11 +300,9 @@ extension FcrBoardMainWindow {
             // Success
             if isWritable {
                 self.whiteRoom.disableSerialization(false)
-                self.whiteRoom.disableCameraTransform(true)
             }
             let disable = !isWritable
             self.whiteRoom.disableDeviceInputs(disable)
-            self.whiteRoom.disableCameraTransform(true)
             
             let extra = ["disable": disable.agDescription]
             
@@ -662,7 +660,6 @@ private extension FcrBoardMainWindow {
         let viewMode: WhiteViewMode = .broadcaster
         whiteRoom.setViewMode(viewMode)
         
-        
         log(content: "set view mode",
             extra: memberState.agDescription,
             type: .info,
@@ -675,7 +672,6 @@ private extension FcrBoardMainWindow {
         let disableSerialization = false
         let disableCamera = true
         
-        whiteRoom.disableCameraTransform(disableCamera)
         whiteRoom.setMemberState(memberState)
         whiteRoom.disableSerialization(false)
         
@@ -896,6 +892,20 @@ extension FcrBoardMainWindow: FcrBoardMainWindowNeedObserve {
                                      loopback: loopback,
                                      replace: replace,
                                      cycle: cycle)
+    }
+    
+    func onPauseAudioMixing() {
+        log(content: "on pause audio mixing",
+            type: .info)
+        
+        delegate?.onPauseAudioMixing()
+    }
+    
+    func onResumeAudioMixing() {
+        log(content: "on resume audio mixing",
+            type: .info)
+        
+        delegate?.onResumeAudioMixing()
     }
     
     func onStopAudioMixing() {

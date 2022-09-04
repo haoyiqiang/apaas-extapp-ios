@@ -195,23 +195,26 @@ private extension FcrBoardRoom {
         roomConfig.isWritable = config.hasOperationPrivilege
         roomConfig.disableNewPencil = false
         roomConfig.windowParams = params
+        roomConfig.disableCameraTransform = true
 #if DEBUG
         roomConfig.enableWritableAssert = true
-#endif  
+#endif
         return roomConfig
     }
     
     func reJoin() {
         callConnectionStateUpdatedCallback(state: .reconnecting)
         
-        joinRoom(isRejoin: true) { [weak self] (whiteRoom) in
-            guard let `self` = self else {
-                return
-            }
-            
+        guard let `mainWindow` = mainWindow else {
+            self.log(content: "mainWindow nil",
+                     type: .warning)
+            return
+        }
+        
+        joinRoom(isRejoin: true) { [weak mainWindow] (whiteRoom) in
             // Success
-            guard let `mainWindow` = self.mainWindow else {
-                self.log(content: "mainWindow nil",
+            guard let `mainWindow` = mainWindow else {
+                self.log(content: "rejoin successfully, but mainWindow nil",
                          type: .error)
                 return
             }
@@ -312,7 +315,7 @@ private extension FcrBoardRoom {
             
             self.log(content: joinText + " success",
                      extra: roomConfig.agDescription,
-                     type: .error)
+                     type: .info)
             
             success(whiteRoom)
         }

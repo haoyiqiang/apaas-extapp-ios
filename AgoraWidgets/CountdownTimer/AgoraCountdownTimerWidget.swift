@@ -35,11 +35,11 @@ import Masonry
             }
             switch countdownState {
             case .duration:
-                countdownView.isHidden = false
+                view.isHidden = false
                 countdownView.timePageColor = .normal
                 startTimer()
             case .end:
-                countdownView.isHidden = true
+                view.isHidden = true
                 countdownView.timePageColor = .warning
                 stopTimer()
             }
@@ -85,7 +85,7 @@ import Masonry
         super.onMessageReceived(message)
         
         if let serverTime = message.toSyncTimestamp() {
-            timeDiff = serverTime - Int64(Date().timeIntervalSince1970)*1000
+            timeDiff = serverTime - Int64(Date().timeIntervalSince1970) * 1000
         }
     }
     
@@ -97,7 +97,6 @@ import Masonry
 // MARK: - View
 private extension AgoraCountdownTimerWidget {
     func initViews() {
-        countdownView.isHidden = true
         view.addSubview(countdownView)
     }
     
