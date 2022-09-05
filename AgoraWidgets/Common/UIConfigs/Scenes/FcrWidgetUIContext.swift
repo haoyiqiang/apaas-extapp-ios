@@ -17,7 +17,7 @@ import Foundation
         }
     }
     
-    @objc public static func desctory() {
-        UIConfig = nil
+    @objc public static func destroy() {
+//        UIConfig = nil
     }
 }

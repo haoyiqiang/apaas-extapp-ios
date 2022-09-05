@@ -14,7 +14,7 @@ enum FcrBoardInteractionSignal: Convertable {
     case getBoardGrantedUsers([String])
     case updateGrantedUsers(FcrBoardGrantUsersChangeType)
     case audioMixingStateChanged(FcrBoardAudioMixingData)
-    case boardAudioMixingRequest(FcrBoardAudioMixingRequestData)
+    case boardAudioMixingRequest(FcrBoardAudioMixingRequestType)
     case boardStepChanged(FcrBoardStepChangeType)
     case clearBoard
     case openCourseware(FcrBoardCoursewareInfo)
@@ -54,6 +54,9 @@ enum FcrBoardInteractionSignal: Convertable {
         } else if let value = try? container.decode(FcrBoardAudioMixingData.self,
                                                     forKey: .audioMixingStateChanged) {
             self = .audioMixingStateChanged(value)
+        } else if let value = try? container.decode(FcrBoardAudioMixingRequestType.self,
+                                                    forKey: .boardAudioMixingRequest) {
+            self = .boardAudioMixingRequest(value)
         } else if let value = try? container.decode([String].self,
                                                     forKey: .getBoardGrantedUsers) {
             self = .getBoardGrantedUsers(value)
@@ -149,30 +152,70 @@ struct FcrBoardAudioMixingData: Convertable {
     var errorCode: Int
 }
 
-enum FcrBoardAudioMixingRequestType: Int,Convertable {
-    case start,stop,setPosition
-}
-
-struct FcrBoardAudioMixingRequestData: Convertable {
-    var requestType: FcrBoardAudioMixingRequestType
+struct FcrBoardAudioMixingStartData: Convertable {
     var filePath: String
     var loopback: Bool
     var replace: Bool
     var cycle: Int
-    var position: Int
+}
+
+enum FcrBoardAudioMixingRequestType: Convertable {
+    case start(FcrBoardAudioMixingStartData)
+    case pause
+    case resume
+    case stop
+    case setPosition(Int)
     
-    init(requestType: FcrBoardAudioMixingRequestType,
-         filePath: String = "",
-         loopback: Bool = true,
-         replace: Bool = true,
-         cycle: Int = 0,
-         position: Int = 0) {
-        self.requestType = requestType
-        self.filePath = filePath
-        self.loopback = loopback
-        self.replace = replace
-        self.cycle = cycle
-        self.position = position
+    private enum CodingKeys: CodingKey {
+        case start
+        case pause
+        case resume
+        case stop
+        case setPosition
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        if let value = try? container.decode(FcrBoardAudioMixingStartData.self,
+                                                    forKey: .start) {
+            self = .start(value)
+        } else if let _ = try? container.decodeNil(forKey: .pause) {
+            self = .pause
+        } else if let _ = try? container.decodeNil(forKey: .resume) {
+            self = .resume
+        } else if let _ = try? container.decodeNil(forKey: .stop) {
+            self = .stop
+        } else if let value = try? container.decode(Int.self,
+                                                    forKey: .setPosition) {
+            self = .setPosition(value)
+        } else {
+            throw DecodingError.dataCorrupted(
+                .init(
+                    codingPath: container.codingPath,
+                    debugDescription: "invalid data"
+                )
+            )
+        }
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        switch self {
+        case .start(let x):
+            try container.encode(x,
+                                 forKey: .start)
+        case .pause:
+            try container.encodeNil(forKey: .pause)
+        case .resume:
+            try container.encodeNil(forKey: .resume)
+        case .stop:
+            try container.encodeNil(forKey: .stop)
+        case .setPosition(let x):
+            try container.encode(x,
+                                 forKey: .setPosition)
+        }
     }
 }
 

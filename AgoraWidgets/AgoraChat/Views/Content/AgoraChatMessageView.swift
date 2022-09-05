@@ -16,6 +16,7 @@ class AgoraChatMessageView: UIView {
     private lazy var nilImageView = UIImageView(frame: .zero)
     private lazy var nilLabel = UILabel(frame: .zero)
     
+    private lazy var fullScreenImageView = UIImageView(frame: UIScreen.main.bounds)
     /**data**/
     var messageDataSource = [AgoraChatMessageViewType]() {
         didSet {
@@ -68,7 +69,6 @@ extension AgoraChatMessageView: AgoraUIContentContainer {
         messageListView.separatorInset = .zero
         messageListView.separatorStyle = .none
         messageListView.allowsMultipleSelection = false
-        messageListView.allowsSelection = false
         messageListView.delegate = self
         messageListView.dataSource = self
         messageListView.register(AgoraChatCommonMessageCell.self,
@@ -84,6 +84,16 @@ extension AgoraChatMessageView: AgoraUIContentContainer {
         annoucementButton.titleLabel?.lineBreakMode = .byTruncatingTail
         annoucementButton.imageView?.contentMode = .scaleAspectFit
         
+        let tap = UITapGestureRecognizer(target: self,
+                                         action: #selector(onClickCloseFullScreenImage))
+        fullScreenImageView.addGestureRecognizer(tap)
+        fullScreenImageView.backgroundColor = .black.withAlphaComponent(0.2)
+        fullScreenImageView.contentMode = .scaleAspectFit
+        fullScreenImageView.isUserInteractionEnabled = true
+        let topVc = UIViewController.agora_top_view_controller()
+        topVc.view.addSubview(fullScreenImageView)
+        fullScreenImageView.frame = topVc.view.frame
+        
         addSubviews([messageListView,
                      nilImageView,
                      nilLabel,
@@ -98,6 +108,8 @@ extension AgoraChatMessageView: AgoraUIContentContainer {
         
         nilImageView.agora_visible = true
         nilLabel.agora_visible = true
+        
+        fullScreenImageView.agora_visible = false
     }
     
     func initViewFrame() {
@@ -164,6 +176,7 @@ extension AgoraChatMessageView: UITableViewDelegate, UITableViewDataSource {
             let id = (model.isLocal) ? AgoraChatCommonMessageCell.sendId : AgoraChatCommonMessageCell.receiveId
             let cell = tableView.dequeueReusableCell(withIdentifier: id,
                                                      for: indexPath) as! AgoraChatCommonMessageCell
+            cell.selectionStyle = .none
             updateMessageCellBaseInfo(cell: cell,
                                       model: model,
                                       isText: true)
@@ -175,6 +188,7 @@ extension AgoraChatMessageView: UITableViewDelegate, UITableViewDataSource {
             let id = (model.isLocal) ? AgoraChatCommonMessageCell.sendId : AgoraChatCommonMessageCell.receiveId
             let cell = tableView.dequeueReusableCell(withIdentifier: id,
                                                      for: indexPath) as! AgoraChatCommonMessageCell
+            cell.selectionStyle = .none
             updateMessageCellBaseInfo(cell: cell,
                                       model: model,
                                       isText: false)
@@ -188,7 +202,10 @@ extension AgoraChatMessageView: UITableViewDelegate, UITableViewDataSource {
                 let url = URL(string: model.imageRemoteUrl)
                 let brokenImage = UIConfig.agoraChat.picture.brokenImage
                 cell.messageImageView.sd_setImage(with: url,
-                                                  placeholderImage: brokenImage) { downloadImage, error, cacheType, url in
+                                                  placeholderImage: brokenImage) { [weak self] downloadImage, error, cacheType, url in
+                    guard let `self` = self else {
+                        return
+                    }
                     cell.messageImageView.image = downloadImage
                     let size = cell.sizeWithImage(downloadImage)
                     cell.messageImageView.size = size
@@ -202,10 +219,21 @@ extension AgoraChatMessageView: UITableViewDelegate, UITableViewDataSource {
         case .notice(let noticeString):
             let cell = tableView.dequeueReusableCell(withIdentifier: AgoraChatNoticeMessageCell.id,
                                                      for: indexPath) as! AgoraChatNoticeMessageCell
+            cell.selectionStyle = .none
             updateNoticeMessageCell(cell: cell,
                                     notice: noticeString)
             return cell
         }
+    }
+    
+    func tableView(_ tableView: UITableView,
+                   didSelectRowAt indexPath: IndexPath) {
+        let type = messageDataSource[indexPath.row]
+        guard case .image(let model) = type else {
+            return
+        }
+        setFullScreenImage(urlString: model.imageRemoteUrl,
+                           localImage: model.image)
     }
 }
 
@@ -228,25 +256,7 @@ private extension AgoraChatMessageView {
             }
         }
     }
-    
-    func updateImageMessageCell(cell: AgoraChatCommonMessageCell,
-                                model: AgoraChatImageMessageModel) {
-        cell.nameLabel.text = model.userName
-        if model.userRole.count > 0 {
-            cell.roleLabel.agora_visible = true
-            cell.roleLabel.text = model.userRole
-        } else {
-            cell.roleLabel.agora_visible = false
-        }
-        
-        if let avatarUrl = model.avatar,
-           let url = URL(string: avatarUrl) {
-            cell.avatarView.sd_setImage(with: url)
-        }
-        cell.messageLabel.agora_visible = false
-        cell.bubleView.agora_visible = false
-        cell.messageImageView.agora_visible = true
-    }
+
     func updateMessageCellBaseInfo(cell: AgoraChatCommonMessageCell,
                                    model: AgoraChatMessageModel,
                                    isText: Bool) {
@@ -273,4 +283,25 @@ private extension AgoraChatMessageView {
                                  notice: String) {
         cell.noticeLabel.text = notice
       }
+    
+    func setFullScreenImage(urlString: String?,
+                            localImage:UIImage?) {
+        let topVc = UIViewController.agora_top_view_controller()
+        
+        if let localImage = localImage {
+            topVc.view.bringSubviewToFront(fullScreenImageView)
+            fullScreenImageView.agora_visible = true
+            fullScreenImageView.image = localImage
+        } else if let url = URL(string: urlString) {
+            topVc.view.bringSubviewToFront(fullScreenImageView)
+            fullScreenImageView.agora_visible = true
+            fullScreenImageView.sd_setImage(with: url)
+        } else {
+            return
+        }
+    }
+    
+    @objc func onClickCloseFullScreenImage() {
+        fullScreenImageView.agora_visible = false
+    }
 }

@@ -317,7 +317,6 @@ extension AgoraChatBottomBar: AgoraUIContentContainer {
     }
 }
 
-
 // MARK: - private
 private extension AgoraChatBottomBar {
     func showImagePicker() {

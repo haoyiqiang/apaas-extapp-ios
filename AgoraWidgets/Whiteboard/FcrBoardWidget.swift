@@ -364,12 +364,12 @@ private extension FcrBoardWidget {
         // init
         let boardRegion = FcrBoardRegion(rawValue: config.boardRegion) ?? .cn
         let backgroundColor = UIConfig.netlessBoard.backgroundColor
-        boardRoom = FcrBoardRoom(appId: config.boardAppId,
+        let room = FcrBoardRoom(appId: config.boardAppId,
                                  region: boardRegion,
                                  backgroundColor: backgroundColor)
-        boardRoom?.delegate = self
+        room.delegate = self
         
-        boardRoom?.logTube = self
+        room.logTube = self
         
         let ratio = view.ratio()
         
@@ -382,8 +382,8 @@ private extension FcrBoardWidget {
         
         AgoraLoading.loading(in: view)
         
-        boardRoom!.join(config: joinConfig,
-                        superView: view) { [weak self] mainWindow in
+        joinBoardRoom(room,
+                      config: joinConfig) { [weak self] mainWindow in
             guard let `self` = self else {
                 return
             }
@@ -393,6 +393,7 @@ private extension FcrBoardWidget {
             self.log(content: "join successfully",
                      extra: nil,
                      type: .info)
+            
             self.mainWindow = mainWindow
             mainWindow.delegate = self
             mainWindow.logTube = self
@@ -400,12 +401,24 @@ private extension FcrBoardWidget {
             self.initCondition.needJoin = false
             
             self.setUpInitialState()
-        } failure: { [weak self] error in
-            guard let `self` = self else {
+        }
+        
+        boardRoom = room
+    }
+    
+    func joinBoardRoom(_ room: FcrBoardRoom,
+                       config: FcrBoardRoomJoinConfig,
+                       success: @escaping (FcrBoardMainWindow) -> Void) {
+        room.join(config: config,
+                  superView: view,
+                  success: success) { [weak room] error in
+            guard let `room` = room else {
                 return
             }
             
-            AgoraLoading.hide()
+            self.joinBoardRoom(room,
+                               config: config,
+                               success: success)
             
             self.log(content: "join unsuccessfully",
                       extra: error.localizedDescription,
@@ -594,8 +607,8 @@ private extension FcrBoardWidget {
         guard let `mainWindow` = mainWindow else {
             return
         }
-        let index = mainWindow.getPageInfo().showIndex - 1
-        let finalIndex = (index < 0) ? 0 : index
+        let showIndex: UInt16 = mainWindow.getPageInfo().showIndex
+        let finalIndex: UInt16 = (showIndex > 1) ? (showIndex - 1) : 0
         mainWindow.setPageIndex(index: finalIndex)
     }
     
@@ -654,23 +667,32 @@ extension FcrBoardWidget: FcrBoardMainWindowDelegate {
                             loopback: Bool,
                             replace: Bool,
                             cycle: Int) {
-        let request = FcrBoardAudioMixingRequestData(requestType: .start,
-                                                     filePath: filePath,
-                                                     loopback: loopback,
-                                                     replace: replace,
-                                                     cycle: cycle)
-        sendMessage(signal: .boardAudioMixingRequest(request))
+        let data = FcrBoardAudioMixingStartData(filePath: filePath,
+                                                loopback: loopback,
+                                                replace: replace,
+                                                cycle: cycle)
+        let type = FcrBoardAudioMixingRequestType.start(data)
+        sendMessage(signal: .boardAudioMixingRequest(type))
+    }
+    
+    func onPauseAudioMixing() {
+        let type = FcrBoardAudioMixingRequestType.pause
+        sendMessage(signal:.boardAudioMixingRequest(type))
+    }
+    
+    func onResumeAudioMixing() {
+        let type = FcrBoardAudioMixingRequestType.resume
+        sendMessage(signal:.boardAudioMixingRequest(type))
     }
     
     func onStopAudioMixing() {
-        let request = FcrBoardAudioMixingRequestData(requestType: .stop)
-        sendMessage(signal: .boardAudioMixingRequest(request))
+        let type = FcrBoardAudioMixingRequestType.stop
+        sendMessage(signal: .boardAudioMixingRequest(type))
     }
     
     func onAudioMixingPositionUpdated(position: Int) {
-        let request = FcrBoardAudioMixingRequestData(requestType: .setPosition,
-                                                     position: position)
-        sendMessage(signal: .boardAudioMixingRequest(request))
+        let type = FcrBoardAudioMixingRequestType.setPosition(position)
+        sendMessage(signal: .boardAudioMixingRequest(type))
     }
 }
 
