@@ -148,7 +148,6 @@ extension String {
             return ""
         }
         
-        
         if let language = agora_ui_language,
            let languagePath = widgetsBundle.path(forResource: language,
                                                  ofType: "lproj"),
