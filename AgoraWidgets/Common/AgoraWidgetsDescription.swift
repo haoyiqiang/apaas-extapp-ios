@@ -55,10 +55,11 @@ extension AgoraWidgetInfo: AgoraWidgetDescription {
     }
 }
 
-extension CGRect: AgoraWidgetDescription {
+extension AgoraWidgetFrame: AgoraWidgetDescription {
     var agDescription: String {
-        let array = ["x: \(origin.x)",
-                     "y: \(origin.y)",
+        let array = ["x: \(x)",
+                     "y: \(y)",
+                     "z: \(z)",
                      "width: \(width)",
                      "height: \(height)"]
         
