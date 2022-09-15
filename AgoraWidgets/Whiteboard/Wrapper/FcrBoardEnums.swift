@@ -55,7 +55,7 @@ enum FcrBoardToolType: Int, AgoraWidgetDescription {
         case .none:         return .ApplianceClicker
         case .selector:     return .ApplianceSelector
         case .laserPointer: return .ApplianceLaserPointer
-        case .eraser:       return .ApplianceEraser
+        case .eraser:       return .AppliancePencilEraser
         }
     }
     

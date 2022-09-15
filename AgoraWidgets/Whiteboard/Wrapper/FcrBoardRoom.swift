@@ -191,7 +191,7 @@ private extension FcrBoardRoom {
                                          roomToken: config.roomToken,
                                          uid: config.userId,
                                          userPayload: ["cursorName": config.userName])
-        
+        roomConfig.floatBar = true
         roomConfig.isWritable = config.hasOperationPrivilege
         roomConfig.disableNewPencil = false
         roomConfig.windowParams = params
