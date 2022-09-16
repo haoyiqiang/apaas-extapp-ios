@@ -66,15 +66,6 @@ struct FcrBoardInitCondition {
         super.onLoad()
         
         analyzeBoardConfigFromRoomProperties()
-        
-        let extra: [String: Any] = ["roomId": info.roomInfo.roomUuid,
-                                    "roomType": info.roomInfo.roomType,
-                                    "roomProperties": info.roomProperties?.description,
-                                    "userProperties": info.localUserProperties?.description]
-        
-        log(content: "onLoad",
-            extra: extra.description,
-            type: .info)
     }
     
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
@@ -85,9 +76,6 @@ struct FcrBoardInitCondition {
                                             cause: cause,
                                             keyPaths: keyPaths,
                                             operatorUser: operatorUser)
-        log(content: "onWidgetRoomPropertiesUpdated",
-            extra: properties.description,
-            type: .info)
         
         analyzeBoardConfigFromRoomProperties()
 
@@ -102,9 +90,6 @@ struct FcrBoardInitCondition {
                                             cause: cause,
                                             keyPaths: keyPaths,
                                             operatorUser: operatorUser)
-        log(content: "onWidgetRoomPropertiesDeleted",
-            extra: keyPaths.agDescription,
-            type: .info)
         
         analyzeGrantedUsersFromRoomProperties()
     }
