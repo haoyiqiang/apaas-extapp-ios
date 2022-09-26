@@ -142,7 +142,8 @@ private extension AgoraCountdownTimerWidget {
             // 本地预期结束时间: milliseconds
             // equation: serverTime - localtime = serverEndTime - localEndTime
             let localEndTime = serverEndTime - timeDiff
-            remainSeconds = (localEndTime / 1000) - Int64(Date().timeIntervalSince1970)
+            var remain = (localEndTime / 1000) - Int64(Date().timeIntervalSince1970)
+            remainSeconds = (remain < 0) ? 0 : remain
         }
     }
 }
