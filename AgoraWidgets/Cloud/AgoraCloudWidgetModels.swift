@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - Message
 enum AgoraCloudInteractionSignal: Convertable {
-    case openCourseware(AgoraCloudWhiteScenesInfo)
+    case openCourseware(AgoraCloudBoardCoursewareInfo)
     case closeCloud
     
     private enum CodingKeys: CodingKey {
@@ -22,7 +22,7 @@ enum AgoraCloudInteractionSignal: Convertable {
         
         if let _ = try? container.decodeNil(forKey: .CloseCloud) {
             self = .closeCloud
-        } else if let value = try? container.decode(AgoraCloudWhiteScenesInfo.self,
+        } else if let value = try? container.decode(AgoraCloudBoardCoursewareInfo.self,
                                                     forKey: .openCourseware) {
             self = .openCourseware(value)
         } else {
@@ -56,6 +56,27 @@ enum AgoraCloudInteractionSignal: Convertable {
     }
 }
 
+struct AgoraCloudBoardCoursewareInfo: Convertable {
+    var resourceUuid: String
+    var resourceName: String
+    var resourceUrl: String
+    var ext: String
+    var scenes: [AgoraCloudBoardCoursewareScene]?
+    var convert: Bool?
+}
+
+struct AgoraCloudBoardCoursewareScene: Convertable {
+    var name: String
+    /// 图片的 URL 地址。
+    var src: String
+    /// 图片的 URL 宽度。单位为像素。
+    var width: Float
+    /// 图片的 URL 高度。单位为像素。
+    var height: Float
+    /// 预览图片的 URL 地址
+    var preview: String?
+}
+
 // MARK: - VM
 enum AgoraCloudCoursewareType {
     /// 公共资源
@@ -71,88 +92,8 @@ enum AgoraCloudCoursewareType {
     }
 }
 
-// MARK: - to Whiteboard
-struct AgoraCloudConvertedFile: Convertable {
-    public var name: String
-    public var ppt: AgoraCloudPptPage
-}
-
-struct AgoraCloudWhiteScenesInfo: Convertable {
-    public let resourceName: String
-    public let resourceUuid: String
-    public let resourceUrl: String
-    public let ext: String
-    public let scenes: [AgoraCloudConvertedFile]?
-    public let convert: Bool?
-}
-
-// MARK: - Widget
-struct AgoraCloudCourseware: Convertable {
-    var resourceName: String
-    var resourceUuid: String
-    var resourceURL: String
-    /// ppt才有
-    var scenes: [AgoraCloudConvertedFile]?
-    /// 原始文件的扩展名
-    var ext: String
-    /// 原始文件的大小 单位是字节
-    var size: Double
-    /// 原始文件的更新时间
-    var updateTime: Int64
-    
-    var convert: Bool?
-    
-    init(resourceName: String,
-         resourceUuid: String,
-         resourceURL: String,
-         scenes: [AgoraCloudConvertedFile]?,
-         ext: String,
-         size: Double,
-         updateTime: Int64,
-         convert: Bool?) {
-        self.resourceName = resourceName
-        self.resourceUuid = resourceUuid
-        self.resourceURL = resourceURL
-        self.scenes = scenes
-        self.ext = ext
-        self.size = size
-        self.updateTime = updateTime
-        self.convert = convert
-    }
-    
-    init(fileItem: AgoraCloudServerAPI.FileItem) {
-        let scenes = fileItem.taskProgress?.convertedFileList.map { conFile -> AgoraCloudConvertedFile in
-            let ppt = AgoraCloudPptPage(src: conFile.ppt.src,
-                                             width: conFile.ppt.width,
-                                             height: conFile.ppt.height,
-                                             preview: conFile.ppt.preview)
-            return AgoraCloudConvertedFile(name: conFile.name,
-                                           ppt: ppt)
-        }
-        
-        self.init(resourceName: fileItem.resourceName,
-                  resourceUuid: fileItem.resourceUuid,
-                  resourceURL: fileItem.url,
-                  scenes: scenes,
-                  ext: fileItem.ext,
-                  size: fileItem.size,
-                  updateTime: fileItem.updateTime,
-                  convert: fileItem.conversion?.canvasVersion ?? false)
-    }
-    
-    init(publicCourseware: AgoraCloudPublicCourseware) {
-        self.init(resourceName: publicCourseware.resourceName,
-                  resourceUuid: publicCourseware.resourceUUID,
-                  resourceURL: publicCourseware.url,
-                  scenes: publicCourseware.taskProgress.convertedFileList,
-                  ext: publicCourseware.ext,
-                  size: Double(publicCourseware.size),
-                  updateTime: publicCourseware.updateTime,
-                  convert: publicCourseware.conversion.canvasVersion)
-    }
-}
-
-struct AgoraCloudPptPage: Convertable {
+struct AgoraCloudScene: Convertable {
+    var name: String
     /// 图片的 URL 地址。
     var src: String
     /// 图片的 URL 宽度。单位为像素。
@@ -161,55 +102,27 @@ struct AgoraCloudPptPage: Convertable {
     var height: Float
     /// 预览图片的 URL 地址
     var preview: String?
-}
-
-// MARK: - public coursewares
-struct AgoraCloudPublicCourseware: Convertable {
-    let resourceUUID: String
-    let resourceName: String
-    let ext: String
-    let size: Int64
-    let url: String
-    let updateTime: Int64
-    let taskUUID: String
-    let conversion: AgoraCloudPublicConversion
-    let taskProgress: AgoraCloudTaskProgress
-
-    enum CodingKeys: String, CodingKey {
-        case resourceUUID = "resourceUuid"
-        case resourceName, ext, size, url, updateTime
-        case taskUUID = "taskUuid"
-        case conversion, taskProgress
+    
+    var toCloudBoard: AgoraCloudBoardCoursewareScene {
+        return AgoraCloudBoardCoursewareScene(name: name,
+                                              src: src,
+                                              width: width,
+                                              height: height,
+                                              preview: preview)
     }
 }
 
-struct AgoraCloudPublicConversion: Convertable {
-    let type: String
-    let preview: Bool
-    let scale: Float
-    let outputFormat: String
-    let canvasVersion: Bool?
-}
-
-struct AgoraCloudTaskProgress: Convertable {
-    let status: String?
-    let totalPageSize: Int64
-    let convertedPageSize: Int64
-    let convertedPercentage: Int64
-    let currentStep: String?
-    let convertedFileList: [AgoraCloudConvertedFile]
-}
-
-// MARK: - common extension
-extension Array where Element == AgoraCloudPublicCourseware {
-    func toConfig() -> Array<AgoraCloudCourseware> {
-        var configs = Array<AgoraCloudCourseware>()
-        for item in self {
-            var config = AgoraCloudCourseware(publicCourseware: item)
-            configs.append(config)
-        }
-        return configs
-    }
+// MARK: - Widget
+struct AgoraCloudCourseware: Convertable {
+    var resourceName: String
+    var resourceUuid: String
+    var resourceURL: String
+    /// ppt才有
+    var scenes: [AgoraCloudScene]?
+    /// 原始文件的扩展名
+    var ext: String
+    // 是否需要转换
+    var convert: Bool?
 }
 
 // MARK: Data To UI Model
@@ -234,6 +147,12 @@ extension String {
               }
         
         return signal
+    }
+}
+
+extension Array where Element == AgoraCloudScene {
+    var toCloudBoard: [AgoraCloudBoardCoursewareScene] {
+        return self.map({return $0.toCloudBoard})
     }
 }
 
@@ -288,5 +207,154 @@ fileprivate extension String {
         default:
             return config.unknownImage
         }
+    }
+}
+
+// MARK: - Cloud Server model
+extension AgoraCloudServerAPI {
+    struct SourceData: Convertable {
+        let total: Int
+        let list: [FileItem]
+        let pageNo: Int
+        let pageSize: Int
+        let pages: Int
+    }
+    
+    struct FileItem: Convertable {
+        // 资源Uuid
+        let resourceUuid: String
+        // 资源名称
+        let resourceName: String
+        // 资源父级Uuid (当前文件/文件夹的父级目录的resouceUuid，如果当前目录为根目录则为root)
+        let parentResourceUuid: String
+        // 文件/文件夹 (如果是文件则为1，如果是文件夹则为0)
+        let type: Int
+        // 【需要转换的文件才有】文件转换状态（未转换（0），转换中（1），转换完成（2））
+        let convertType: Int?
+        // 扩展名
+        let ext: String
+        // 文件大小
+        let size: Double
+        // 文件路径
+        let url: String
+        // 更新时间
+        let updateTime: Int64
+        // tag列表
+        let tags: [String]?
+        // 【需要转换的文件才有】
+        let taskUuid: String?
+        // 【需要转换的文件才有】
+        let taskToken: String?
+        // 【需要转换的文件才有】
+        let taskProgress: TaskProgress?
+        // 【需要转换的文件才有】需要转换的文件才有
+        let conversion: Conversion?
+        // 版本3/4（区分v3/v4）
+        let version: Int
+    }
+    
+    struct Conversion: Convertable {
+        // 动态dynamic，静态static
+        let type: String
+        let preview: Bool
+        // 图片缩放比例
+        let scale: Float
+        let canvasVersion: Bool?
+        // 输出图片格式
+        let outputFormat: String
+    }
+    
+    struct TaskProgress: Convertable {
+        // task 状态，枚举：Waiting, Converting, Finished, Fail （v3/v4）
+        let status: String?
+        // 转换文档总页数（v3）
+        let totalPageSize: Int
+        // 已经转换完成的页数（v3）
+        let convertedPageSize: Int
+        // 转换进度百分比（v3/v4）
+        let convertedPercentage: Int
+        // 当前转换任务步骤，只有 type == dynamic 时才有该字段（v3）
+        let currentStep: String?
+        // 转换结果文件地址前缀路径（v3/v4）
+        let prefix: String?
+        // 文档页数，当文件转换失败时没有该字段（v3/v4）
+        let pageCount: Int?
+        // 转换文档详情（key：索引,value：url）（v4）
+        let previews: [String: String]?
+        // 文档提取出的备注内容，只包含有备注的页面（v4）
+        let note: String?
+        // 错误码，当任务转换失败时会存在（v4）
+        let errorCode: String?
+        // 错误，当任务转换失败时会存在（v4）
+        let errorMessage: String?
+
+        // 转换结果列表（v3）
+        let convertedFileList: [TaskProgressConvertedFile]
+        // 转换结果列表（v4）
+        let images: [String: TaskProgressImage]?
+    }
+    
+    struct TaskProgressConvertedFile: Convertable {
+        public var name: String
+        public var ppt: TaskProgressConvertedFilePptPage
+    }
+    
+    struct TaskProgressImage: Convertable {
+        // 宽度
+        let width: Float
+        // 高度
+        let height: Float
+        // 地址
+        let url: String
+    }
+    
+    struct TaskProgressConvertedFilePptPage: Convertable {
+        /// 图片的 URL 地址。
+        var src: String
+        /// 图片的 URL 宽度。单位为像素。
+        var width: Float
+        /// 图片的 URL 高度。单位为像素。
+        var height: Float
+        /// 预览图片的 URL 地址
+        var preview: String?
+    }
+}
+
+extension AgoraCloudServerAPI.FileItem {
+    var toCloud: AgoraCloudCourseware {
+        var scenes: [AgoraCloudScene]?
+        
+        if version == 4,
+           let images = taskProgress?.images {
+            var scenesFromNewVersion = [AgoraCloudScene]()
+            for (name, image) in images {
+                let scene = AgoraCloudScene(name: name,
+                                            src: image.url,
+                                            width: image.width,
+                                            height: image.height,
+                                            preview: taskProgress?.previews?[name])
+                scenesFromNewVersion.append(scene)
+            }
+            scenes = scenesFromNewVersion
+        } else if version == 3,
+                  let list = taskProgress?.convertedFileList {
+            var scenesFromOldVersion = [AgoraCloudScene]()
+            for file in list {
+                let scene = AgoraCloudScene(name: file.name,
+                                            src: file.ppt.src,
+                                            width: file.ppt.width,
+                                            height: file.ppt.height,
+                                            preview: file.ppt.preview)
+                scenesFromOldVersion.append(scene)
+            }
+            scenes = scenesFromOldVersion
+        }
+        
+        return AgoraCloudCourseware(resourceName: resourceName,
+                                    resourceUuid: resourceUuid,
+                                    resourceURL: url,
+                                    scenes: scenes,
+                                    ext: ext,
+                                    convert: conversion?.canvasVersion ?? false)
     }
 }

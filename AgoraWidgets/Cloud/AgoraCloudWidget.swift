@@ -129,11 +129,6 @@ extension AgoraCloudWidget: UITableViewDataSource, UITableViewDelegate {
 }
 
 // MARK: - private
-extension AgoraCloudWidget {
-    
-}
-
-// MARK: - private
 private extension AgoraCloudWidget {
     func sendMessage(signal: AgoraCloudInteractionSignal) {
         guard let text = signal.toMessageString() else {
@@ -182,7 +177,7 @@ private extension AgoraCloudWidget {
                 return
             }
             var temp = self.vm.privateFiles
-            let list = resp.list.map({ AgoraCloudCourseware(fileItem: $0) })
+            let list = resp.list.map({ $0.toCloud })
             for item in list {
                 if !temp.contains(where: {$0.resourceUuid == item.resourceUuid}) {
                     temp.append(item)

@@ -36,19 +36,19 @@ class AgoraCloudVM: NSObject {
         handleCurrentCoursewares()
     }
     
-    func getSelectedInfo(index: Int) -> AgoraCloudWhiteScenesInfo? {
+    func getSelectedInfo(index: Int) -> AgoraCloudBoardCoursewareInfo? {
         let dataList: [AgoraCloudCourseware] = (selectedType == .publicResource) ? publicFiles : privateFiles
         
         guard dataList.count > index else {
             return nil
         }
         let config = dataList[index]
-        return AgoraCloudWhiteScenesInfo(resourceName: config.resourceName,
-                                         resourceUuid: config.resourceUuid,
-                                         resourceUrl: config.resourceURL,
-                                         ext: config.ext,
-                                         scenes: config.scenes,
-                                         convert: config.convert)
+        return AgoraCloudBoardCoursewareInfo(resourceUuid: config.resourceUuid,
+                                             resourceName: config.resourceName,
+                                             resourceUrl: config.resourceURL,
+                                             ext: config.ext,
+                                             scenes: config.scenes?.toCloudBoard,
+                                             convert: config.convert)
     }
 }
 
@@ -75,15 +75,15 @@ private extension AgoraCloudVM {
               publicJsonArr.count > 0 else {
                   return
               }
-        var publicCoursewares = [AgoraCloudPublicCourseware]()
+        var publicCoursewares = [AgoraCloudCourseware]()
         for json in publicJsonArr {
             if let data = json.data(using: .utf8),
-               let courseware = try? JSONDecoder().decode(AgoraCloudPublicCourseware.self,
+               let courseware = try? JSONDecoder().decode(AgoraCloudServerAPI.FileItem.self,
                                                           from: data) {
-                publicCoursewares.append(courseware)
+                publicCoursewares.append(courseware.toCloud)
             }
         }
         
-        self.publicFiles = publicCoursewares.toConfig()
+        self.publicFiles = publicCoursewares
     }
 }
