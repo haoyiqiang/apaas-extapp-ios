@@ -48,6 +48,11 @@ class FcrBoardMainWindow: NSObject {
         
         self.memberState = WhiteMemberState()
         self.memberState.currentApplianceName = WhiteApplianceNameKey.ApplianceClicker
+
+        let defaultColor = FcrColor(red: 0,
+                                    green: 115,
+                                    blue: 255)
+        self.memberState.strokeColor = defaultColor.toNetlessValue
         
         super.init()
         
