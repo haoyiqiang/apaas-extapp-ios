@@ -226,9 +226,9 @@ extension AgoraCloudServerAPI {
         // 资源名称
         let resourceName: String
         // 资源父级Uuid (当前文件/文件夹的父级目录的resouceUuid，如果当前目录为根目录则为root)
-        let parentResourceUuid: String
+        let parentResourceUuid: String = "root"
         // 文件/文件夹 (如果是文件则为1，如果是文件夹则为0)
-        let type: Int
+        let type: Int = 1
         // 【需要转换的文件才有】文件转换状态（未转换（0），转换中（1），转换完成（2））
         let convertType: Int?
         // 扩展名
@@ -250,7 +250,7 @@ extension AgoraCloudServerAPI {
         // 【需要转换的文件才有】需要转换的文件才有
         let conversion: Conversion?
         // 版本3/4（区分v3/v4）
-        let version: Int
+        let version: Int = 3
     }
     
     struct Conversion: Convertable {
