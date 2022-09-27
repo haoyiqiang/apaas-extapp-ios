@@ -300,10 +300,6 @@ struct FcrBoardCoursewareInfo: Convertable {
 
 struct FcrBoardScene: Convertable {
     var name: String
-    var ppt: FcrBoardWhitePptPage
-}
-
-struct FcrBoardWhitePptPage: Convertable {
     /// 图片的 URL 地址。
     var src: String
     /// 图片的 URL 宽度。单位为像素。
@@ -500,10 +496,10 @@ extension Array where Element == FcrBoardScene {
         var pageArr = [FcrBoardPage]()
         for item in self {
             let page = FcrBoardPage(name: item.name,
-                                    contentUrl: item.ppt.src,
-                                    previewUrl: item.ppt.preview,
-                                    contentWidth: item.ppt.width,
-                                    contentHeight: item.ppt.height)
+                                    contentUrl: item.src,
+                                    previewUrl: item.preview,
+                                    contentWidth: item.width,
+                                    contentHeight: item.height)
             
             pageArr.append(page)
         }
