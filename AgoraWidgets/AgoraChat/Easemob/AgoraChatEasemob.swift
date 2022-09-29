@@ -327,6 +327,10 @@ class AgoraChatEasemob: NSObject {
                 return
             }
             let localMuted = inWhiteList
+            let extra = ["localMuted": localMuted ? 1 : 0]
+            self.delegate?.onEasemobLog(content: "local mute state",
+                                        extra: extra.agDescription,
+                                        type: .info)
             success?(localMuted)
         }
     }
@@ -351,6 +355,10 @@ class AgoraChatEasemob: NSObject {
                 failure?(.fetchError(chatError!.code.rawValue))
                 return
             }
+            let extra = ["announcement": announcement ?? ""]
+            self.delegate?.onEasemobLog(content: "announcement",
+                                        extra: extra.agDescription,
+                                        type: .info)
             success?(announcement)
         }
     }
