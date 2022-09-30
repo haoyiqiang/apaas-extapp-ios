@@ -36,6 +36,7 @@ withWechatNotify {
 
             def buildParams = [
                 string(name: 'build_branch', value: branches["cloudclass-ios"] ?: companionBranch),
+                string(name: 'open_fcr_app_branch', value: branches["open-flexible-classroom-ios"] ?: companionBranch),
                 string(name: 'open_cloud_class_branch', value: branches["open-cloudclass-ios"] ?: companionBranch),
                 string(name: 'common_libs_branch', value: branches["apaas-common-libs-ios"] ?: companionBranch),
                 string(name: 'open_widgets_extapps_branch', value: branches["open-apaas-extapp-ios"] ?: companionBranch),
