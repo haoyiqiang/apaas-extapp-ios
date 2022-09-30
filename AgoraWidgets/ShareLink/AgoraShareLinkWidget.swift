@@ -141,6 +141,7 @@ private extension AgoraShareLinkWidget {
         
         shareLinkLabel.numberOfLines = 0
         shareLinkLabel.textColor = UIColor(hex: 0xBDBDCA)
+        shareLinkLabel.font = UIFont.systemFont(ofSize: 12)
         contentView.addSubview(shareLinkLabel)
         
         copyLinkButton.setImage(.agora_widget_image("fcr_share_link_copy"),
