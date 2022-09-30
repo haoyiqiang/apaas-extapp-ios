@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "AgoraWidgets"
-  spec.version      = "2.7.2"
+  spec.version      = "2.8.0"
   spec.summary      = "Agora widgets"
   spec.description  = "Agora native widgets"
   spec.homepage     = "https://docs.agora.io/en/agora-class/landing-page?platform=iOS"
@@ -25,8 +25,8 @@ Pod::Spec.new do |spec|
                       "AgoraWidgets/WebView/**/*.{h,m,swift}",
                       "AgoraWidgets/AgoraChat/**/*.{h,m,swift}"
   
-  spec.dependency "AgoraUIBaseViews", ">=2.7.2"
-  spec.dependency "AgoraWidget", ">=2.6.0"
+  spec.dependency "AgoraUIBaseViews", ">=2.8.0"
+  spec.dependency "AgoraWidget", ">=2.8.0"
   spec.dependency "AgoraLog", "1.0.2"
   spec.dependency "Armin", ">=1.1.0"
 
