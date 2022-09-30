@@ -85,3 +85,9 @@ fcr_countdown_timer_title = "倒计时";
 
 // webView
 fcr_online_courseware_label_online_courseware = "在线课件";
+// share link
+fcr_inshare_label_share = "分享";
+fcr_inshare_label_room_id = "房间ID：";
+fcr_inshare_label_invitation = "邀请：";
+fcr_inshare_button_share_friends = "分享给好友";
+fcr_joinroom_tips_copy = "复制成功";
