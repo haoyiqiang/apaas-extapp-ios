@@ -15,31 +15,40 @@ import UIKit
     public override func onLoad() {
         super.onLoad()
         createViews()
+        circleText()
+        updateInfo()
+    }
+    
+    func updateInfo() {
+        if let extra = info.extraInfo as? [String: Any],
+           let text = extra["watermark"] as? String {
+            label.text = text
+        }
+    }
+    
+    func circleText() {
+        UIView.animate(withDuration: 20, delay: 0,
+                       options: .curveLinear,
+                       animations: {
+            let leftEnd = -self.label.width - self.view.width
+            self.label.transform = .init(translationX: leftEnd,
+                                         y: 0)
+        }) { [weak self] (bool)  in
+            self?.label.transform = .identity
+            self?.circleText()
+        }
     }
 }
 // MARK: - View
 private extension AgoraWatermarkWidget {
     func createViews() {
-        label.text = info.localUserInfo.userName
+        label.alpha = 0.15
+        label.textColor = .black
         label.font = UIFont.systemFont(ofSize: 40)
         view.addSubview(label)
         label.mas_makeConstraints { make in
             make?.top.equalTo()(30)
-            make?.height.equalTo()(0)
-            make?.width.equalTo()(0)?.multipliedBy()(2)
+            make?.left.equalTo()(view.mas_right)
         }
-        
-        //        label.textColor = Colorconf
-//        UIView.animate(withDuration: TimeInterval(self.width/40), delay: 0,
-//                       options: .curveLinear,
-//                       animations: {
-//            self.label.transform = .init(translationX: -self.width, y: 0)
-//        }) { (bool) in
-//            //  循环调用 。退出Controller 时候 记得移除动画
-//            if bool {
-//                self.lb.transform = .identity
-//                self.circleText()
-//            }
-//        }
     }
 }
