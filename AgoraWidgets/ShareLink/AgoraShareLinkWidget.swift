@@ -37,7 +37,7 @@ import AgoraWidget
         }
     }
     
-    private var shareLink: String? {
+    private var shareLink: String = "" {
         didSet {
             shareLinkLabel.text = shareLink
         }
@@ -75,10 +75,7 @@ private extension AgoraShareLinkWidget {
     }
     
     @objc func onClickCopyLink(_ sender: UIButton) {
-        guard let link = shareLink else {
-            return
-        }
-        UIPasteboard.general.string = link
+        UIPasteboard.general.string = shareLink
         AgoraToast.toast(message: "fcr_joinroom_tips_copy".widgets_localized(),
                          type: .notice)
     }
@@ -138,7 +135,7 @@ private extension AgoraShareLinkWidget {
         shareContentView.layer.cornerRadius = 4
         shareContentView.clipsToBounds = true
         contentView.addSubview(shareContentView)
-        
+                
         shareLinkLabel.numberOfLines = 0
         shareLinkLabel.textColor = UIColor(hex: 0xBDBDCA)
         shareLinkLabel.font = UIFont.systemFont(ofSize: 12)
@@ -201,12 +198,13 @@ private extension AgoraShareLinkWidget {
             make?.top.equalTo()(invitationTitleLabel.mas_bottom)?.offset()(16)
             make?.left.equalTo()(15)
             make?.right.equalTo()(-15)
-            make?.height.equalTo()(118)
+            make?.height.greaterThanOrEqualTo()(118)
         }
         shareLinkLabel.mas_makeConstraints { make in
             make?.top.equalTo()(shareContentView)?.offset()(10)
             make?.left.equalTo()(shareContentView)?.offset()(10)
             make?.right.equalTo()(shareContentView)?.offset()(-10)
+            make?.bottom.equalTo()(shareContentView)?.offset()(-44)
         }
         copyLinkButton.mas_makeConstraints { make in
             make?.width.height().equalTo()(24)
