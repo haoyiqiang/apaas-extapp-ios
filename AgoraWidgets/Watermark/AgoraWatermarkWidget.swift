@@ -41,6 +41,7 @@ import UIKit
 }
 // MARK: - View
 private extension AgoraWatermarkWidget {
+    
     func createViews() {
         label.alpha = 0.15
         label.textColor = .black
