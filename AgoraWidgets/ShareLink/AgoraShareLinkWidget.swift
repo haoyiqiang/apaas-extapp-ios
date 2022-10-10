@@ -86,6 +86,14 @@ private extension AgoraShareLinkWidget {
         let activity = UIActivity()
         let shareVC = UIActivityViewController(activityItems: [shareLink, shareURL],
                                                applicationActivities: [activity])
+        if UIDevice.current.agora_is_pad {
+            var frame = topVC.view.frame
+            frame.size.height /= 2
+            frame.origin = CGPoint(x: 0, y: 0)
+            shareVC.popoverPresentationController?.sourceView = contentView
+            shareVC.popoverPresentationController?.sourceRect = frame
+            shareVC.popoverPresentationController?.permittedArrowDirections = .right
+        }
         topVC.present(shareVC,
                       animated: true)
     }
