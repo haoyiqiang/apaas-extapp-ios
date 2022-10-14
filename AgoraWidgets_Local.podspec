@@ -20,8 +20,8 @@ Pod::Spec.new do |spec|
   spec.user_target_xcconfig = { "VALID_ARCHS" => "arm64 armv7 x86_64" }
 
   # common libs
-  spec.dependency "AgoraUIBaseViews", ">=2.8.0"
-  spec.dependency "AgoraWidget", ">=2.8.0"
+  spec.dependency "AgoraUIBaseViews/Binary", ">=2.8.0"
+  spec.dependency "AgoraWidget/Binary", ">=2.8.0"
   spec.dependency "AgoraLog", "1.0.2"
   spec.dependency "Armin", ">=1.1.0"
 
