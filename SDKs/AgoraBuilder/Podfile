@@ -10,7 +10,7 @@ target 'AgoraBuilder' do
   pod 'Masonry', '1.1.0'
 
   # Netless
-  pod 'Whiteboard', '2.16.39'
+  pod 'Whiteboard', '2.16.45'
   
   # Hyphenate
   pod 'Agora_Chat_iOS', '1.0.6'
