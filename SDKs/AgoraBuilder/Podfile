@@ -18,7 +18,7 @@ target 'AgoraBuilder' do
   pod 'AgoraLog','1.0.2'
 
   #open
-  pod 'AgoraWidgets', :path => '../../AgoraWidgets_Local.podspec'
+  pod 'AgoraWidgets/Source', :path => '../../AgoraWidgets_Local.podspec'
 
   #close
   pod 'AgoraWidget/Binary', :path => '../../../apaas-common-libs-ios/AgoraWidget_Local.podspec'

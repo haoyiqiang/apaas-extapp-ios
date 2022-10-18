@@ -35,14 +35,11 @@ Pod::Spec.new do |spec|
   spec.dependency "Agora_Chat_iOS", "1.0.6"
   spec.dependency "SDWebImage", "<=5.12.0"
 
-  spec.subspec "Resources" do |ss|
+  spec.subspec "Source" do |ss|
+    ss.source_files = "SDKs/AgoraWidgets/**/**/*.{h,m,swift}"
     ss.resource_bundles = {
       "AgoraWidgets" => ["SDKs/AgoraWidgets/AgoraResources/**/*.{xcassets,strings,gif,mp3,js}"]
     }
-  end
-  
-  spec.subspec "Source" do |ss|
-    ss.source_files = "SDKs/AgoraWidgets/**/**/*.{h,m,swift}"
   end
   
   spec.subspec "Binary" do |ss|
@@ -51,5 +48,5 @@ Pod::Spec.new do |spec|
     ]
   end
 
-  spec.default_subspec = "Resources"
+  spec.default_subspec = "Source"
 end
