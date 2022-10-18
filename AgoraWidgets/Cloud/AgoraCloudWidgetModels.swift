@@ -250,7 +250,7 @@ extension AgoraCloudServerAPI {
         // 【需要转换的文件才有】需要转换的文件才有
         let conversion: Conversion?
         // 版本3/4（区分v3/v4）
-        let version: Int? = 3
+        var version: Int? = 3
     }
     
     struct Conversion: Convertable {
