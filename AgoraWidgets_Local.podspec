@@ -20,8 +20,6 @@ Pod::Spec.new do |spec|
   spec.user_target_xcconfig = { "VALID_ARCHS" => "arm64 armv7 x86_64" }
 
   # common libs
-  spec.dependency "AgoraUIBaseViews/Binary", ">=2.8.0"
-  spec.dependency "AgoraWidget/Binary", ">=2.8.0"
   spec.dependency "AgoraLog", "1.0.2"
   spec.dependency "Armin", ">=1.1.0"
 
@@ -40,12 +38,28 @@ Pod::Spec.new do |spec|
     ss.resource_bundles = {
       "AgoraWidgets" => ["SDKs/AgoraWidgets/AgoraResources/**/*.{xcassets,strings,gif,mp3,js}"]
     }
+
+    ss.dependency "AgoraUIBaseViews/Source"
+    ss.dependency "AgoraWidget/Source"
+  end
+
+  spec.subspec "Build" do |ss|
+    ss.source_files = "SDKs/AgoraWidgets/**/**/*.{h,m,swift}"
+    ss.resource_bundles = {
+      "AgoraWidgets" => ["SDKs/AgoraWidgets/AgoraResources/**/*.{xcassets,strings,gif,mp3,js}"]
+    }
+
+    ss.dependency "AgoraUIBaseViews/Binary"
+    ss.dependency "AgoraWidget/Binary"
   end
   
   spec.subspec "Binary" do |ss|
     ss.vendored_frameworks = [
       "Products/Libs/**/*.framework"
     ]
+
+    ss.dependency "AgoraUIBaseViews/Binary"
+    ss.dependency "AgoraWidget/Binary"
   end
 
   spec.default_subspec = "Source"
