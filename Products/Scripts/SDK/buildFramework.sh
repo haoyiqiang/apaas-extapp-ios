@@ -45,7 +45,6 @@ dependencyCheck() {
 
         repoAbsolutePath=$Builder_Path/$repoPath
 
-        echo "$SDK_Name dependency repo:$repoAbsolutePath"
         dependencyPath="$repoAbsolutePath/Products/Libs/$libName/$libName.framework"
         
          # dependency check
@@ -55,23 +54,27 @@ dependencyCheck() {
         
         # call buildframework
         echo "dependencyPath: $dependencyPath not found"
-        echo "$SDK_Name call build: $libName"
-
+        
         dependencySDKPath="$repoAbsolutePath/Products/Scripts/SDK"
         if [ ! -d $dependencySDKPath ]; then
             pwd
             echo "dependencySDKPath not found: $dependencySDKPath"
             exit
         fi
-
-       sh $dependencySDKPath/buildframework.sh $libName
+        
+        echo "$SDK_Name call build: $libName"
+        sh $dependencySDKPath/buildframework.sh $libName
 
         if [ $? -ne 0 ];then
-            exit
+            exit 1
         fi
 
         cd $Current_Path
     done
+    
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
     
     cd $Current_Path
 }
@@ -79,6 +82,10 @@ dependencyCheck() {
 echo "${Color} ======${SDK_Name} Start======== ${Res}"
 
 dependencyCheck
+
+if [ $? -ne 0 ]; then
+    errorExit 1
+fi
 
 # current path is under Products/Scripts/SDK
 ./buildExecution.sh $Builder_Path ${SDK_Name} Release
