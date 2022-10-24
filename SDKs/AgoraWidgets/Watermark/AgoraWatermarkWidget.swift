@@ -27,7 +27,8 @@ import UIKit
     }
     
     func circleText() {
-        UIView.animate(withDuration: 20, delay: 0,
+        UIView.animate(withDuration: 20,
+                       delay: 0,
                        options: .curveLinear,
                        animations: {
             let leftEnd = -self.label.width - self.view.width
@@ -39,9 +40,9 @@ import UIKit
         }
     }
 }
+
 // MARK: - View
 private extension AgoraWatermarkWidget {
-    
     func createViews() {
         label.alpha = 0.15
         label.textColor = .black

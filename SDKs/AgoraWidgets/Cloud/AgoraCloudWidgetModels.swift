@@ -250,7 +250,7 @@ extension AgoraCloudServerAPI {
         // 【需要转换的文件才有】需要转换的文件才有
         let conversion: Conversion?
         // 版本3/4（区分v3/v4）
-        let version: Int = 3
+        var version: Int? = 3
     }
     
     struct Conversion: Convertable {
@@ -268,9 +268,9 @@ extension AgoraCloudServerAPI {
         // task 状态，枚举：Waiting, Converting, Finished, Fail （v3/v4）
         let status: String?
         // 转换文档总页数（v3）
-        let totalPageSize: Int
+        let totalPageSize: Int?
         // 已经转换完成的页数（v3）
-        let convertedPageSize: Int
+        let convertedPageSize: Int?
         // 转换进度百分比（v3/v4）
         let convertedPercentage: Int
         // 当前转换任务步骤，只有 type == dynamic 时才有该字段（v3）
@@ -289,7 +289,7 @@ extension AgoraCloudServerAPI {
         let errorMessage: String?
 
         // 转换结果列表（v3）
-        let convertedFileList: [TaskProgressConvertedFile]
+        let convertedFileList: [TaskProgressConvertedFile]?
         // 转换结果列表（v4）
         let images: [String: TaskProgressImage]?
     }
