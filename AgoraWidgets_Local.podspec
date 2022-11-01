@@ -55,7 +55,7 @@ Pod::Spec.new do |spec|
   
   spec.subspec "Binary" do |ss|
     ss.vendored_frameworks = [
-      "Products/Libs/**/*.framework"
+      "Products/Libs/AgoraWidgets/*.framework"
     ]
 
     ss.dependency "AgoraUIBaseViews/Binary"
