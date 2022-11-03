@@ -251,6 +251,17 @@ extension AgoraCloudServerAPI {
         let conversion: Conversion?
         // 版本3/4（区分v3/v4）
         var version: Int? = 3
+        
+        static func create(with data: Data) throws -> FileItem {
+            var item = try JSONDecoder().decode(AgoraCloudServerAPI.FileItem.self,
+                                                from: data)
+            
+            if item.version == nil {
+                item.version = 3
+            }
+            
+            return item
+        }
     }
     
     struct Conversion: Convertable {

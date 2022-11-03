@@ -70,18 +70,21 @@ private extension AgoraCloudVM {
     }
     /// 公共课件转换
     func transformPublicResources(extraInfo: Any?) {
-        guard let extraInfo = extraInfo as? Dictionary<String,Any>,
-              let publicJsonArr = extraInfo["publicCoursewares"] as? Array<String>,
+        guard let extraInfo = extraInfo as? [String: Any],
+              let publicJsonArr = extraInfo["publicCoursewares"] as? [String],
               publicJsonArr.count > 0 else {
                   return
               }
+        
         var publicCoursewares = [AgoraCloudCourseware]()
+        
         for json in publicJsonArr {
-            if let data = json.data(using: .utf8),
-               let courseware = try? JSONDecoder().decode(AgoraCloudServerAPI.FileItem.self,
-                                                          from: data) {
-                publicCoursewares.append(courseware.toCloud)
+            guard let data = json.data(using: .utf8),
+               let courseware = try? AgoraCloudServerAPI.FileItem.create(with: data) else {
+                continue
             }
+            
+            publicCoursewares.append(courseware.toCloud)
         }
         
         self.publicFiles = publicCoursewares
