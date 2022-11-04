@@ -301,6 +301,13 @@ class AgoraChatEasemob: NSObject {
             guard let room = chatRoom else {
                 return
             }
+            
+            let isMuteAllMembers = room.isMuteAllMembers
+            let extra = ["isMuteAllMembers": isMuteAllMembers ? 1 : 0]
+            self.delegate?.onEasemobLog(content: "chatroom specification",
+                                        extra: extra.agDescription,
+                                        type: .info)
+            
             // MARK: 此处必须重新为chatRoom赋值,再获取isMuteAllMembers，否则聊天室内信息可能不对
             self.chatRoom = room
             success?(room.isMuteAllMembers)

@@ -13,19 +13,7 @@ Pod::Spec.new do |spec|
 
   spec.source       = { :git => "git@github.com:AgoraIO-Community/apaas-extapp-ios.git", :tag => "AgoraWidgets_v" + "#{spec.version.to_s}" }
 
-  spec.source_files = "AgoraWidgets/Common/**/*.{h,m,swift}", 
-                      "AgoraWidgets/StreamWindow/**/*.{h,m,swift}", 
-                      "AgoraWidgets/Cloud/**/*.{h,m,swift}",
-                      "AgoraWidgets/Whiteboard/**/*.{h,m,swift}", 
-                      "AgoraWidgets/ChatWidget/**/*.{h,m,swift}", 
-                      "AgoraWidgets/RtmIM/**/*.{h,m,swift}",
-                      "AgoraWidgets/Poll/**/*.{h,m,swift}",
-                      "AgoraWidgets/PopupQuiz/**/*.{h,m,swift}",
-                      "AgoraWidgets/CountdownTimer/**/*.{h,m,swift}",
-                      "AgoraWidgets/WebView/**/*.{h,m,swift}",
-                      "AgoraWidgets/AgoraChat/**/*.{h,m,swift}",
-                      "AgoraWidgets/ShareLink/**/*.{h,m,swift}",
-                      "AgoraWidgets/Watermark/**/*.{h,m,swift}"
+  spec.source_files = "SDKs/AgoraWidgets/**/**/*.{h,m,swift}"
   
   spec.dependency "AgoraUIBaseViews", ">=2.8.0"
   spec.dependency "AgoraWidget", ">=2.8.0"
@@ -44,13 +32,13 @@ Pod::Spec.new do |spec|
 
   spec.pod_target_xcconfig  = { "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", "DEFINES_MODULE" => "YES" }
   spec.user_target_xcconfig = { "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", "DEFINES_MODULE" => "YES" }
-  spec.pod_target_xcconfig  = { "VALID_ARCHS" => "arm64 armv7 x86_64" }
-  spec.user_target_xcconfig = { "VALID_ARCHS" => "arm64 armv7 x86_64" } 
+  spec.pod_target_xcconfig  = { "VALID_ARCHS" => "arm64 x86_64" }
+  spec.user_target_xcconfig = { "VALID_ARCHS" => "arm64 x86_64" } 
   spec.xcconfig             = { "BUILD_LIBRARY_FOR_DISTRIBUTION" => "YES" }
   
   spec.subspec "Resources" do |ss|
       ss.resource_bundles = {
-        "AgoraWidgets" => ["AgoraWidgets/AgoraResources/**/*.{xcassets,strings,gif,mp3,js}"]
+        "AgoraWidgets" => ["SDKs/AgoraWidgets/AgoraResources/**/*.{xcassets,strings,gif,mp3,js}"]
       }
   end
 end
