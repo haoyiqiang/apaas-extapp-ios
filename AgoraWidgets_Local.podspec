@@ -16,8 +16,8 @@ Pod::Spec.new do |spec|
   spec.pod_target_xcconfig  = { "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", "DEFINES_MODULE" => "YES" }
   spec.user_target_xcconfig = { "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", "DEFINES_MODULE" => "YES" }
   spec.xcconfig             = { "BUILD_LIBRARY_FOR_DISTRIBUTION" => "YES" }
-  spec.pod_target_xcconfig  = { "VALID_ARCHS" => "arm64 x86_64" }
-  spec.user_target_xcconfig = { "VALID_ARCHS" => "arm64 x86_64" }
+  spec.pod_target_xcconfig  = { "VALID_ARCHS" => "arm64 armv7 x86_64" }
+  spec.user_target_xcconfig = { "VALID_ARCHS" => "arm64 armv7 x86_64" }
 
   # common libs
   spec.dependency "AgoraLog", "1.0.2"
@@ -36,7 +36,7 @@ Pod::Spec.new do |spec|
   spec.subspec "Source" do |ss|
     ss.source_files = "SDKs/AgoraWidgets/**/**/*.{h,m,swift}"
     ss.resource_bundles = {
-      "AgoraWidgets" => ["SDKs/AgoraWidgets/AgoraResources/**/*.{xcassets,strings,gif,mp3,js}"]
+      "AgoraWidgets" => ["SDKs/AgoraWidgets/Assets/**/*.{xcassets,strings,gif,mp3,js}"]
     }
 
     ss.dependency "AgoraUIBaseViews/Source"
@@ -46,7 +46,7 @@ Pod::Spec.new do |spec|
   spec.subspec "Build" do |ss|
     ss.source_files = "SDKs/AgoraWidgets/**/**/*.{h,m,swift}"
     ss.resource_bundles = {
-      "AgoraWidgets" => ["SDKs/AgoraWidgets/AgoraResources/**/*.{xcassets,strings,gif,mp3,js}"]
+      "AgoraWidgets" => ["SDKs/AgoraWidgets/Assets/**/*.{xcassets,strings,gif,mp3,js}"]
     }
 
     ss.dependency "AgoraUIBaseViews/Binary"
