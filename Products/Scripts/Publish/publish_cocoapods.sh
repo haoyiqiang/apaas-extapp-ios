@@ -27,6 +27,7 @@ fi
 
 echo "$SDK_Name version: $SDK_Version"
 Target_Branch=release/${SDK_Version}
+
 # current branch check
 Current_Branch=`git rev-parse --abbrev-ref HEAD`
 if [[ ${Current_Branch} != ${Target_Branch} ]]; then
