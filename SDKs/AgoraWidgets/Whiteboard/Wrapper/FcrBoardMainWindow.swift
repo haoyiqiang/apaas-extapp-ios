@@ -94,14 +94,32 @@ extension FcrBoardMainWindow {
     
     /// 获取窗口属性（课件信息）
     func getAttributes(result: @escaping (([AnyHashable: Any]) -> Void)) {
+        log(content: "get attributes",
+            extra: nil,
+            type: .info)
+        
         whiteRoom.getWindowManagerAttributes { attributes in
             result(attributes)
         }
     }
     
     /// 设置窗口属性（课件信息）
-    func setAttributes(_ attributes:[AnyHashable: Any]) {
+    func setAttributes(_ attributes: [AnyHashable: Any]) {
+        log(content: "set attributes",
+            extra: attributes.debugDescription,
+            type: .info)
+        
         whiteRoom.setWindowManagerWithAttributes(attributes)
+        
+        log(content: "is writable",
+            extra: "isWritable: \(whiteRoom.isWritable)",
+            type: .info,
+            fromClass: WhiteRoom.self)
+        
+        log(content: "set attributes",
+            extra: attributes.debugDescription,
+            type: .info,
+            fromClass: WhiteRoom.self)
     }
     
     func setMediaState(stateCode: Int,
