@@ -1,0 +1,93 @@
+/* 
+  Localizable.strings
+  
+  Copyright © 2020 Agora. All rights reserved.
+*/
+
+// RTM
+fcr_rtm_im_mute_tag_text = "已禁言";
+fcr_rtm_im_message = "消息";
+fcr_rtm_im_quiz = "提问";
+fcr_rtm_im_no_message = "还没有消息";
+fcr_rtm_im_send = "发送";
+fcr_rtm_im_input_placeholder = "请输入消息";
+fcr_rtm_im_silence_holder = "禁言中";
+fcr_rtm_im_mute_mode = "禁言模式开启";
+fcr_rtm_im_unmute_mode = "禁言模式关闭";
+fcr_rtm_im_silenced_placeholder = "禁言中";
+fcr_rtm_im_mute_chat = "禁言";
+fcr_rtm_im_student = "学生";
+fcr_rtm_im_teacher = "老师";
+fcr_rtm_im_title = "聊天";
+
+// Hyphenate
+fcr_hyphenate_im_send = "发送";
+fcr_hyphenate_im_chat = "聊天";
+fcr_hyphenate_im_announcement= "公告";
+fcr_hyphenate_im_input_placeholder = "请输入消息";
+fcr_hyphenate_im_teacher = "老师";
+fcr_hyphenate_im_assistant= "助教";
+fcr_hyphenate_im_no_message = "还没有消息";
+fcr_hyphenate_im_no_announcement = "暂无公告";
+fcr_hyphenate_im_no_announcement_teacher = "暂无公告,去发布";
+fcr_hyphenate_im_notice_up_to = "最多500字符";
+fcr_hyphenate_im_notice_cancel = "取消";
+fcr_hyphenate_im_notice_send = "发布";
+fcr_hyphenate_im_all_mute = "全员禁言中";
+fcr_hyphenate_im_mute = "您已被老师禁言，请谨慎发言";
+fcr_hyphenate_im_login_faild = "登录失败";
+fcr_hyphenate_im_fetch_token_faild = "获取IM Token失败";
+fcr_hyphenate_im_join_faild = "加入失败";
+fcr_hyphenate_im_send_faild_by_mute = "禁言中，发送失败";
+fcr_hyphenate_im_send_faild_by_sensitive = "发送内容包含敏感词，发送失败";
+fcr_hyphenate_im_login_on_other_device = "账户在其他设备登录";
+fcr_hyphenate_im_logout_forced = "账户被强制退出";
+fcr_hyphenate_im_teacher_remove_message = "老师删除了一条消息";
+fcr_hyphenate_im_teacher_mute_all = "已开启全体学生禁言";
+fcr_hyphenate_im_teacher_unmute_all = "已关闭全体学生禁言";
+fcr_hyphenate_im_recall = "撤回";
+fcr_hyphenate_im_recall_a_message = "撤回一条消息";
+fcr_hyphenate_im_muted_by_teacher = "您被{xxx}老师禁止发言了";
+fcr_hyphenate_im_unmuted_by_teacher = "您被{xxx}老师允许发言了";
+fcr_hyphenate_im_photo_permission_disabled = "获取相册图片权限失败";
+fcr_hyphenate_im_photo_permission_request = "请在系统设置中打开所有照片访问权限";
+fcr_hyphenate_im_image_too_large = "图片太大，请选择其他图片";
+
+// Cloud
+fcr_cloud_file_name = "文件名";
+fcr_cloud_search = "搜索";
+fcr_cloud_public_resource = "公共资源";
+fcr_cloud_private_resource = "我的云盘";
+fcr_cloud_total_item = "共{xxx}项";
+
+// AnswerSelector
+fcr_popup_quiz = "答题器";
+fcr_popup_quiz_post = "提交答案";
+fcr_popup_quiz_change = "修改答案";
+fcr_popup_quiz_submission = "已答题人数";
+fcr_popup_quiz_accuracy = "正确率";
+fcr_popup_quiz_correct = "正确答案";
+fcr_popup_quiz_my_answer = "我的答案";
+fcr_popup_quiz_start_again = "重新开始";
+fcr_popup_quiz_answer_time = "答题用时";
+
+// poll
+fcr_poll_title = "投票";
+fcr_poll_submit = "投票";
+fcr_poll_multi = "多选";
+fcr_poll_single = "单选";
+fcr_poll_start = "开始投票";
+fcr_poll_input_placeholder = "请输入投票内容";
+fcr_poll_input_option = "请输入选项";
+
+// Countdown
+fcr_countdown_timer_title = "倒计时";
+
+// webView
+fcr_online_courseware_label_online_courseware = "在线课件";
+// share link
+fcr_inshare_label_share = "分享";
+fcr_inshare_label_room_id = "房间ID：";
+fcr_inshare_label_invitation = "邀请：";
+fcr_inshare_button_share_friends = "分享给好友";
+fcr_joinroom_tips_copy = "复制成功";

@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "AgoraWidgets"
-  spec.version      = "2.7.2"
+  spec.version      = "2.8.0"
   spec.summary      = "Agora widgets"
   spec.description  = "Agora native widgets"
   spec.homepage     = "https://docs.agora.io/en/agora-class/landing-page?platform=iOS"
@@ -13,20 +13,10 @@ Pod::Spec.new do |spec|
 
   spec.source       = { :git => "git@github.com:AgoraIO-Community/apaas-extapp-ios.git", :tag => "AgoraWidgets_v" + "#{spec.version.to_s}" }
 
-  spec.source_files = "AgoraWidgets/Common/**/*.{h,m,swift}", 
-                      "AgoraWidgets/StreamWindow/**/*.{h,m,swift}", 
-                      "AgoraWidgets/Cloud/**/*.{h,m,swift}",
-                      "AgoraWidgets/Whiteboard/**/*.{h,m,swift}", 
-                      "AgoraWidgets/ChatWidget/**/*.{h,m,swift}", 
-                      "AgoraWidgets/RtmIM/**/*.{h,m,swift}",
-                      "AgoraWidgets/Poll/**/*.{h,m,swift}",
-                      "AgoraWidgets/PopupQuiz/**/*.{h,m,swift}",
-                      "AgoraWidgets/CountdownTimer/**/*.{h,m,swift}",
-                      "AgoraWidgets/WebView/**/*.{h,m,swift}",
-                      "AgoraWidgets/AgoraChat/**/*.{h,m,swift}"
+  spec.source_files = "SDKs/AgoraWidgets/**/**/*.{h,m,swift}"
   
-  spec.dependency "AgoraUIBaseViews", ">=2.7.2"
-  spec.dependency "AgoraWidget", ">=2.6.0"
+  spec.dependency "AgoraUIBaseViews", ">=2.8.0"
+  spec.dependency "AgoraWidget", ">=2.8.0"
   spec.dependency "AgoraLog", "1.0.2"
   spec.dependency "Armin", ">=1.1.0"
 
@@ -48,7 +38,7 @@ Pod::Spec.new do |spec|
   
   spec.subspec "Resources" do |ss|
       ss.resource_bundles = {
-        "AgoraWidgets" => ["AgoraWidgets/AgoraResources/**/*.{xcassets,strings,gif,mp3,js}"]
+        "AgoraWidgets" => ["SDKs/AgoraWidgets/Assets/**/*.{xcassets,strings,gif,mp3,js}"]
       }
   end
 end
