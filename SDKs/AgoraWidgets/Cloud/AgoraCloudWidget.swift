@@ -171,7 +171,7 @@ private extension AgoraCloudWidget {
         }
         
         serverApi.requestResourceInUser(pageNo: 1,
-                                        pageSize: 10,
+                                        pageSize: 20,
                                         resourceName: resourceName) { [weak self] (resp) in
             guard let `self` = self else {
                 return
