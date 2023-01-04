@@ -127,6 +127,16 @@ extension FcrBoardMainWindow {
         guard let audioMixer = whiteSDK?.audioMixer else {
             return
         }
+        
+        let extra = ["stateCode: \(stateCode)",
+                     "errorCode: \(errorCode)"]
+        
+        log(content: "set media state",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteAudioMixerBridge.self,
+            funcName: "setMediaState")
+        
         audioMixer.setMediaState(stateCode,
                                  errorCode: errorCode)
     }
@@ -173,6 +183,35 @@ extension FcrBoardMainWindow {
                       type: .info)
         })
         return nil
+    }
+    
+    func insertImage(resourceUrl: String,
+                     frame: CGRect) {
+        let uuid = resourceUrl.agora_md5()
+        
+        let event = WhitePanEvent()
+        event.x = frame.origin.x
+        event.y = frame.origin.y
+        
+        whiteRoom.convertToPoint(inWorld: event) { [weak self] event in
+            guard let `self` = self else {
+                return
+            }
+            
+            let newFrame = CGRect(x: event.x,
+                                  y: event.y,
+                                  width: frame.width,
+                                  height: frame.height)
+            
+            let info = WhiteImageInformation(uuid: uuid,
+                                             frame: newFrame)
+            
+            self.whiteRoom.insertImage(info,
+                                       src: resourceUrl)
+            
+            self.whiteRoom.completeImageUpload(withUuid: uuid,
+                                               src: resourceUrl)
+        }
     }
     
     func getAllWindowsSnapshotImageList(combinedCount: UInt8,
@@ -504,6 +543,40 @@ extension FcrBoardMainWindow {
         
         let appParams = ["dir": config.resourceUuid,
                          "scenes": scenes.agDescription,
+                         "title": config.title]
+        
+        extra = ["appParams": appParams.agDescription]
+        
+        log(content: "add app",
+            extra: extra.agDescription,
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "addApp")
+    }
+    
+    func createSubWindow2(config: FcrBoardSubWindowConfig2) {
+        var extra = ["config": config.agDescription]
+        
+        log(content: "create sub window 2",
+            extra: extra.agDescription,
+            type: .info)
+        
+        let whiteParam = WhiteAppParam.createSlideApp("/\(config.resourceUuid)",
+                                                      taskId: config.taskUuid,
+                                                      url: config.prefix,
+                                                      title: config.title)
+        
+        whiteRoom.addApp(whiteParam) { [weak self] (subWindowId) in
+            let extra = ["subWindowId": subWindowId]
+            
+            self?.log(content: "addAppCallback",
+                      extra: extra.agDescription,
+                      type: .info)
+        }
+        
+        let appParams = ["dir": config.resourceUuid,
+                         "taskId": config.taskUuid,
+                         "url": config.prefix,
                          "title": config.title]
         
         extra = ["appParams": appParams.agDescription]
@@ -941,7 +1014,7 @@ extension FcrBoardMainWindow: FcrBoardMainWindowNeedObserve {
     func onAudioMixingPositionUpdated(position: Int) {
         let extra = ["position": position.agDescription]
         
-        log(content: "on stop audio mixing",
+        log(content: "on audio mixing position updated",
             extra: extra.agDescription,
             type: .info)
         

@@ -15,7 +15,7 @@ class AgoraCloudServerAPI: AgoraWidgetServerAPI {
     func requestResourceInUser(pageNo: Int,
                                pageSize: Int,
                                resourceName: String? = nil,
-                               success: @escaping SuccessBlock<SourceData>,
+                               success: @escaping SuccessBlock<ServerSourceData>,
                                failure: @escaping FailureCompletion) {
         guard !currentRequesting else {
             return
@@ -25,11 +25,6 @@ class AgoraCloudServerAPI: AgoraWidgetServerAPI {
         
         let path = "/edu/apps/\(appId)/v3/users/\(userId)/resources/page"
         let urlString = host + path
-        
-        let event = ArRequestEvent(name: "CloudServerApi")
-        let type = ArRequestType.http(.get,
-                                      url: urlString)
-       
         
         var parameters: [String : Any] = ["pageNo" : pageNo,
                                           "pageSize" : pageSize]
@@ -44,7 +39,7 @@ class AgoraCloudServerAPI: AgoraWidgetServerAPI {
                 parameters: parameters) { [weak self] json in
             self?.currentRequesting = false
             if let dataDic = json["data"] as? [String: Any],
-               let source = dataDic.toObj(SourceData.self){
+               let source = dataDic.toObj(ServerSourceData.self){
                 success(source)
             } else {
                 failure(NSError(domain: "decode",

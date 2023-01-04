@@ -46,6 +46,8 @@ class AgoraCloudVM: NSObject {
         return AgoraCloudBoardCoursewareInfo(resourceUuid: config.resourceUuid,
                                              resourceName: config.resourceName,
                                              resourceUrl: config.resourceURL,
+                                             taskUuid: config.taskUuid,
+                                             prefix: config.`prefix`,
                                              ext: config.ext,
                                              scenes: config.scenes?.toCloudBoard,
                                              convert: config.convert)
