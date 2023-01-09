@@ -282,20 +282,25 @@ struct FcrBoardCoursewareInfo: Convertable {
     var resourceUuid: String
     var resourceName: String
     var resourceUrl: String
+    var taskUuid: String?
+    var prefix: String?
     var scenes: [FcrBoardScene]?
     var convert: Bool?
+    var ext: String
     
-    init(resourceName: String,
-         resourceUuid: String,
-         resourceUrl: String,
-         scenes: [FcrBoardScene]?,
-         convert: Bool?) {
-        self.resourceName = resourceName
-        self.resourceUuid = resourceUuid
-        self.resourceUrl = resourceUrl
-        self.scenes = scenes
-        self.convert = convert
-    }
+//    init(resourceName: String,
+//         resourceUuid: String,
+//         resourceUrl: String,
+//         scenes: [FcrBoardScene]?,
+//         convert: Bool?,
+//         ext: String) {
+//        self.resourceName = resourceName
+//        self.resourceUuid = resourceUuid
+//        self.resourceUrl = resourceUrl
+//        self.scenes = scenes
+//        self.convert = convert
+//        self.ext = ext
+//    }
 }
 
 struct FcrBoardScene: Convertable {

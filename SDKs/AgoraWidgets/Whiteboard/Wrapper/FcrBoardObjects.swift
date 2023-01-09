@@ -142,8 +142,23 @@ struct FcrBoardSubWindowConfig: AgoraWidgetDescription {
     var agDescription: String {
         let dic = ["resourceUuid": resourceUuid,
                    "resourceHasAnimation": "\(resourceHasAnimation)",
-                   "title": "\(title)",
+                   "title": title,
                    "pageList": pageList.agDescription]
+        return dic.agDescription
+    }
+}
+
+struct FcrBoardSubWindowConfig2: AgoraWidgetDescription {
+    var resourceUuid: String
+    var taskUuid: String
+    var title: String
+    var prefix: String
+    
+    var agDescription: String {
+        let dic = ["resourceUuid": resourceUuid,
+                   "taskUuid": taskUuid,
+                   "title": title,
+                   "prefix": prefix]
         return dic.agDescription
     }
 }

@@ -49,7 +49,7 @@ import Darwin
 
 extension AgoraCloudWidget: AgoraCloudTopViewDelegate {
     // MARK: - AgoraCloudTopViewDelegate
-    func agoraCloudTopViewDidTapAreaButton(type: AgoraCloudUIFileType) {
+    func agoraCloudTopViewDidTapAreaButton(type: AgoraCloudFileViewType) {
         vm.selectedType = type.dataType
         cloudView.topView.update(selectedType: type)
         cloudView.topView.set(fileNum: vm.currentFiles.count)
@@ -171,7 +171,7 @@ private extension AgoraCloudWidget {
         }
         
         serverApi.requestResourceInUser(pageNo: 1,
-                                        pageSize: 10,
+                                        pageSize: 20,
                                         resourceName: resourceName) { [weak self] (resp) in
             guard let `self` = self else {
                 return

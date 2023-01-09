@@ -60,6 +60,9 @@ struct AgoraCloudBoardCoursewareInfo: Convertable {
     var resourceUuid: String
     var resourceName: String
     var resourceUrl: String
+    var taskUuid: String?
+    var prefix: String?
+    
     var ext: String
     var scenes: [AgoraCloudBoardCoursewareScene]?
     var convert: Bool?
@@ -83,8 +86,8 @@ enum AgoraCloudCoursewareType {
     case publicResource
     /// 我的云盘
     case privateResource
-    
-    var uiType: AgoraCloudUIFileType {
+
+    var uiType: AgoraCloudFileViewType {
         switch self {
         case .publicResource:  return .uiPublic
         case .privateResource: return .uiPrivate
@@ -117,6 +120,9 @@ struct AgoraCloudCourseware: Convertable {
     var resourceName: String
     var resourceUuid: String
     var resourceURL: String
+    var taskUuid: String?
+    var prefix: String?
+    
     /// ppt才有
     var scenes: [AgoraCloudScene]?
     /// 原始文件的扩展名
@@ -157,7 +163,7 @@ extension Array where Element == AgoraCloudScene {
 }
 
 // MARK: - UI
-enum AgoraCloudUIFileType {
+enum AgoraCloudFileViewType {
     case uiPublic, uiPrivate
     
     var dataType: AgoraCloudCoursewareType {
@@ -179,7 +185,7 @@ class AgoraCloudCellInfo: NSObject {
         self.name = name
         super.init()
         
-        self.image =  ext.cloudTypeImage()
+        self.image = ext.cloudTypeImage()
     }
 }
 
@@ -212,7 +218,7 @@ fileprivate extension String {
 
 // MARK: - Cloud Server model
 extension AgoraCloudServerAPI {
-    struct SourceData: Convertable {
+    struct ServerSourceData: Convertable {
         let total: Int
         let list: [FileItem]
         let pageNo: Int
@@ -364,6 +370,8 @@ extension AgoraCloudServerAPI.FileItem {
         return AgoraCloudCourseware(resourceName: resourceName,
                                     resourceUuid: resourceUuid,
                                     resourceURL: url,
+                                    taskUuid: taskUuid,
+                                    prefix: taskProgress?.prefix,
                                     scenes: scenes,
                                     ext: ext,
                                     convert: conversion?.canvasVersion ?? false)

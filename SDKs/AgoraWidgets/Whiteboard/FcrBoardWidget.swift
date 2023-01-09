@@ -137,21 +137,54 @@ struct FcrBoardInitCondition {
 private extension FcrBoardWidget {
     // MARK:  message handle
     func handleOpenCourseware(info: FcrBoardCoursewareInfo) {
-        if let scenes = info.scenes {
-            var resourceHasAnimation = false
-            if let convert = info.convert,
-            convert {
-                resourceHasAnimation = true
-            }
-            let config = FcrBoardSubWindowConfig(resourceUuid: info.resourceUuid,
-                                                 resourceHasAnimation: resourceHasAnimation,
-                                                 title: info.resourceName,
-                                                 pageList: scenes.toWrapper())
-            mainWindow?.createSubWindow(config: config)
-        } else {
+        switch info.ext {
+        case "mp3", "mp4":
             let mediaConfig = FcrBoardMediaSubWindowConfig(resourceUrl: info.resourceUrl,
                                                            title: info.resourceName)
             mainWindow?.createMediaSubWindow(config: mediaConfig)
+        case "png", "jpg":
+            guard let image = UIImage.create(with: info.resourceUrl) else {
+                return
+            }
+            
+            let scale = image.size.width / image.size.height
+            
+            var width: CGFloat = 200
+            var height: CGFloat = (width / scale)
+            
+            let x = ((view.bounds.size.width - width) * 0.5)
+            let y = ((view.bounds.size.height - height) * 0.5)
+            
+            let frame = CGRect(x: x,
+                               y: y,
+                               width: width,
+                               height: height)
+            
+            mainWindow?.insertImage(resourceUrl: info.resourceUrl,
+                                    frame: frame)
+        default:
+            if let scenes = info.scenes {
+                var resourceHasAnimation = false
+                
+                if let convert = info.convert, convert {
+                    resourceHasAnimation = true
+                }
+                
+                let config = FcrBoardSubWindowConfig(resourceUuid: info.resourceUuid,
+                                                     resourceHasAnimation: resourceHasAnimation,
+                                                     title: info.resourceName,
+                                                     pageList: scenes.toWrapper())
+                mainWindow?.createSubWindow(config: config)
+                
+            } else if let taskUuid = info.taskUuid,
+                        let prefix = info.prefix {
+                let config = FcrBoardSubWindowConfig2(resourceUuid: info.resourceUuid,
+                                                      taskUuid: taskUuid,
+                                                      title: info.resourceName,
+                                                      prefix: `prefix`)
+                
+                mainWindow?.createSubWindow2(config: config)
+            }
         }
     }
     
@@ -729,6 +762,24 @@ fileprivate extension UIView {
         }
         
         return ratio
+    }
+}
+
+fileprivate extension UIImage {
+    static func create(with url: String) -> UIImage? {
+        guard let urlObject = URL(string: url) else {
+            return nil
+        }
+        
+        guard let data = try? Data(contentsOf: urlObject) else {
+            return nil
+        }
+        
+        guard let image = UIImage(data: data) else {
+            return nil
+        }
+        
+        return image
     }
 }
 

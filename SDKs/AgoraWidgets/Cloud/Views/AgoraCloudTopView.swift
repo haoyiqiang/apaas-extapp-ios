@@ -22,7 +22,7 @@ import UIKit
  */
 
 protocol AgoraCloudTopViewDelegate: NSObjectProtocol {
-    func agoraCloudTopViewDidTapAreaButton(type: AgoraCloudUIFileType)
+    func agoraCloudTopViewDidTapAreaButton(type: AgoraCloudFileViewType)
     func agoraCloudTopViewDidTapCloseButton()
     func agoraCloudTopViewDidTapRefreshButton()
     func agoraCloudTopViewDidSearch(keyStr: String)
@@ -62,7 +62,7 @@ class AgoraCloudTopView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func update(selectedType: AgoraCloudUIFileType) {
+    func update(selectedType: AgoraCloudFileViewType) {
         switch selectedType {
         case .uiPublic:
             privateAreaButton.isSelected = false
