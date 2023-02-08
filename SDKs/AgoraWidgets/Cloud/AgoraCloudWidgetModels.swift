@@ -174,6 +174,13 @@ enum AgoraCloudFileViewType {
             return .privateResource
         }
     }
+    
+    var isPublic: Bool {
+        switch self {
+        case .uiPublic:  return true
+        case .uiPrivate: return false
+        }
+    }
 }
 
 class AgoraCloudCellInfo: NSObject {

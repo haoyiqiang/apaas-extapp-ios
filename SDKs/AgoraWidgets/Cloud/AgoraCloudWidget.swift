@@ -30,9 +30,6 @@ import Darwin
     }
     
     public override func onMessageReceived(_ message: String) {
-        log(content: "onMessageReceived:\(message)",
-            type: .info)
-        
         if let keys = message.toRequestKeys() {
             serverApi = AgoraCloudServerAPI(host: keys.host,
                                             appId: keys.agoraAppId,
@@ -49,18 +46,18 @@ import Darwin
 
 extension AgoraCloudWidget: AgoraCloudTopViewDelegate {
     // MARK: - AgoraCloudTopViewDelegate
-    func agoraCloudTopViewDidTapAreaButton(type: AgoraCloudFileViewType) {
+    func onTypeButtonPressed(type: AgoraCloudFileViewType) {
         vm.selectedType = type.dataType
         cloudView.topView.update(selectedType: type)
         cloudView.topView.set(fileNum: vm.currentFiles.count)
         cloudView.listView.reloadData()
     }
     
-    func agoraCloudTopViewDidTapCloseButton() {
+    func onCloseButtonPressed() {
         sendMessage(signal: .closeCloud)
     }
     
-    func agoraCloudTopViewDidTapRefreshButton() {
+    func onRefreshButtonPressed() {
         // public为extraInfo传入，无需更新
         guard vm.selectedType == .privateResource else {
             return
@@ -78,16 +75,16 @@ extension AgoraCloudWidget: AgoraCloudTopViewDelegate {
         }
     }
     
-    func agoraCloudTopViewDidSearch(keyStr: String) {
+    func onSearched(content: String) {
         guard vm.selectedType == .privateResource else {
             return
         }
         
-        fetchPrivate(resourceName: keyStr) { [weak self] list in
+        fetchPrivate(resourceName: content) { [weak self] list in
             guard let `self` = self else {
                 return
             }
-            self.vm.currentFilterStr = keyStr
+            self.vm.currentFilterStr = content
             self.cloudView.listView.reloadData()
         } failure: { [weak self] error in
             self?.log(content: error.localizedDescription,
