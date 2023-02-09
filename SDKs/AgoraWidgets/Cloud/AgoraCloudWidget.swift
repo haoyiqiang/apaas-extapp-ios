@@ -13,7 +13,7 @@ import Darwin
 @objcMembers public class AgoraCloudWidget: AgoraNativeWidget {
     /**Data*/
     private var vm: AgoraCloudVM
-    private var serverApi: AgoraCloudServerAPI?
+    private var serverAPI: AgoraCloudServerAPI?
     
     /**View*/
     private let cloudView = AgoraCloudView(frame: .zero)
@@ -31,7 +31,7 @@ import Darwin
     
     public override func onMessageReceived(_ message: String) {
         if let keys = message.toRequestKeys() {
-            serverApi = AgoraCloudServerAPI(host: keys.host,
+            serverAPI = AgoraCloudServerAPI(host: keys.host,
                                             appId: keys.agoraAppId,
                                             token: keys.token,
                                             roomId: info.roomInfo.roomUuid,
@@ -46,7 +46,7 @@ import Darwin
 
 extension AgoraCloudWidget: AgoraCloudTopViewDelegate {
     // MARK: - AgoraCloudTopViewDelegate
-    func onTypeButtonPressed(type: AgoraCloudFileViewType) {
+    func onTypeButtonPressed(type: FcrCloudFileViewType) {
         vm.selectedType = type.dataType
         cloudView.topView.update(selectedType: type)
         cloudView.topView.set(fileNum: vm.currentFiles.count)
@@ -163,7 +163,7 @@ private extension AgoraCloudWidget {
     func fetchPrivate(resourceName: String? = nil,
                       success: (([AgoraCloudCourseware]) -> ())?,
                       failure: ((Error) -> ())?) {
-        guard let `serverApi` = serverApi else {
+        guard let `serverApi` = serverAPI else {
             return
         }
         

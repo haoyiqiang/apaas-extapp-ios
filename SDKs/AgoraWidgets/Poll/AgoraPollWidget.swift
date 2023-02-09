@@ -171,7 +171,7 @@ extension AgoraPollWidget: AgoraUIContentContainer {
 private extension AgoraPollWidget {
     func updateRoomData() {
         guard let roomProps = info.roomProperties,
-           let data = roomProps.toObj(AgoraPollRoomPropertiesData.self) else {
+           let data = roomProps.toObject(AgoraPollRoomPropertiesData.self) else {
             return
         }
         
@@ -180,7 +180,7 @@ private extension AgoraPollWidget {
     
     func updateUserData() {
         guard let userProps = info.localUserProperties,
-              let userData = userProps.toObj(AgoraPollUserPropertiesData.self),
+              let userData = userProps.toObject(AgoraPollUserPropertiesData.self),
               let data = roomData,
               userData.pollId == data.pollId else {
             return

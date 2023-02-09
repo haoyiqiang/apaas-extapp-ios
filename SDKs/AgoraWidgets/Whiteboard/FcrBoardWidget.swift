@@ -374,7 +374,7 @@ private extension FcrBoardWidget {
     }
     
     func joinWhiteboard() {
-        guard let config = info.roomProperties?.toObj(FcrBooardConfigOfExtra.self),
+        guard let config = info.roomProperties?.toObject(FcrBooardConfigOfExtra.self),
               boardRoom == nil else {
                   return
               }
@@ -497,7 +497,7 @@ private extension FcrBoardWidget {
     
     private func analyzeBoardConfigFromRoomProperties() {
         if !initCondition.configComplete,
-           let configExtra = info.roomProperties?.toObj(FcrBooardConfigOfExtra.self) {
+           let configExtra = info.roomProperties?.toObject(FcrBooardConfigOfExtra.self) {
             initCondition.configComplete = true
         }
     }
@@ -505,7 +505,7 @@ private extension FcrBoardWidget {
     private func analyzeGrantedUsersFromRoomProperties() {
         var grantedUsers = [String]()
 
-        if let usageExtra = info.roomProperties?.toObj(FcrBooardUsageOfExtra.self) {
+        if let usageExtra = info.roomProperties?.toObject(FcrBooardUsageOfExtra.self) {
             grantedUsers = Array(usageExtra.grantedUsers.keys)
         }
         

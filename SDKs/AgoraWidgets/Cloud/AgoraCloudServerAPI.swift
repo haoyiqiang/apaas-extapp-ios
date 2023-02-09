@@ -30,7 +30,7 @@ class AgoraCloudServerAPI: AgoraWidgetServerAPI {
                 method: .get,
                 parameters: parameters) { json in
             if let dataDic = json["data"] as? [String: Any],
-               let source = dataDic.toObj(ServerSourceData.self) {
+               let source = dataDic.toObject(ServerSourceData.self) {
                 success(source)
             } else {
                 failure(NSError(domain: "decode",

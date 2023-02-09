@@ -22,7 +22,7 @@ import UIKit
  */
 
 protocol AgoraCloudTopViewDelegate: NSObjectProtocol {
-    func onTypeButtonPressed(type: AgoraCloudFileViewType)
+    func onTypeButtonPressed(type: FcrCloudFileViewType)
     func onCloseButtonPressed()
     func onRefreshButtonPressed()
     func onSearched(content: String)
@@ -66,7 +66,7 @@ class AgoraCloudTopView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func update(selectedType: AgoraCloudFileViewType) {
+    func update(selectedType: FcrCloudFileViewType) {
         var constraints: ((MASConstraintMaker?) -> Void)
         
         switch selectedType {

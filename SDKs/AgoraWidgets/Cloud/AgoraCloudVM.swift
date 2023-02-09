@@ -20,6 +20,13 @@ class AgoraCloudVM: NSObject {
         }
     }
     
+    
+    
+    private(set) var originPublicFileList = [FcrCloudFileListServerObject.File]()
+    private(set) var originPrivateFileList = [FcrCloudFileListServerObject.File]()
+    
+    private(set)
+    
     private(set) var currentFiles = [AgoraCloudCellInfo]()
     private(set) var publicFiles = [AgoraCloudCourseware]()
     private(set) var privateFiles = [AgoraCloudCourseware]()
@@ -70,25 +77,29 @@ private extension AgoraCloudVM {
         }
         currentFiles = courseFiles.toCellInfos()
     }
-    /// 公共课件转换
+    
     func transformPublicResources(extraInfo: Any?) {
-        guard let extraInfo = extraInfo as? [String: Any],
-              let publicJsonArr = extraInfo["publicCoursewares"] as? [String],
-              publicJsonArr.count > 0 else {
-                  return
-              }
+        guard let extraInfo = ValueTransform(value: extraInfo,
+                                             result: [String: Any].self),
+              let publicJsonArray = ValueTransform(value: extraInfo["publicCoursewares"],
+                                                   result: [String].self),
+              publicJsonArray.count > 0
+        else {
+            return
+        }
         
-        var publicCoursewares = [AgoraCloudCourseware]()
+        var fileList = [FcrCloudFileListServerObject.File]()
         
-        for json in publicJsonArr {
-            guard let data = json.data(using: .utf8),
-               let courseware = try? AgoraCloudServerAPI.FileItem.create(with: data) else {
+        for jsonSring in publicJsonArray {
+            guard let json = jsonSring.toDictionary(),
+                  let file = try? FcrCloudFileListServerObject.File.decode(json)
+            else {
                 continue
             }
             
-            publicCoursewares.append(courseware.toCloud)
+            fileList.append(file)
         }
         
-        self.publicFiles = publicCoursewares
+        originPublicFileList = fileList
     }
 }
