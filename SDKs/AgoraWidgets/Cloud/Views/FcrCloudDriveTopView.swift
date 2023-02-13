@@ -57,7 +57,7 @@ class FcrCloudDriveTopView: UIView {
     
     func updateFileCount(_ count: Int) {
         let sumText = "fcr_cloud_total_item".widgets_localized()
-        let final = sumText.replacingOccurrences(of: String.agora_localized_replacing(),
+        let final = sumText.replacingOccurrences(of: String.widgets_localized_replacing(),
                                                  with: "\(count)")
         fileCountLabel.text = final
     }

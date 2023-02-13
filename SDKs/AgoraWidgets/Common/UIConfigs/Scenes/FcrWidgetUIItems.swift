@@ -134,7 +134,7 @@ struct FcrWidgetUIItemCounterTime: FcrWidgetUIItemProtocol {
     var visible: Bool                  = true
     var enable: Bool                   = true
    
-    var image: UIImage?                = .agora_widget_image("countdown_bg")
+    var image: UIImage?                = .widgets_image("countdown_bg")
     var textAlignment: NSTextAlignment = .center
     var font: UIFont                   = FcrWidgetUIFontGroup.font17.bold
     var normalTextColor: UIColor       = FcrWidgetUIColorGroup.textLevel2Color
@@ -170,10 +170,10 @@ struct FcrWidgetUIItemPollOption: FcrWidgetUIItemProtocol {
     var font: UIFont                        = FcrWidgetUIFontGroup.font9
     var textColor: UIColor                  = FcrWidgetUIColorGroup.textLevel1Color
     
-    var selectedSingleModeImage: UIImage    = UIImage.agora_widget_image("poll_sin_checked")!
-    var selectedMultiModeImage: UIImage     = UIImage.agora_widget_image("poll_mul_checked")!
-    var unselectedSingleModeImage: UIImage  = UIImage.agora_widget_image("poll_sin_unchecked")!
-    var unselectedMultiModeImage: UIImage   = UIImage.agora_widget_image("poll_mul_unchecked")!
+    var selectedSingleModeImage: UIImage    = UIImage.widgets_image("poll_sin_checked")!
+    var selectedMultiModeImage: UIImage     = UIImage.widgets_image("poll_mul_checked")!
+    var unselectedSingleModeImage: UIImage  = UIImage.widgets_image("poll_sin_unchecked")!
+    var unselectedMultiModeImage: UIImage   = UIImage.widgets_image("poll_mul_unchecked")!
     
     var labelVerticalSpace: CGFloat         = 5
     var labelLeftSpace: CGFloat             = 37
@@ -221,19 +221,19 @@ struct FcrWidgetUIItemWebViewName: FcrWidgetUIItemProtocol {
 struct FcrWidgetUIItemWebViewRefresh: FcrWidgetUIItemProtocol {
     var visible: Bool                        = true
     var enable: Bool                         = true
-    var image: UIImage                       = UIImage.agora_widget_image("web_refresh")!
+    var image: UIImage                       = UIImage.widgets_image("web_refresh")!
 }
 
 struct FcrWidgetUIItemWebViewScale: FcrWidgetUIItemProtocol {
     var visible: Bool                        = true
     var enable: Bool                         = true
-    var image: UIImage                       = UIImage.agora_widget_image("web_scale")!
+    var image: UIImage                       = UIImage.widgets_image("web_scale")!
 }
 
 struct FcrWidgetUIItemWebViewClose: FcrWidgetUIItemProtocol {
     var visible: Bool                        = true
     var enable: Bool                         = true
-    var image: UIImage                       = UIImage.agora_widget_image("web_close")!
+    var image: UIImage                       = UIImage.widgets_image("web_close")!
 }
 
 // MARK: - cloud
@@ -259,22 +259,22 @@ struct FcrWidgetUIItemCloudStorageCellImage: FcrWidgetUIItemProtocol {
     var visible: Bool           = true
     var enable: Bool            = true
     
-    let pptImage: UIImage?      = .agora_widget_image("format-PPT")
-    let docImage: UIImage?      = .agora_widget_image("format-word")
-    let excelImage: UIImage?    = .agora_widget_image("format-excel")
-    let pdfImage: UIImage?      = .agora_widget_image("format-pdf")
-    let picImage: UIImage?      = .agora_widget_image("format-pic")
-    let audioImage: UIImage?    = .agora_widget_image("format-audio")
-    let videoImage: UIImage?    = .agora_widget_image("format-video")
-    let alfImage: UIImage?      = .agora_widget_image("format-alf")
-    let unknownImage: UIImage?  = .agora_widget_image("format-unknown")
+    let pptImage: UIImage?      = .widgets_image("format-PPT")
+    let docImage: UIImage?      = .widgets_image("format-word")
+    let excelImage: UIImage?    = .widgets_image("format-excel")
+    let pdfImage: UIImage?      = .widgets_image("format-pdf")
+    let picImage: UIImage?      = .widgets_image("format-pic")
+    let audioImage: UIImage?    = .widgets_image("format-audio")
+    let videoImage: UIImage?    = .widgets_image("format-video")
+    let alfImage: UIImage?      = .widgets_image("format-alf")
+    let unknownImage: UIImage?  = .widgets_image("format-unknown")
 }
 
 struct FcrWidgetUIItemCloudStorageRefresh: FcrWidgetUIItemProtocol {
     var visible: Bool           = true
     var enable: Bool            = true
     
-    let image: UIImage?         = .agora_widget_image("icon_refresh")
+    let image: UIImage?         = .widgets_image("icon_refresh")
 }
 
 struct FcrWidgetUIItemCloudStorageSearch: FcrWidgetUIItemProtocol {
@@ -291,7 +291,7 @@ struct FcrWidgetUIItemCloudStorageClose: FcrWidgetUIItemProtocol {
     var visible: Bool            = true
     var enable: Bool             = true
     
-    let image: UIImage?          = .agora_widget_image("cloud_close")
+    let image: UIImage?          = .widgets_image("cloud_close")
 }
 
 struct FcrWidgetUIItemCloudStorageTitleLabel: FcrWidgetUIItemProtocol {
@@ -311,17 +311,17 @@ struct FcrWidgetUIItemAgoraChatMuteAll: FcrWidgetUIItemProtocol {
     var fieldText: String       = "fcr_hyphenate_im_all_mute".widgets_localized()
     var muteText: String        = "fcr_hyphenate_im_teacher_mute_all".widgets_localized()
     var unmuteText: String      = "fcr_hyphenate_im_teacher_unmute_all".widgets_localized()
-    var muteImage: UIImage?     = .agora_widget_image("icon_mute")
-    var unmuteImage: UIImage?   = .agora_widget_image("icon_unmute")
+    var muteImage: UIImage?     = .widgets_image("icon_mute")
+    var unmuteImage: UIImage?   = .widgets_image("icon_unmute")
 }
 
 struct FcrWidgetUIItemAgoraChatEmoji: FcrWidgetUIItemProtocol {
     var visible: Bool           = true
     var enable: Bool            = true
     
-    var normalImage: UIImage?   = .agora_widget_image("icon_emoji")
-    var selectedImage: UIImage? = .agora_widget_image("icon_keyboard")
-    var deleteEmoji: UIImage?   = .agora_widget_image("deleteEmoticon")
+    var normalImage: UIImage?   = .widgets_image("icon_emoji")
+    var selectedImage: UIImage? = .widgets_image("icon_keyboard")
+    var deleteEmoji: UIImage?   = .widgets_image("deleteEmoticon")
     
     var textColor = FcrWidgetUIColorGroup.textLevel2Color
     var textFont = FcrWidgetUIFontGroup.font14
@@ -332,9 +332,9 @@ struct FcrWidgetUIItemAgoraChatPicture: FcrWidgetUIItemProtocol {
     var enable: Bool             = true
     
     let cornerRadius: CGFloat    = FcrWidgetUIFrameGroup.containerCornerRadius
-    var image: UIImage?          = .agora_widget_image("icon_image")
+    var image: UIImage?          = .widgets_image("icon_image")
     var noAuthText: String       = "fcr_hyphenate_im_photo_permission_request".widgets_localized()
-    var brokenImage: UIImage?    = .agora_widget_image("msg_img_broken")
+    var brokenImage: UIImage?    = .widgets_image("msg_img_broken")
 }
 
 struct FcrWidgetUIItemAgoraChatMute: FcrWidgetUIItemProtocol {
@@ -354,7 +354,7 @@ struct FcrWidgetUIItemAgoraChatMessage: FcrWidgetUIItemProtocol {
     var nilText: String             = "fcr_hyphenate_im_no_message".widgets_localized()
     var nilLabelFont: UIFont        = FcrWidgetUIFontGroup.font12
     var nilLabelColor: UIColor      = FcrWidgetUIColorGroup.textLevel2Color
-    var nilImage: UIImage?          = .agora_widget_image("icon_message_none")
+    var nilImage: UIImage?          = .widgets_image("icon_message_none")
     
     var sendBar                     = FcrWidgetUIItemAgoraChatMessageSendBar()
     var cell                        = FcrWidgetUIItemAgoraChatMessageCell()
@@ -402,7 +402,7 @@ struct FcrWidgetUIItemAgoraChatNoticeCell: FcrWidgetUIItemProtocol {
     var enable: Bool                = true
     
     var backgroundColor: UIColor    = FcrWidgetUIColorGroup.iconSelectedBackgroundColor
-    var image: UIImage?             = .agora_widget_image("icon_caution")
+    var image: UIImage?             = .widgets_image("icon_caution")
     
     var labelColor: UIColor         = FcrWidgetUIColorGroup.textLevel1Color
     var labelFont: UIFont           = FcrWidgetUIFontGroup.font13
@@ -445,9 +445,9 @@ struct FcrWidgetUIItemAnnouncement: FcrWidgetUIItemProtocol {
     var buttonBackgroundColor: UIColor  = FcrWidgetUIColorGroup.systemBackgroundColor
     var buttonTitleFont: UIFont         =  FcrWidgetUIFontGroup.font12
     var buttonTitleColor: UIColor       = FcrWidgetUIColorGroup.textLevel2Color
-    var buttonImage: UIImage?           = .agora_widget_image("icon_notice")
+    var buttonImage: UIImage?           = .widgets_image("icon_notice")
     
-    var nilImage: UIImage?              = .agora_widget_image("icon_announcement_none")
+    var nilImage: UIImage?              = .widgets_image("icon_announcement_none")
     var nilText: String                 = "fcr_hyphenate_im_no_announcement".widgets_localized()
     var nilAndSetText: String           = "fcr_hyphenate_im_no_announcement_teacher".widgets_localized()
     
@@ -466,14 +466,14 @@ struct FcrWidgetUIItemAnnouncementEdit: FcrWidgetUIItemProtocol {
     var visible: Bool    = true
     var enable: Bool     = true
     
-    var image: UIImage?  = .agora_widget_image("annoucement_edit")
+    var image: UIImage?  = .widgets_image("annoucement_edit")
 }
 
 struct FcrWidgetUIItemAnnouncementDelete: FcrWidgetUIItemProtocol {
     var visible: Bool    = true
     var enable: Bool     = true
     
-    var image: UIImage?  = .agora_widget_image("annoucement_delete")
+    var image: UIImage?  = .widgets_image("annoucement_delete")
 }
 
 struct FcrWidgetUIItemAnnouncementField: FcrWidgetUIItemProtocol {
@@ -527,11 +527,11 @@ struct FcrWidgetUIItemNetlessBoardPageControl: FcrWidgetUIItemProtocol {
     let backgroundColor: UIColor        = FcrWidgetUIColorGroup.systemComponentColor
     let cornerRadius: CGFloat           = FcrWidgetUIFrameGroup.roundContainerCornerRadius
     
-    let addPageImage: UIImage?          = .agora_widget_image("ic_board_page_add")
-    let prevPageImage: UIImage?         = .agora_widget_image("ic_board_page_pre")
-    let nextPageImage: UIImage?         = .agora_widget_image("ic_board_page_next")
-    let disabledPrevPageImage: UIImage? = .agora_widget_image("ic_board_page_disabled_pre")
-    let disabledNextPageImage: UIImage? = .agora_widget_image("ic_board_page_disabled_next")
+    let addPageImage: UIImage?          = .widgets_image("ic_board_page_add")
+    let prevPageImage: UIImage?         = .widgets_image("ic_board_page_pre")
+    let nextPageImage: UIImage?         = .widgets_image("ic_board_page_next")
+    let disabledPrevPageImage: UIImage? = .widgets_image("ic_board_page_disabled_pre")
+    let disabledNextPageImage: UIImage? = .widgets_image("ic_board_page_disabled_next")
     
     let sepLine                         = FcrWidgetUIItemSepLine()
     var pageLabel                       = FcrWidgetUIItemNetlessBoardPageLabel()
@@ -550,16 +550,16 @@ struct FcrWidgetUIItemNetlessBoardMouse: FcrWidgetUIItemProtocol {
     var visible: Bool             = true
     var enable: Bool              = true
     
-    let unselectedImage: UIImage? = .agora_widget_image("toolcollection_unselecetd_clicker")
-    let selectedImage: UIImage?   = .agora_widget_image("toolcollection_selected_clicker")
+    let unselectedImage: UIImage? = .widgets_image("toolcollection_unselecetd_clicker")
+    let selectedImage: UIImage?   = .widgets_image("toolcollection_selected_clicker")
 }
 
 struct FcrWidgetUIItemNetlessBoardSelector: FcrWidgetUIItemProtocol {
     var visible: Bool             = true
     var enable: Bool              = true
     
-    let unselectedImage: UIImage? = .agora_widget_image("toolcollection_unselecetd_area")
-    let selectedImage: UIImage?   = .agora_widget_image("toolcollection_selected_area")
+    let unselectedImage: UIImage? = .widgets_image("toolcollection_unselecetd_area")
+    let selectedImage: UIImage?   = .widgets_image("toolcollection_selected_area")
 }
 
 struct FcrWidgetUIItemNetlessBoardCourseware: FcrWidgetUIItemProtocol {
@@ -572,53 +572,53 @@ struct FcrWidgetUIItemNetlessBoardPaint: FcrWidgetUIItemProtocol {
     var visible: Bool             = true
     var enable: Bool              = true
     
-    let unselectedImage: UIImage? = .agora_widget_image("toolcollection_unselecetd_paint")
-    let selectedImage: UIImage?   = .agora_widget_image("toolcollection_selected_paint")
+    let unselectedImage: UIImage? = .widgets_image("toolcollection_unselecetd_paint")
+    let selectedImage: UIImage?   = .widgets_image("toolcollection_selected_paint")
 }
 
 struct FcrWidgetUIItemNetlessBoardText: FcrWidgetUIItemProtocol {
     var visible: Bool   = true
     var enable: Bool    = true
     
-    let image: UIImage? = .agora_widget_image("toolcollection_text")
+    let image: UIImage? = .widgets_image("toolcollection_text")
 }
 
 struct FcrWidgetUIItemNetlessBoardEraser: FcrWidgetUIItemProtocol {
     var visible: Bool             = true
     var enable: Bool              = true
     
-    let unselectedImage: UIImage? = .agora_widget_image("toolcollection_unselecetd_rubber")
-    let selectedImage: UIImage?   = .agora_widget_image("toolcollection_selected_rubber")
+    let unselectedImage: UIImage? = .widgets_image("toolcollection_unselecetd_rubber")
+    let selectedImage: UIImage?   = .widgets_image("toolcollection_selected_rubber")
 }
 
 struct FcrWidgetUIItemNetlessBoardClear: FcrWidgetUIItemProtocol {
     var visible: Bool          = true
     var enable: Bool           = true
     
-    let enabledImage: UIImage? = .agora_widget_image("toolcollection_enabled_clear")
+    let enabledImage: UIImage? = .widgets_image("toolcollection_enabled_clear")
 }
 
 struct FcrWidgetUIItemNetlessBoardSave: FcrWidgetUIItemProtocol {
     var visible: Bool   = true
     var enable: Bool    = true
     
-    let image: UIImage? =  .agora_widget_image("toolcollection_enabled_save")
+    let image: UIImage? =  .widgets_image("toolcollection_enabled_save")
 }
 
 struct FcrWidgetUIItemNetlessBoardPrev: FcrWidgetUIItemProtocol {
     var visible: Bool           = true
     var enable: Bool            = true
     
-    let enabledImage: UIImage?  = .agora_widget_image("toolcollection_enabled_pre")
-    let disabledImage: UIImage? = .agora_widget_image("toolcollection_disabled_pre")
+    let enabledImage: UIImage?  = .widgets_image("toolcollection_enabled_pre")
+    let disabledImage: UIImage? = .widgets_image("toolcollection_disabled_pre")
 }
 
 struct FcrWidgetUIItemNetlessBoardNext: FcrWidgetUIItemProtocol {
     var visible: Bool           = true
     var enable: Bool            = true
     
-    let enabledImage: UIImage?  = .agora_widget_image("toolcollection_enabled_next")
-    let disabledImage: UIImage? = .agora_widget_image("toolcollection_disabled_next")
+    let enabledImage: UIImage?  = .widgets_image("toolcollection_enabled_next")
+    let disabledImage: UIImage? = .widgets_image("toolcollection_disabled_next")
 }
 
 // sub for paint
@@ -626,54 +626,54 @@ struct FcrWidgetUIItemNetlessBoardPencil: FcrWidgetUIItemProtocol {
     var visible: Bool   = true
     var enable: Bool    = true
     
-    let image: UIImage? = .agora_widget_image("toolcollection_pencil")
+    let image: UIImage? = .widgets_image("toolcollection_pencil")
 }
 
 struct FcrWidgetUIItemNetlessBoardLine: FcrWidgetUIItemProtocol {
     var visible: Bool   = true
     var enable: Bool    = true
     
-    let image: UIImage? = .agora_widget_image("toolcollection_line")
+    let image: UIImage? = .widgets_image("toolcollection_line")
 }
 
 struct FcrWidgetUIItemNetlessBoardRect: FcrWidgetUIItemProtocol {
     var visible: Bool   = true
     var enable: Bool    = true
     
-    let image: UIImage? = .agora_widget_image("toolcollection_rect")
+    let image: UIImage? = .widgets_image("toolcollection_rect")
 }
 
 struct FcrWidgetUIItemNetlessBoardCircle: FcrWidgetUIItemProtocol {
     var visible: Bool   = true
     var enable: Bool    = true
     
-    let image: UIImage? = .agora_widget_image("toolcollection_circle")
+    let image: UIImage? = .widgets_image("toolcollection_circle")
 }
 
 struct FcrWidgetUIItemNetlessBoardPentagram: FcrWidgetUIItemProtocol {
     var visible: Bool   = true
     var enable: Bool    = true
     
-    let image: UIImage? = .agora_widget_image("toolcollection_pentagram")
+    let image: UIImage? = .widgets_image("toolcollection_pentagram")
 }
 
 struct FcrWidgetUIItemNetlessBoardRhombus: FcrWidgetUIItemProtocol {
     var visible: Bool   = true
     var enable: Bool    = true
     
-    let image: UIImage? = .agora_widget_image("toolcollection_rhombus")
+    let image: UIImage? = .widgets_image("toolcollection_rhombus")
 }
 
 struct FcrWidgetUIItemNetlessBoardArrow: FcrWidgetUIItemProtocol {
     var visible: Bool   = true
     var enable: Bool    = true
     
-    let image: UIImage? = .agora_widget_image("toolcollection_arrow")
+    let image: UIImage? = .widgets_image("toolcollection_arrow")
 }
 
 struct FcrWidgetUIItemNetlessBoardTriangle: FcrWidgetUIItemProtocol {
     var visible: Bool   = true
     var enable: Bool    = true
     
-    let image: UIImage? = .agora_widget_image("toolcollection_triangle")
+    let image: UIImage? = .widgets_image("toolcollection_triangle")
 }

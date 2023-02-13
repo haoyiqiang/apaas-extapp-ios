@@ -105,7 +105,7 @@ private extension AgoraShareLinkWidget {
         contentView.backgroundColor = .white
         view.addSubview(contentView)
         
-        closeButton.setImage(.agora_widget_image("fcr_share_close"),
+        closeButton.setImage(.widgets_image("fcr_share_close"),
                              for: .normal)
         closeButton.addTarget(self,
                               action: #selector(onClickClose(_:)),
@@ -127,7 +127,7 @@ private extension AgoraShareLinkWidget {
         roomIdDetailLabel.font = UIFont.systemFont(ofSize: 12)
         contentView.addSubview(roomIdDetailLabel)
         
-        roomIdCopyButton.setImage(.agora_widget_image("fcr_share_id_copy"),
+        roomIdCopyButton.setImage(.widgets_image("fcr_share_id_copy"),
                                   for: .normal)
         roomIdCopyButton.addTarget(self,
                                    action: #selector(onClickCopyId(_:)),
@@ -149,7 +149,7 @@ private extension AgoraShareLinkWidget {
         shareLinkLabel.font = UIFont.systemFont(ofSize: 12)
         contentView.addSubview(shareLinkLabel)
         
-        copyLinkButton.setImage(.agora_widget_image("fcr_share_link_copy"),
+        copyLinkButton.setImage(.widgets_image("fcr_share_link_copy"),
                                 for: .normal)
         copyLinkButton.addTarget(self,
                                  action: #selector(onClickCopyLink(_:)),
@@ -160,7 +160,7 @@ private extension AgoraShareLinkWidget {
         shareButton.titleLabel?.font = UIFont.systemFont(ofSize: 10)
         shareButton.layer.cornerRadius = 6
         shareButton.clipsToBounds = true
-        shareButton.setImage(.agora_widget_image("fcr_share_link_send"),
+        shareButton.setImage(.widgets_image("fcr_share_link_send"),
                              for: .normal)
         shareButton.setTitle("fcr_inshare_button_share_friends".widgets_localized(),
                              for: .normal)

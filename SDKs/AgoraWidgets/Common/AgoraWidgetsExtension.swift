@@ -81,6 +81,12 @@ extension Dictionary {
     }
 }
 
+extension Bundle {
+    static func widgets_bundle() -> Bundle {
+        return Bundle.agora_bundle("AgoraWidgets") ?? Bundle.main
+    }
+}
+
 extension String {
     func toDictionary() -> [String: Any]? {
         guard let data = self.data(using: .utf8),
@@ -138,14 +144,12 @@ extension String {
         return base64Str
     }
     
-    static func agora_localized_replacing() -> String {
+    static func widgets_localized_replacing() -> String {
         return "{xxx}"
     }
     
     func widgets_localized() -> String {
-        guard let widgetsBundle = Bundle.agora_bundle("AgoraWidgets") else {
-            return ""
-        }
+        let widgetsBundle = Bundle.widgets_bundle()
         
         if let language = agora_ui_language,
            let languagePath = widgetsBundle.path(forResource: language,
@@ -165,11 +169,11 @@ extension String {
     }
 }
 
-public extension UIImage {
-    @objc  static func agora_widget_image(_ name: String) -> UIImage? {
+extension UIImage {
+    static func widgets_image(_ named: String) -> UIImage? {
         let resource = "AgoraWidgets"
-        let bundle = Bundle.agora_bundle(resource)
-        return UIImage(named: name,
+        let bundle = Bundle.widgets_bundle()
+        return UIImage(named: named,
                        in: bundle,
                        compatibleWith: nil)
     }
@@ -246,9 +250,7 @@ extension NSError {
             return NSError.defaultError()
         }
     }
-}
-
-extension NSError {
+    
     static func defaultError() -> NSError {
         let error = NSError(domain: "",
                             code: -1)
@@ -287,14 +289,3 @@ func ValueTransform<Result: RawRepresentable>(enumValue: Any?,
         return nil
     }
 }
-
-//extension UInt {
-//    var toUIConfig: FcrWidgetUIConfig? {
-//        switch self {
-//        case 0:     return FcrWidgetOneToOneUIConfig()
-//        case 2:     return FcrWidgetLectureUIConfig()
-//        case 4:     return FcrWidgetSmallUIConfig()
-//        default:    return nil
-//        }
-//    }
-//}
