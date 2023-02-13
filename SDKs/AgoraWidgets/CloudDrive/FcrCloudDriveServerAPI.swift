@@ -1,5 +1,5 @@
 //
-//  CloudServerApi.swift
+//  FcrCloudDriveServerAPI.swift
 //  AgoraWidgets
 //
 //  Created by ZYP on 2021/10/21.
@@ -8,7 +8,7 @@
 import Armin
 
 class FcrCloudDriveServerAPI: AgoraWidgetServerAPI {
-    typealias SuccessBlock<T: Decodable> = (T) -> ()
+    typealias SuccessBlock<FcrCloudDriveFileListServerObject> = (FcrCloudDriveFileListServerObject) -> ()
     
     func requestResourceInUser(pageNo: Int,
                                pageSize: Int,
@@ -25,7 +25,7 @@ class FcrCloudDriveServerAPI: AgoraWidgetServerAPI {
             parameters["resourceName"] = resourceName
         }
         
-        request(event: "cloud-drive-page",
+        request(event: "cloud-drive-file-list",
                 url: urlString,
                 method: .get,
                 parameters: parameters) { json in
