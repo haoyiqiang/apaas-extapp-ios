@@ -7,13 +7,13 @@
 
 import Armin
 
-class AgoraCloudServerAPI: AgoraWidgetServerAPI {
+class FcrCloudDriveServerAPI: AgoraWidgetServerAPI {
     typealias SuccessBlock<T: Decodable> = (T) -> ()
     
     func requestResourceInUser(pageNo: Int,
                                pageSize: Int,
                                resourceName: String? = nil,
-                               success: @escaping SuccessBlock<ServerSourceData>,
+                               success: @escaping SuccessBlock<FcrCloudDriveFileListServerObject>,
                                failure: @escaping FailureCompletion) {
         let path = "/edu/apps/\(appId)/v3/users/\(userId)/resources/page"
         let urlString = host + path
@@ -25,12 +25,12 @@ class AgoraCloudServerAPI: AgoraWidgetServerAPI {
             parameters["resourceName"] = resourceName
         }
         
-        request(event: "cloud-page",
+        request(event: "cloud-drive-page",
                 url: urlString,
                 method: .get,
                 parameters: parameters) { json in
             if let dataDic = json["data"] as? [String: Any],
-               let source = dataDic.toObject(ServerSourceData.self) {
+               let source = dataDic.toObject(FcrCloudDriveFileListServerObject.self) {
                 success(source)
             } else {
                 failure(NSError(domain: "decode",

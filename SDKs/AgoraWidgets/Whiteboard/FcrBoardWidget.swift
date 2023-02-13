@@ -120,12 +120,28 @@ struct FcrBoardInitCondition {
                 handleStepChange(changeType: changeType)
             case .clearBoard:
                 mainWindow?.clean()
-            case .openCourseware(let courseware):
-                handleOpenCourseware(info: courseware)
             case .saveBoard:
                 handleSaveBoardImage()
             case .changeRatio:
                 updateViewRatio()
+            default:
+                break
+            }
+        }
+        
+        guard let json = message.toDictionary() else {
+            return
+        }
+        
+        for key in json.keys {
+            guard let json = ValueTransform(value: json[key],
+                                            result: [String: Any].self) else {
+                continue
+            }
+            
+            switch key {
+            case "openFile":
+                openFile(json)
             default:
                 break
             }
@@ -136,14 +152,38 @@ struct FcrBoardInitCondition {
 // MARK: - private
 private extension FcrBoardWidget {
     // MARK:  message handle
-    func handleOpenCourseware(info: FcrBoardCoursewareInfo) {
-        switch info.ext {
+    func openFile(_ fileJson: [String: Any]) {
+        guard let file = FcrCloudDriveFile.decode(fileJson) else {
+            return
+        }
+        
+        switch file.ext {
         case "mp3", "mp4":
-            let mediaConfig = FcrBoardMediaSubWindowConfig(resourceUrl: info.resourceUrl,
-                                                           title: info.resourceName)
+            let mediaConfig = FcrBoardMediaSubWindowConfig(resourceUrl: file.url,
+                                                           title: file.resourceName)
             mainWindow?.createMediaSubWindow(config: mediaConfig)
         case "png", "jpg":
-            guard let image = UIImage.create(with: info.resourceUrl) else {
+            getImageFrame(url: file.url) { [weak self] (frame) in
+                self?.mainWindow?.insertImage(resourceUrl: file.url,
+                                              frame: frame)
+            }
+        default:
+            if let config = file.createSubWindowConfig() {
+                mainWindow?.createSubWindow(config: config)
+            } else if let config = file.createSubWindowConfig2() {
+                mainWindow?.createSubWindow2(config: config)
+            }
+        }
+    }
+    
+    func getImageFrame(url: String,
+                       success: @escaping ((CGRect) -> Void)) {
+        DispatchQueue.global().async { [weak self] in
+            guard let `self` = self else {
+                return
+            }
+            
+            guard let image = UIImage.create(with: url) else {
                 return
             }
             
@@ -152,39 +192,15 @@ private extension FcrBoardWidget {
             var width: CGFloat = 200
             var height: CGFloat = (width / scale)
             
-            let x = ((view.bounds.size.width - width) * 0.5)
-            let y = ((view.bounds.size.height - height) * 0.5)
+            let x = ((self.view.bounds.size.width - width) * 0.5)
+            let y = ((self.view.bounds.size.height - height) * 0.5)
             
             let frame = CGRect(x: x,
                                y: y,
                                width: width,
                                height: height)
             
-            mainWindow?.insertImage(resourceUrl: info.resourceUrl,
-                                    frame: frame)
-        default:
-            if let scenes = info.scenes {
-                var resourceHasAnimation = false
-                
-                if let convert = info.convert, convert {
-                    resourceHasAnimation = true
-                }
-                
-                let config = FcrBoardSubWindowConfig(resourceUuid: info.resourceUuid,
-                                                     resourceHasAnimation: resourceHasAnimation,
-                                                     title: info.resourceName,
-                                                     pageList: scenes.toWrapper())
-                mainWindow?.createSubWindow(config: config)
-                
-            } else if let taskUuid = info.taskUuid,
-                        let prefix = info.prefix {
-                let config = FcrBoardSubWindowConfig2(resourceUuid: info.resourceUuid,
-                                                      taskUuid: taskUuid,
-                                                      title: info.resourceName,
-                                                      prefix: `prefix`)
-                
-                mainWindow?.createSubWindow2(config: config)
-            }
+            success(frame)
         }
     }
     
@@ -375,16 +391,17 @@ private extension FcrBoardWidget {
     
     func joinWhiteboard() {
         guard let config = info.roomProperties?.toObject(FcrBooardConfigOfExtra.self),
-              boardRoom == nil else {
-                  return
-              }
+              boardRoom == nil
+        else {
+            return
+        }
         
         // init
         let boardRegion = FcrBoardRegion(rawValue: config.boardRegion) ?? .cn
         let backgroundColor = UIConfig.netlessBoard.backgroundColor
         let room = FcrBoardRoom(appId: config.boardAppId,
-                                 region: boardRegion,
-                                 backgroundColor: backgroundColor)
+                                region: boardRegion,
+                                backgroundColor: backgroundColor)
         room.delegate = self
         
         room.logTube = self
@@ -450,10 +467,12 @@ private extension FcrBoardWidget {
                 return
             }
             self.imageCountToSave = imagePathList.count
+            
             for path in imagePathList {
                 guard let image = UIImage(contentsOfFile: path) else {
                     continue
                 }
+                
                 UIImageWriteToSavedPhotosAlbum(image,
                                                self,
                                                #selector(self.didFinishSavingImage(image:error:contextInfo:)),
@@ -566,6 +585,7 @@ private extension FcrBoardWidget {
             pageControl.agora_enable = false
             return
         }
+        
         view.addSubview(pageControl)
         
         pageControl.addBtn.addTarget(self,
@@ -790,5 +810,66 @@ fileprivate extension FcrBoardLogType {
         case .warning:  return .warning
         case .error:    return .error
         }
+    }
+}
+
+fileprivate extension Array where Element == FcrCloudDriveFile.TaskProgress.TaskProgressConvertedFile {
+    func createPageList() -> [FcrBoardPage] {
+        var list = [FcrBoardPage]()
+        
+        for item in self {
+            list.append(item.createPage())
+        }
+        
+        return list
+    }
+}
+
+fileprivate extension FcrCloudDriveFile.TaskProgress.TaskProgressConvertedFile {
+    func createPage() -> FcrBoardPage {
+        let page = FcrBoardPage(name: name,
+                                contentUrl: ppt.src,
+                                previewUrl: ppt.preview,
+                                contentWidth: ppt.width,
+                                contentHeight: ppt.height)
+        
+        return page
+    }
+}
+
+fileprivate extension FcrCloudDriveFile {
+    func createSubWindowConfig() -> FcrBoardSubWindowConfig? {
+        var resourceHasAnimation = false
+        
+        if let canvasVersion = conversion?.canvasVersion,
+           canvasVersion == true {
+            resourceHasAnimation = true
+        }
+        
+        guard let pageList = taskProgress?.convertedFileList?.createPageList() else {
+            return nil
+        }
+        
+        let config = FcrBoardSubWindowConfig(resourceUuid: resourceUuid,
+                                             resourceHasAnimation: resourceHasAnimation,
+                                             title: resourceName,
+                                             pageList: pageList)
+        
+        return config
+    }
+    
+    func createSubWindowConfig2() -> FcrBoardSubWindowConfig2? {
+        guard let prefix = taskProgress?.prefix,
+              let `taskUuid` = taskUuid
+        else {
+            return nil
+        }
+        
+        let config = FcrBoardSubWindowConfig2(resourceUuid: resourceUuid,
+                                              taskUuid: taskUuid,
+                                              title: resourceName,
+                                              prefix: prefix)
+        
+        return config
     }
 }

@@ -8,15 +8,7 @@
 import AgoraUIBaseViews
 import Masonry
 
-/**
- AgoraCloudListView
- Data更新：文件列表
- 
- 通知外部：
- 1. 选择cell->文件
- */
-
-class AgoraCloudCell: UITableViewCell {
+class FcrCloudDriveCell: UITableViewCell {
     static let cellId = "AgoraCloudCell"
     let iconImageView = UIImageView(frame: .zero)
     let nameLabel = UILabel()
@@ -37,7 +29,7 @@ class AgoraCloudCell: UITableViewCell {
 }
 
 // MARK: - AgoraUIContentContainer
-extension AgoraCloudCell: AgoraUIContentContainer {
+extension FcrCloudDriveCell: AgoraUIContentContainer {
     func initViews() {
         contentView.addSubview(nameLabel)
         contentView.addSubview(iconImageView)
@@ -52,7 +44,8 @@ extension AgoraCloudCell: AgoraUIContentContainer {
         
         nameLabel.mas_makeConstraints { make in
             make?.left.equalTo()(self.iconImageView.mas_right)?.offset()(9)
-            make?.centerY.equalTo()(self.contentView)
+            make?.top.bottom().equalTo()(self.contentView)
+            make?.right.equalTo()(self.contentView)?.offset()(-10)
         }
     }
     
