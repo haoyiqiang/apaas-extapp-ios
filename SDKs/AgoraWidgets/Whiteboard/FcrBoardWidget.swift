@@ -16,15 +16,13 @@ import Armin
     private lazy var pageControl = FcrBoardPageControlView(frame: .zero)
     
     // Data
-    private var snapshotFolder: String {
-        get {
-            let folderName = "\(info.roomInfo.roomName)_\(String.currentTimeString())"
-            let folder = NSSearchPathForDirectoriesInDomains(.cachesDirectory,
-                                                             .userDomainMask,
-                                                             true)[0].appendingPathComponent(folderName)
-            return folder
-        }
-    }
+    private lazy var snapshotFolder: String = {
+        let folderName = "\(info.roomInfo.roomName)_\(String.currentTimeString())"
+        let folder = NSSearchPathForDirectoriesInDomains(.cachesDirectory,
+                                                         .userDomainMask,
+                                                         true)[0].appendingPathComponent(folderName)
+        return folder
+    }()
     
     private var imageCountToSave: Int = 0
     
