@@ -141,7 +141,11 @@ private extension FcrBoardWidget {
             mainWindow?.createMediaSubWindow(config: mediaConfig)
         case "png", "jpg":
             getImageFrame(url: file.url) { [weak self] (frame) in
-                self?.mainWindow?.insertImage(resourceUrl: file.url,
+                guard let `self` = self else {
+                    return
+                }
+                
+                self.mainWindow?.insertImage(resourceUrl: file.url,
                                               frame: frame)
             }
         default:
@@ -155,29 +159,31 @@ private extension FcrBoardWidget {
     
     func getImageFrame(url: String,
                        success: @escaping ((CGRect) -> Void)) {
-        DispatchQueue.global().async { [weak self] in
-            guard let `self` = self else {
-                return
-            }
-            
+        DispatchQueue.global().async {
             guard let image = UIImage.create(with: url) else {
                 return
             }
             
-            let scale = image.size.width / image.size.height
-            
-            var width: CGFloat = 200
-            var height: CGFloat = (width / scale)
-            
-            let x = ((self.view.bounds.size.width - width) * 0.5)
-            let y = ((self.view.bounds.size.height - height) * 0.5)
-            
-            let frame = CGRect(x: x,
-                               y: y,
-                               width: width,
-                               height: height)
-            
-            success(frame)
+            DispatchQueue.main.async { [weak self] in
+                guard let `self` = self else {
+                    return
+                }
+                
+                let scale = image.size.width / image.size.height
+                
+                var width: CGFloat = 400
+                var height: CGFloat = (width / scale)
+                
+                let x = ((self.view.bounds.size.width - width) * 0.5)
+                let y = ((self.view.bounds.size.height - height) * 0.5)
+                
+                let frame = CGRect(x: x,
+                                   y: y,
+                                   width: width,
+                                   height: height)
+                
+                success(frame)
+            }
         }
     }
     

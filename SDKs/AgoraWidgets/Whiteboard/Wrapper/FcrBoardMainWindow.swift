@@ -187,6 +187,13 @@ extension FcrBoardMainWindow {
     
     func insertImage(resourceUrl: String,
                      frame: CGRect) {
+        let extra = ["resourceUrl: \(resourceUrl)",
+                     "frame: \(frame.debugDescription)"]
+        
+        log(content: "inser image",
+            extra: extra.agDescription,
+            type: .info)
+        
         let uuid = resourceUrl.agora_md5()
         
         let event = WhitePanEvent()
@@ -206,8 +213,26 @@ extension FcrBoardMainWindow {
             let info = WhiteImageInformation(uuid: uuid,
                                              frame: newFrame)
             
+            var extra = ["uuid: \(uuid)",
+                         "frame: \(frame.debugDescription)"]
+            
+            self.log(content: "insert image",
+                     extra: extra.agDescription,
+                     type: .info,
+                     fromClass: WhiteRoom.self,
+                     funcName: "insertImage")
+            
             self.whiteRoom.insertImage(info,
                                        src: resourceUrl)
+            
+            extra = ["uuid: \(uuid)",
+                     "src: \(resourceUrl)"]
+            
+            self.log(content: "complete image upload",
+                     extra: extra.agDescription,
+                     type: .info,
+                     fromClass: WhiteRoom.self,
+                     funcName: "completeImageUpload")
             
             self.whiteRoom.completeImageUpload(withUuid: uuid,
                                                src: resourceUrl)
