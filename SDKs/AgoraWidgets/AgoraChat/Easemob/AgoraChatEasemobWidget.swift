@@ -158,7 +158,7 @@ extension AgoraChatEasemobWidget: AgoraChatMainViewDelegate {
 private extension AgoraChatEasemobWidget {
     func initData() {
         guard launchCondition.config == nil,
-              let extra = info.roomProperties?.toObj(AgoraChatEasemobRoomProperties.self),
+              let extra = info.roomProperties?.toObject(AgoraChatEasemobRoomProperties.self),
               let userId = info.localUserProperties?["userId"] as? String else {
             return
         }

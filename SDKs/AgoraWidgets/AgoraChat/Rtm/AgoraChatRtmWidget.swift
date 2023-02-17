@@ -58,7 +58,7 @@ import Armin
     public override func onMessageReceived(_ message: String) {
         super.onMessageReceived(message)
         
-        let dict = message.toDic()
+        let dict = message.toDictionary()
         
         if let keys = message.toRequestKeys() {
             serverAPI = AgoraChatServerAPI(host: keys.host,

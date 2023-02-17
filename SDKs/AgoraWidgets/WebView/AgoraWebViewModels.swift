@@ -88,7 +88,7 @@ struct AgoraWebViewExtraModel: Convertable {
 
 extension String {
     func toWebViewSignal() -> AgoraWebViewSignal? {
-        guard let dic = self.toDic(),
+        guard let dic = self.toDictionary(),
               let signal = try AgoraWebViewSignal.decode(dic) else {
             return nil
         }

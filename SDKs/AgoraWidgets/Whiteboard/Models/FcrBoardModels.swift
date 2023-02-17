@@ -476,8 +476,8 @@ struct FcrBooardUsageOfExtra: Decodable {
 // MARK: - Base
 extension String {
     func toBoardWidgetSignal() -> FcrBoardInteractionSignal? {
-        guard let dic = self.toDic(),
-              let signal = dic.toObj(FcrBoardInteractionSignal.self) else {
+        guard let dic = self.toDictionary(),
+              let signal = dic.toObject(FcrBoardInteractionSignal.self) else {
                   return nil
               }
         

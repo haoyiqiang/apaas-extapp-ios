@@ -187,7 +187,7 @@ extension AgoraPopupQuizWidget: AgoraUIContentContainer {
 private extension AgoraPopupQuizWidget {
     func updateRoomData() {
         guard let roomProperties = info.roomProperties,
-              let data = roomProperties.toObj(AgoraPopupQuizRoomPropertiesData.self) else {
+              let data = roomProperties.toObject(AgoraPopupQuizRoomPropertiesData.self) else {
             return
         }
 
@@ -196,7 +196,7 @@ private extension AgoraPopupQuizWidget {
     
     func updateUserData() {
         guard let userProperties = info.localUserProperties,
-              let data = userProperties.toObj(AgoraPopupQuizUserPropertiesData.self) else {
+              let data = userProperties.toObject(AgoraPopupQuizUserPropertiesData.self) else {
             return
         }
         

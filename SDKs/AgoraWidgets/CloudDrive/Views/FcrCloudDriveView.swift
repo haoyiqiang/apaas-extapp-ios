@@ -7,9 +7,9 @@
 
 import AgoraUIBaseViews
 
-class AgoraCloudView: UIView {
-    private(set) lazy var topView = AgoraCloudTopView(frame: .zero)
-    private(set) lazy var listView = UITableView(frame: .zero)
+class FcrCloudDriveView: UIView {
+    private(set) var topView = FcrCloudDriveTopView(frame: .zero)
+    private(set) var listView = UITableView(frame: .zero)
         
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -24,14 +24,15 @@ class AgoraCloudView: UIView {
 }
 
 // MARK: - AgoraUIContentContainer
-extension AgoraCloudView: AgoraUIContentContainer {
+extension FcrCloudDriveView: AgoraUIContentContainer {
     func initViews() {
         listView.contentInset = .zero
         listView.tableFooterView = UIView()
         listView.separatorInset = .zero
+        listView.rowHeight = 43
         
-        listView.register(AgoraCloudCell.self,
-                          forCellReuseIdentifier: AgoraCloudCell.cellId)
+        listView.register(FcrCloudDriveCell.self,
+                          forCellReuseIdentifier: FcrCloudDriveCell.cellId)
         addSubview(topView)
         addSubview(listView)
     }

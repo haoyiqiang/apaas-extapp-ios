@@ -167,7 +167,7 @@ extension AgoraChatMessage {
                 operatorName = name
             }
             let originText = config.mute.muteTextWithName
-            notice = originText.replacingOccurrences(of: String.agora_localized_replacing(),
+            notice = originText.replacingOccurrences(of: String.widgets_localized_replacing(),
                                                      with: operatorName)
         case .unmute:
             var operatorName = ""
@@ -175,7 +175,7 @@ extension AgoraChatMessage {
                 operatorName = name
             }
             let originText = config.mute.unmuteTextWithName
-            notice = originText.replacingOccurrences(of: String.agora_localized_replacing(),
+            notice = originText.replacingOccurrences(of: String.widgets_localized_replacing(),
                                                      with: operatorName)
         }
         guard let noticeString = notice else {

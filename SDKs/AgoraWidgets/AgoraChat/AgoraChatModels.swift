@@ -60,8 +60,8 @@ enum AgoraChatErrorType {
 
 extension String {
     func toChatWidgetSignal() -> AgoraChatInteractionSignal? {
-        guard let dic = self.toDic(),
-              let signal = dic.toObj(AgoraChatInteractionSignal.self) else {
+        guard let dic = self.toDictionary(),
+              let signal = dic.toObject(AgoraChatInteractionSignal.self) else {
                   return nil
               }
         

@@ -122,7 +122,7 @@ private extension AgoraCountdownTimerWidget {
 private extension AgoraCountdownTimerWidget {
     func updateData() {
         guard let roomProperties = info.roomProperties,
-              let data = roomProperties.toObj(AgoraCountdownRoomData.self) else {
+              let data = roomProperties.toObject(AgoraCountdownRoomData.self) else {
             return
         }
         roomData = data

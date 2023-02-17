@@ -20,17 +20,19 @@ protocol Convertable: Codable {
 }
 
 extension Convertable {
-    func toDictionary() -> Dictionary<String, Any>? {
-        var dic: Dictionary<String,Any>?
+    func toDictionary() -> [String: Any]? {
+        var dic: [String: Any]?
+        
         do {
             let encoder = JSONEncoder()
             let data = try encoder.encode(self)
             dic = try JSONSerialization.jsonObject(with: data,
-                                                   options: .allowFragments) as? Dictionary<String, Any>
+                                                   options: .allowFragments) as? [String: Any]
         } catch {
             // TODO: error handle
             print(error)
         }
+        
         return dic
     }
     
@@ -39,9 +41,11 @@ extension Convertable {
               let data = try? JSONSerialization.data(withJSONObject: dic,
                                                      options: []),
               let model = try? JSONDecoder().decode(Self.self,
-                                                    from: data) else {
-                  return nil
-              }
+                                                    from: data)
+        else {
+            return nil
+        }
+        
         return model
     }
 }
@@ -50,7 +54,8 @@ extension Dictionary {
     func jsonString() -> String? {
         guard JSONSerialization.isValidJSONObject(self),
               let data = try? JSONSerialization.data(withJSONObject: self,
-                                                     options: JSONSerialization.WritingOptions.prettyPrinted) else {
+                                                     options: JSONSerialization.WritingOptions.prettyPrinted)
+        else {
             return nil
         }
         
@@ -58,60 +63,62 @@ extension Dictionary {
                                       encoding: .utf8) else {
             return nil
         }
+        
         return jsonString
     }
     
-    func toObj<T>(_ type: T.Type) -> T? where T : Decodable {
+    func toObject<T>(_ type: T.Type) -> T? where T : Decodable {
         guard JSONSerialization.isValidJSONObject(self),
               let data = try? JSONSerialization.data(withJSONObject: self,
                                                      options: []),
               let model = try? JSONDecoder().decode(T.self,
-                                                    from: data) else {
-                  return nil
-              }
+                                                    from: data)
+        else {
+            return nil
+        }
+        
         return model
     }
 }
 
+extension Bundle {
+    static func widgets_bundle() -> Bundle {
+        return Bundle.agora_bundle("AgoraWidgets") ?? Bundle.main
+    }
+}
+
 extension String {
-    func toDic() -> [String: Any]? {
+    func toDictionary() -> [String: Any]? {
         guard let data = self.data(using: .utf8),
               let object = try? JSONSerialization.jsonObject(with: data,
                                                              options: [.mutableContainers]),
-              let dic = object as? [String: Any] else {
-                  return nil
-              }
+              let dic = object as? [String: Any]
+        else {
+            return nil
+        }
         
         return dic
     }
     
-    func toArr() -> [Any]? {
-        guard let data = self.data(using: .utf8),
-              let object = try? JSONSerialization.jsonObject(with: data,
-                                                             options: [.mutableContainers]),
-              let arr = object as? [Any] else {
-                  return nil
-              }
-        
-        return arr
-    }
-    
     func toRequestKeys() -> AgoraWidgetRequestKeys? {
-        guard let dic = self.toDic(),
+        guard let dic = self.toDictionary(),
               let baseInfoDic = dic["keys"] as? [String: String],
               let appId = baseInfoDic["agoraAppId"] as? String,
               let token = baseInfoDic["token"] as? String,
-              let host = baseInfoDic["host"] as? String else {
+              let host = baseInfoDic["host"] as? String
+        else {
             return nil
         }
+        
         return AgoraWidgetRequestKeys(agoraAppId: appId,
                                       token: token,
                                       host: host)
     }
     
     func toSyncTimestamp() -> Int64? {
-        guard let dic = self.toDic(),
-              let timestamp = dic["syncTimestamp"] as? Int64 else {
+        guard let dic = self.toDictionary(),
+              let timestamp = dic["syncTimestamp"] as? Int64
+        else {
             return nil
         }
         
@@ -137,27 +144,23 @@ extension String {
         return base64Str
     }
     
-    static func agora_localized_replacing() -> String {
+    static func widgets_localized_replacing() -> String {
         return "{xxx}"
     }
-}
-
-@objc public extension NSString {
+    
     func widgets_localized() -> String {
-        guard let widgetsBundle = Bundle.agora_bundle("AgoraWidgets") else {
-            return ""
-        }
+        let widgetsBundle = Bundle.widgets_bundle()
         
         if let language = agora_ui_language,
            let languagePath = widgetsBundle.path(forResource: language,
                                                  ofType: "lproj"),
            let bundle = Bundle(path: languagePath) {
             
-            return bundle.localizedString(forKey: self as String,
+            return bundle.localizedString(forKey: self,
                                           value: nil,
                                           table: nil)
         } else {
-            let text = widgetsBundle.localizedString(forKey: self as String,
+            let text = widgetsBundle.localizedString(forKey: self,
                                                      value: nil,
                                                      table: nil)
             
@@ -166,11 +169,11 @@ extension String {
     }
 }
 
-public extension UIImage {
-    @objc  static func agora_widget_image(_ name: String) -> UIImage? {
+extension UIImage {
+    static func widgets_image(_ named: String) -> UIImage? {
         let resource = "AgoraWidgets"
-        let bundle = Bundle.agora_bundle(resource)
-        return UIImage(named: name,
+        let bundle = Bundle.widgets_bundle()
+        return UIImage(named: named,
                        in: bundle,
                        compatibleWith: nil)
     }
@@ -247,9 +250,7 @@ extension NSError {
             return NSError.defaultError()
         }
     }
-}
-
-extension NSError {
+    
     static func defaultError() -> NSError {
         let error = NSError(domain: "",
                             code: -1)
@@ -266,13 +267,25 @@ extension CALayer {
     }
 }
 
-extension UInt {
-    var toUIConfig: FcrWidgetUIConfig? {
-        switch self {
-        case 0:     return FcrWidgetOneToOneUIConfig()
-        case 2:     return FcrWidgetLectureUIConfig()
-        case 4:     return FcrWidgetSmallUIConfig()
-        default:    return nil
-        }
+func ValueTransform<Result>(value: Any?,
+                            result: Result.Type) -> Result? {
+    if let `value` = value {
+        return (value as? Result)
+    } else {
+        return nil
+    }
+}
+
+func ValueTransform<Result: RawRepresentable>(enumValue: Any?,
+                                              result: Result.Type) -> Result? where Result.RawValue == Int {
+    guard let intValue = ValueTransform(value: enumValue,
+                                        result: Int.self) else {
+        return nil
+    }
+    
+    if let value = Result.init(rawValue: intValue) {
+        return value
+    } else {
+        return nil
     }
 }
