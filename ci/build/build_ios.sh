@@ -88,3 +88,39 @@ echo build_time: $build_time
 echo release_version: $release_version
 echo short_version: $short_version
 echo pwd: `pwd`
+
+export all_proxy=http://10.80.1.174:1080
+
+# error & exit
+errorExit() {
+    SDK_Name=$1
+    Operation=$2
+    Build_Result=$3
+
+    if [ $Build_Result != 0 ]; then
+        echo "${Color} ======${SDK_Name} ${Operation} Fails======== ${Res}"
+        exit -1
+    fi
+
+    echo "${Color} ======${SDK_Name} ${Operation} Succeeds======== ${Res}"
+}
+
+Scripts_Path=./Products/Scripts
+Build_Path=${Scripts_Path}/Build
+Pack_Path=${Scripts_Path}/Pack
+
+SDK="AgoraWidgets"
+
+# build
+${Build_Path}/build.sh ${SDK}
+  
+errorExit ${SDK} Build $?
+
+# package
+if [ "${Package_Publish}" = true ]; then
+   ${Pack_Path}/package_artifactory.sh ${SDK}
+
+   errorExit ${SDK} Package $?
+fi
+
+unset all_proxy
