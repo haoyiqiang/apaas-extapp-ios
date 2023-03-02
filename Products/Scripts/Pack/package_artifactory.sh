@@ -11,6 +11,8 @@ SDK_Name=$1
 Build_Number=$2
 Repo_Name=open-apaas-extapp-ios
 
+parameterCheckPrint ${SDK_Name}
+
 startPrint "$SDK_Name Package Artificatory"
 
 # path
