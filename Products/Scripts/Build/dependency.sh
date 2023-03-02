@@ -3,9 +3,14 @@
 cd $(dirname $0)
 echo pwd: `pwd`
 
+# import 
+. ../../../../apaas-cicd-ios/Products/Scripts/Other/v1/operation_print.sh
+
 # parameters
 SDK_Name=$1
 Repo_Name="open-apaas-extapp-ios"
+
+parameterCheckPrint ${SDK_Name}
 
 # path
 Root_Path="../../.."
@@ -33,5 +38,7 @@ do
     mv -f ./${Zip_File}  ${Root_Path}/
 
     # unzip
-    ${Root_Path}/../apaas-cicd-ios/Products/Scripts/SDK/Build/v1/unzip.sh ${SDK_Name} ${Repo_Name}
+    echo Repo_Name--  ${Repo_Name}
+
+    ${Root_Path}/../apaas-cicd-ios/Products/Scripts/SDK/Build/v1/unzip.sh ${SDK_Name} "${Repo_Name}"
 done
