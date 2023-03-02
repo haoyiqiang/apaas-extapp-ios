@@ -88,6 +88,7 @@ echo build_time: $build_time
 echo release_version: $release_version
 echo short_version: $short_version
 echo pwd: `pwd`
+echo BUILD_NUMBER: ${BUILD_NUMBER}
 
 export all_proxy=http://10.80.1.174:1080
 
@@ -107,7 +108,7 @@ errorPrint $? "${SDK} Build"
 
 # package
 if [ "${Package_Publish}" = true ]; then
-   ${Pack_Path}/package_artifactory.sh ${SDK}
+   ${Pack_Path}/package_artifactory.sh ${SDK} ${BUILD_NUMBER}
 
    errorPrint $? "${SDK} Package"
 fi
