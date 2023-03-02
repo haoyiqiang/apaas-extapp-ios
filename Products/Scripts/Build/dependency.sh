@@ -27,7 +27,7 @@ Dep_Array=(AgoraUIBaseViews
 for SDK_URL in ${Dep_Array_URL[*]} 
 do
     echo ${SDK_URL}
-   # python3 ${WORKSPACE}/artifactory_utils.py --action=download_file --file=${SDK_URL}
+    python3 ${WORKSPACE}/artifactory_utils.py --action=download_file --file=${SDK_URL}
 done
 
 for SDK in ${Dep_Array[*]}
@@ -40,5 +40,5 @@ do
     # unzip
     echo Repo_Name--  ${Repo_Name}
 
-    ${Root_Path}/../apaas-cicd-ios/Products/Scripts/SDK/Build/v1/unzip.sh ${SDK_Name} "${Repo_Name}"
+    ${Root_Path}/../apaas-cicd-ios/Products/Scripts/SDK/Build/v1/unzip.sh ${SDK} "${Repo_Name}"
 done
