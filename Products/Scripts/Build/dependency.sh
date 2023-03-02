@@ -46,8 +46,6 @@ do
     mv -f ./${Zip_File}  ${Root_Path}/
 
     # unzip
-    echo Repo_Name--  ${Repo_Name}
-
     ${Root_Path}/../apaas-cicd-ios/Products/Scripts/SDK/Build/v1/unzip.sh ${SDK} "${Repo_Name}"
 done
 
