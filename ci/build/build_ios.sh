@@ -101,6 +101,9 @@ Pack_Path=${Scripts_Path}/Pack
 
 SDK="AgoraWidgets"
 
+# dependency
+${Build_Path}/dependency.sh ${SDK}
+
 # build
 ${Build_Path}/build.sh ${SDK}
   

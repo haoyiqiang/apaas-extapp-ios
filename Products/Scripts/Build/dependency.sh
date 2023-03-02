@@ -12,6 +12,8 @@ Repo_Name="open-apaas-extapp-ios"
 
 parameterCheckPrint ${SDK_Name}
 
+startPrint "${SDK_Name} Download Dependency Libs"
+
 # path
 Root_Path="../../.."
 
@@ -30,6 +32,12 @@ do
     python3 ${WORKSPACE}/artifactory_utils.py --action=download_file --file=${SDK_URL}
 done
 
+errorPrint $? "${SDK_Name} Download Dependency Libs"
+
+echo Dependency Libs
+
+ls
+
 for SDK in ${Dep_Array[*]}
 do
     Zip_File=${SDK}*.zip
@@ -42,3 +50,5 @@ do
 
     ${Root_Path}/../apaas-cicd-ios/Products/Scripts/SDK/Build/v1/unzip.sh ${SDK} "${Repo_Name}"
 done
+
+endPrint $? "${SDK_Name} Download Dependency Libs"
