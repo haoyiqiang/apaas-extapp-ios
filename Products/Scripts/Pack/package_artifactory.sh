@@ -1,20 +1,18 @@
 #!/bin/sh
-Color='\033[1;36m'
-Res='\033[0m'
+# cd this file path
+cd $(dirname $0)
+echo pwd: `pwd`
+
+# import 
+. ../../../Other/v1/operation_print.sh
 
 # parameters
 SDK_Name=$1
-Repo_Name="open-apaas-extapp-ios"
+Repo_Name=open-apaas-extapp-ios
 
-echo "$Color ======$SDK_Name Package Artificatory======== $Res"
+startPrint "$SDK_Name Package Artificatory"
 
 # path
-Current_Path=`pwd`
-
-cd $(dirname $0)
-
-echo pwd: `pwd`
-
 CICD_Root_Path=../../../../apaas-cicd-ios
 CICD_Products_Path=${CICD_Root_Path}/Products
 CICD_Scripts_Path=${CICD_Products_Path}/Scripts
@@ -27,16 +25,7 @@ cd ../../../Package
 
 python3 ${WORKSPACE}/artifactory_utils.py --action=upload_file --file=${SDK_Name}*.zip --project
 
-# error & exit
-if [ $? != 0 ]; then
-    echo "$Color ======$SDK_Name Package Artificatory Fails======== $Res"
-    
-    exit -1
-else
-    echo "$Color ======$SDK_Name Package Artificatory Succeeds======== $Res"
-fi
+errorPrint $? "$SDK_Name Package Artificatory"
 
 # remove
 rm ${SDK_Name}*.zip
-
-cd ${Current_Path}
