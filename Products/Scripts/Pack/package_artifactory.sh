@@ -8,12 +8,13 @@ echo pwd: `pwd`
 
 # parameters
 SDK_Name=$1
-Build_Number=$2
-Repo_Name=open-apaas-extapp-ios
-
-parameterCheckPrint ${SDK_Name}
+Repo_Name=$2
+Build_Number=$3
 
 startPrint "$SDK_Name Package Artificatory"
+
+parameterCheckPrint ${SDK_Name}
+parameterCheckPrint ${Repo_Name}
 
 # path
 CICD_Root_Path=../../../../apaas-cicd-ios
@@ -21,14 +22,14 @@ CICD_Products_Path=${CICD_Root_Path}/Products
 CICD_Scripts_Path=${CICD_Products_Path}/Scripts
 
 # pack
-${CICD_Scripts_Path}/SDK/Pack/v1/package.sh ${SDK_Name} ${Build_Number} ${Repo_Name}
+${CICD_Scripts_Path}/SDK/Pack/v1/package.sh ${SDK_Name} ${Repo_Name} ${Build_Number}
 
 # upload
 cd ../../../Package
 
 python3 ${WORKSPACE}/artifactory_utils.py --action=upload_file --file=${SDK_Name}*.zip --project
 
-errorPrint $? "$SDK_Name Package Artificatory"
+endPrint $? "$SDK_Name Package Artificatory"
 
 # remove
 rm ${SDK_Name}*.zip

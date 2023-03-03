@@ -1,22 +1,6 @@
 #!/bin/bash
-# cd this file path
-cd $(dirname $0)
-echo pwd: `pwd`
 
-# import 
-. ../../../../apaas-cicd-ios/Products/Scripts/Other/v1/operation_print.sh
-
-# parameters
-SDK_Name=$1
-Repo_Name="open-apaas-extapp-ios"
-
-parameterCheckPrint ${SDK_Name}
-
-startPrint "${SDK_Name} Download Dependency Libs"
-
-# path
-Root_Path="../../.."
-
+# Difference
 # Dependency libs
 # UIBaseViews
 # Widget
@@ -26,13 +10,30 @@ Dep_Array_URL=("https://artifactory.agoralab.co/artifactory/AD_repo/apaas_common
 Dep_Array=(AgoraUIBaseViews 
            AgoraWidget)
 
+# cd this file path
+cd $(dirname $0)
+echo pwd: `pwd`
+
+# import 
+. ../../../../apaas-cicd-ios/Products/Scripts/Other/v1/operation_print.sh
+
+# parameters
+Repo_Name=$1
+
+startPrint "${Repo_Name} Download Dependency Libs"
+
+parameterCheckPrint ${Repo_Name}
+
+# path
+Root_Path="../../.."
+
 for SDK_URL in ${Dep_Array_URL[*]} 
 do
     echo ${SDK_URL}
     python3 ${WORKSPACE}/artifactory_utils.py --action=download_file --file=${SDK_URL}
 done
 
-errorPrint $? "${SDK_Name} Download Dependency Libs"
+errorPrint $? "${Repo_Name} Download Dependency Libs"
 
 echo Dependency Libs
 
@@ -46,7 +47,7 @@ do
     mv -f ./${Zip_File}  ${Root_Path}/
 
     # unzip
-    ${Root_Path}/../apaas-cicd-ios/Products/Scripts/SDK/Build/v1/unzip.sh ${SDK} "${Repo_Name}"
+    ${Root_Path}/../apaas-cicd-ios/Products/Scripts/SDK/Build/v1/unzip.sh ${SDK} ${Repo_Name}
 done
 
-endPrint $? "${SDK_Name} Download Dependency Libs"
+endPrint $? "${Repo_Name} Download Dependency Libs"
