@@ -99,25 +99,30 @@ SDK_Array=(AgoraWidgets)
 . ../apaas-cicd-ios/Products/Scripts/Other/v1/operation_print.sh
 
 # path
-Scripts_Path=./Products/Scripts
-Build_Path=${Scripts_Path}/Build
-Pack_Path=${Scripts_Path}/Pack
+CICD_Scripts_Path="../apaas-cicd-ios/Products/Scripts"
+CICD_Build_Path="${CICD_Scripts_Path}/SDK/Build"
+CICD_Pack_Path="${CICD_Scripts_Path}/SDK/Pack"
+CICD_Upload_Path="${CICD_Scripts_Path}/SDK/Upload"
 
 # dependency
-${Build_Path}/dependency.sh ${Repo_Name}
+./Products/Scripts/Build/dependency.sh ${Repo_Name}
 
 # build
 for SDK in ${SDK_Array[*]} 
 do
-  ${Build_Path}/build.sh ${SDK} ${Repo_Name}
+  ${CICD_Build_Path}/v1/build.sh ${SDK} ${Repo_Name}
   
-  errorPrint $? "${SDK} Build"
+  errorPrint $? "${SDK} build"
   
   # publish
   if [ "${Package_Publish}" = true ]; then
-    ${Pack_Path}/package_artifactory.sh ${SDK} ${Repo_Name} ${BUILD_NUMBER}
+    ${CICD_Pack_Path}/v1/package.sh ${SDK} ${Repo_Name} ${BUILD_NUMBER}
 
-    errorPrint $? "${SDK} Package"
+    errorPrint $? "${SDK} package"
+      
+    ${CICD_Upload_Path}/v1/upload_artifactory.sh ${SDK} ${Repo_Name} ${is_official_build}
+
+    errorPrint $? "${SDK} upload"
   fi
 done
 
