@@ -132,6 +132,8 @@ private extension FcrBoardWidget {
             return
         }
         
+        print("fileJson: \(fileJson)")
+        
         switch file.ext {
         case "mp3", "mp4":
             let mediaConfig = FcrBoardMediaSubWindowConfig(resourceUrl: file.url,
@@ -806,6 +808,22 @@ fileprivate extension Array where Element == FcrCloudDriveFile.TaskProgress.Task
     }
 }
 
+fileprivate extension Dictionary where Key == String, Value == FcrCloudDriveFile.TaskProgress.TaskProgressImage {
+    func createPageList() -> [FcrBoardPage] {
+        var list = [FcrBoardPage]()
+
+        for (key, value) in self {
+            let page = FcrBoardPage(name: key,
+                                    contentUrl: value.url,
+                                    contentWidth: value.width,
+                                    contentHeight: value.height)
+            list.append(page)
+        }
+        
+        return list
+    }
+}
+
 fileprivate extension FcrCloudDriveFile.TaskProgress.TaskProgressConvertedFile {
     func createPage() -> FcrBoardPage {
         let page = FcrBoardPage(name: name,
@@ -827,9 +845,17 @@ fileprivate extension FcrCloudDriveFile {
             resourceHasAnimation = true
         }
         
-        guard let pageList = taskProgress?.convertedFileList?.createPageList(),
-              pageList.count > 0
-        else {
+        var pageList: [FcrBoardPage]
+        
+        if let list = taskProgress?.convertedFileList?.createPageList(),
+           list.count > 0 {
+            
+            pageList = list
+        } else if let list = taskProgress?.images?.createPageList(),
+                  list.count > 0 {
+            
+            pageList = list
+        } else {
             return nil
         }
         
