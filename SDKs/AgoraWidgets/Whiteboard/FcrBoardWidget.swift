@@ -827,7 +827,9 @@ fileprivate extension FcrCloudDriveFile {
             resourceHasAnimation = true
         }
         
-        guard let pageList = taskProgress?.convertedFileList?.createPageList() else {
+        guard let pageList = taskProgress?.convertedFileList?.createPageList(),
+              pageList.count > 0
+        else {
             return nil
         }
         
