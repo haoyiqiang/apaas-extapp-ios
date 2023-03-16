@@ -44,10 +44,6 @@ import Armin
     private var mainWindow: FcrBoardMainWindow?
     private var serverAPI: FcrBoardServerAPI?
     
-    public override func onLoad() {
-        super.onLoad()
-    }
-    
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
                                                        cause: [String : Any]?,
                                                        keyPaths: [String],
@@ -806,6 +802,22 @@ fileprivate extension Array where Element == FcrCloudDriveFile.TaskProgress.Task
     }
 }
 
+fileprivate extension Dictionary where Key == String, Value == FcrCloudDriveFile.TaskProgress.TaskProgressImage {
+    func createPageList() -> [FcrBoardPage] {
+        var list = [FcrBoardPage]()
+
+        for (key, value) in self {
+            let page = FcrBoardPage(name: key,
+                                    contentUrl: value.url,
+                                    contentWidth: value.width,
+                                    contentHeight: value.height)
+            list.append(page)
+        }
+        
+        return list
+    }
+}
+
 fileprivate extension FcrCloudDriveFile.TaskProgress.TaskProgressConvertedFile {
     func createPage() -> FcrBoardPage {
         let page = FcrBoardPage(name: name,
@@ -827,7 +839,17 @@ fileprivate extension FcrCloudDriveFile {
             resourceHasAnimation = true
         }
         
-        guard let pageList = taskProgress?.convertedFileList?.createPageList() else {
+        var pageList: [FcrBoardPage]
+        
+        if let list = taskProgress?.convertedFileList?.createPageList(),
+           list.count > 0 {
+            
+            pageList = list
+        } else if let list = taskProgress?.images?.createPageList(),
+                  list.count > 0 {
+            
+            pageList = list
+        } else {
             return nil
         }
         
