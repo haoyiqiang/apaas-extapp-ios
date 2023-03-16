@@ -4,6 +4,10 @@
 
 ## Build generated
 #build/
+*.zip
+AgoraUIBaseViews_Local.podspec
+AgoraWidget_Local.podspec
+
 DerivedData
 xcshareddata
 Podfile.lock

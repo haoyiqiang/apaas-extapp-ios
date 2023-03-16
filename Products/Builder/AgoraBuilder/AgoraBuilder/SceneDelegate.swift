@@ -2,7 +2,7 @@
 //  SceneDelegate.swift
 //  AgoraBuilder
 //
-//  Created by DoubleCircle on 2022/10/12.
+//  Created by Cavan on 2022/7/19.
 //
 
 import UIKit
@@ -10,7 +10,6 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-
 
 }
 
