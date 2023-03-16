@@ -44,10 +44,6 @@ import Armin
     private var mainWindow: FcrBoardMainWindow?
     private var serverAPI: FcrBoardServerAPI?
     
-    public override func onLoad() {
-        super.onLoad()
-    }
-    
     public override func onWidgetRoomPropertiesUpdated(_ properties: [String : Any],
                                                        cause: [String : Any]?,
                                                        keyPaths: [String],
@@ -131,8 +127,6 @@ private extension FcrBoardWidget {
         guard let file = FcrCloudDriveFile.decode(fileJson) else {
             return
         }
-        
-        print("fileJson: \(fileJson)")
         
         switch file.ext {
         case "mp3", "mp4":
