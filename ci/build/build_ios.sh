@@ -88,12 +88,14 @@ echo release_version: $release_version
 echo short_version: $short_version
 echo pwd: `pwd`
 echo BUILD_NUMBER: ${BUILD_NUMBER}
+echo Branch_Name: ${open_apaas_extapp_ios_branch}
 
 export all_proxy=http://10.80.1.174:1080
 
 # difference
 Repo_Name="open-apaas-extapp-ios"
 SDK_Array=(AgoraWidgets)
+Branch_Name=${open_cloudclass_ios_branch}
 
 # import
 . ../apaas-cicd-ios/Products/Scripts/Other/v1/operation_print.sh
@@ -120,7 +122,7 @@ do
 
     errorPrint $? "${SDK} package"
       
-    ${CICD_Upload_Path}/v1/upload_artifactory.sh ${SDK} ${Repo_Name} ${is_official_build}
+    ${CICD_Upload_Path}/v1/upload_artifactory.sh ${SDK} ${Branch_Name} ${Repo_Name} ${is_official_build}
 
     errorPrint $? "${SDK} upload"
   fi
