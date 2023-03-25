@@ -40,7 +40,7 @@ do
   
   # publish
   if [ "${Package_Publish}" = true ]; then
-    ${CICD_Pack_Path}/v1/package.sh ${SDK} ${Repo_Name} ${BUILD_NUMBER}
+    ${CICD_Pack_Path}/v1/package.sh ${SDK} ${Repo_Name}
 
     errorPrint $? "${SDK} package"
       
