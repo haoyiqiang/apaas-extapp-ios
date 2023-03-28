@@ -1,14 +1,19 @@
-#!/bin/bash
+#!/bin/sh
 
 # Difference
 # Dependency libs
-# UIBaseViews
 # Widget
-Dep_Array_URL=("https://artifactory.agoralab.co/artifactory/AD_repo/apaas_common_libs_ios/cavan/20230302/ios/AgoraUIBaseViews_2.8.0_82.zip"
-               "https://artifactory.agoralab.co/artifactory/AD_repo/apaas_common_libs_ios/cavan/20230302/ios/AgoraWidget_2.8.0_82.zip")
+# UIBaseViews
+Artifactory_iOS_URL="https://artifactory.agoralab.co/artifactory/AD_repo/aPaaS/iOS"
 
-Dep_Array=(AgoraUIBaseViews 
-           AgoraWidget)
+AgoraWidget_URL="${Artifactory_iOS_URL}/AgoraWidget/Flex/dev/AgoraWidget_2.8.0.zip"
+AgoraUIBaseViews_URL="${Artifactory_iOS_URL}/AgoraUIBaseViews/Flex/dev/AgoraUIBaseViews_2.8.0.zip"
+
+Dep_Array_URL=("${AgoraWidget_URL}"
+               "${AgoraUIBaseViews_URL}")
+
+Dep_Array=(AgoraWidget
+           AgoraUIBaseViews)
 
 # cd this file path
 cd $(dirname $0)
