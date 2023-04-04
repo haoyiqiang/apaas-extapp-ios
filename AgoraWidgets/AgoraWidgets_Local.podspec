@@ -9,7 +9,6 @@ Pod::Spec.new do |spec|
   spec.module_name  = "AgoraWidgets"
 
   spec.ios.deployment_target = "10.0"
-  spec.swift_versions        = ["5.0", "5.1", "5.2", "5.3", "5.4"]
 
   spec.source       = { :git => "ssh://git@git.agoralab.co/aduc/open-apaas-extapp-ios.git", :tag => "AgoraWidgets_v" + "#{spec.version.to_s}" }
   
@@ -40,10 +39,11 @@ Pod::Spec.new do |spec|
   spec.dependency 'SDWebImage'
   spec.dependency 'WHToast'
 
+  spec.static_framework = true
   spec.pod_target_xcconfig  = { "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", "DEFINES_MODULE" => "YES" }
   spec.user_target_xcconfig = { "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", "DEFINES_MODULE" => "YES" }
-  spec.pod_target_xcconfig  = { "VALID_ARCHS" => "arm64 armv7 x86_64" }
-  spec.user_target_xcconfig = { "VALID_ARCHS" => "arm64 armv7 x86_64" } 
+  spec.pod_target_xcconfig  = { "VALID_ARCHS" => "arm64 x86_64" }
+  spec.user_target_xcconfig = { "VALID_ARCHS" => "arm64 x86_64" } 
   spec.xcconfig             = { "BUILD_LIBRARY_FOR_DISTRIBUTION" => "YES" }
   
   spec.subspec "Resources" do |ss|

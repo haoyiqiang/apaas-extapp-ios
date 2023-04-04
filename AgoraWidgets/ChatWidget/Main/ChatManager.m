@@ -6,6 +6,7 @@
 //  Copyright © 2021 Agora. All rights reserved.
 //
 
+#import <AgoraWidgets/AgoraWidgets-Swift.h>
 #import "ChatManager.h"
 @import AgoraUIBaseViews;
 
@@ -289,11 +290,11 @@ static BOOL isSDKInited = NO;
                             [weakself.askAndAnswerMsgLock unlock];
                         }
                     }else{
-                        if(error.code == EMErrorMessageIncludeIllegalContent)
-                            [weakself.delegate exceptionDidOccur:[@"fcr_hyphenate_im_send_faild_by_sensitive" ag_localizedIn:@"AgoraWidgets"]];
-                        else {
+                        if(error.code == EMErrorMessageIncludeIllegalContent) {
+                            [weakself.delegate exceptionDidOccur:[@"fcr_hyphenate_im_send_faild_by_sensitive" widget_localized]];
+                        } else {
                             if(error.code == EMErrorUserMuted) {
-                                [weakself.delegate exceptionDidOccur:[@"fcr_hyphenate_im_send_faild_by_mute" ag_localizedIn:@"AgoraWidgets"]];
+                                [weakself.delegate exceptionDidOccur:[@"fcr_hyphenate_im_send_faild_by_mute" widget_localized]];
                                 if(!weakself.isAllMuted) {
                                     if(!weakself.isMuted) {
                                         weakself.isMuted = YES;
@@ -381,12 +382,12 @@ static BOOL isSDKInited = NO;
 
 - (void)userAccountDidLoginFromOtherDevice
 {
-    [self.delegate exceptionDidOccur:[@"fcr_hyphenate_im_login_on_other_device" ag_localizedIn:@"AgoraWidgets"]];
+    [self.delegate exceptionDidOccur:[@"fcr_hyphenate_im_login_on_other_device" widget_localized]];
 }
 
 - (void)userAccountDidForcedToLogout:(EMError *)aError
 {
-    [self.delegate exceptionDidOccur:[@"fcr_hyphenate_im_logout_forced" ag_localizedIn:@"AgoraWidgets"]];
+    [self.delegate exceptionDidOccur:[@"fcr_hyphenate_im_logout_forced" widget_localized]];
 }
 
 #pragma mark - EMChatManagerDelegate

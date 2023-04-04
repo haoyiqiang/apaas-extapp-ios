@@ -72,6 +72,18 @@ extension Dictionary {
     }
 }
 
+extension Bundle {
+    static func widgets_bundle() -> Bundle {
+        if let path = Bundle.main.path(forResource: "AgoraWidgets",
+                                       ofType: "bundle"),
+           let bundle = Bundle(path: path) {
+            return bundle
+        } else {
+            return Bundle.main
+        }
+    }
+}
+
 extension String {
     func toDic() -> [String: Any]? {
         guard let data = self.data(using: .utf8),
@@ -118,8 +130,11 @@ extension String {
     }
     
     func ag_widget_localized() -> String {
-        let resource = "AgoraWidgets"
-        return self.ag_localizedIn(resource)
+        let bundle = Bundle.widgets_bundle()
+        
+        return NSLocalizedString(self,
+                                 bundle: bundle,
+                                 comment: "")
     }
     
     func agora_md5() -> String {
@@ -146,10 +161,19 @@ extension String {
     }
 }
 
+@objc public extension NSString {
+    func widget_localized() -> String {
+        let bundle = Bundle.widgets_bundle()
+        
+        return NSLocalizedString(self as String,
+                                 bundle: bundle,
+                                 comment: "")
+    }
+}
+
 extension UIImage {
     static func ag_imageName(_ name: String) -> UIImage? {
-        let resource = "AgoraWidgets"
-        let bundle = Bundle.ag_compentsBundleNamed(resource)
+        let bundle = Bundle.widgets_bundle()
         return UIImage.init(named: name,
                             in: bundle,
                             compatibleWith: nil)
@@ -216,18 +240,31 @@ extension TimeInterval {
 // MARK: - resource
 public func GetWidgetImage(object: NSObject,
                            _ name: String) -> UIImage? {
-    let resource = "AgoraWidgets"
-    return UIImage.agora_bundle(object: object,
-                                resource: resource,
-                                name: name)
+    let bundle = Bundle.widgets_bundle()
+    
+    return UIImage(named: name,
+                   in: bundle,
+                   compatibleWith: nil)
+    
+//    return UIImage.agora_bundle(object: object,
+//                                resource: resource,
+//                                name: name)
 }
 
 public func GetWidgetLocalizableString(object: NSObject,
                                        key: String) -> String {
-    let resource = "AgoraWidgets"
-    return String.agora_localized_string(key,
-                                         object: object,
-                                         resource: resource)
+//    let resource = "AgoraWidgets"
+    
+    
+    let bundle = Bundle.widgets_bundle()
+    
+    return NSLocalizedString(key,
+                             bundle: bundle,
+                             comment: "")
+    
+//    return String.agora_localized_string(key,
+//                                         object: object,
+//                                         resource: resource)
 }
 
 public func GetWidgetLogFolder() -> String {

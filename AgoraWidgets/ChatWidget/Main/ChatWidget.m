@@ -6,7 +6,7 @@
 //  Copyright © 2021 Agora. All rights reserved.
 //
 
-
+#import <AgoraWidgets/AgoraWidgets-Swift.h>
 #import "ChatManager.h"
 #import <WHToast/WHToast.h>
 #import "ChatTopView.h"
@@ -358,7 +358,7 @@ static const NSString* kChatRoomId = @"chatroomId";
                 
                 break;
             case ChatRoomStateLoginFailed:
-                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_login_faild" ag_localizedIn:@"AgoraWidgets"] duration:2 finishHandler:^{
+                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_login_faild" widget_localized] duration:2 finishHandler:^{
                         
                 }];
                 break;
@@ -372,7 +372,7 @@ static const NSString* kChatRoomId = @"chatroomId";
                 
                 break;
             case ChatRoomStateJoinFail:
-                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_join_faild" ag_localizedIn:@"AgoraWidgets"] duration:2 finishHandler:^{
+                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_join_faild" widget_localized] duration:2 finishHandler:^{
                         
                 }];
                 break;

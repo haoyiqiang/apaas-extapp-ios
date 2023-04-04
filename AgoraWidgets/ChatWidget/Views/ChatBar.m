@@ -43,7 +43,7 @@
 {
     self.backgroundColor = [UIColor colorWithRed:236/255.0 green:236/255.0 blue:241/255.0 alpha:1.0];
     self.inputButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal] ;
+    [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" widget_localized] forState:UIControlStateNormal] ;
     self.inputButton.backgroundColor = [UIColor clearColor];
     [self.inputButton setTitleColor:[UIColor colorWithRed:125/255.0 green:135/255.0 blue:152/255.0 alpha:1.0] forState:UIControlStateNormal];
     [self.inputButton addTarget:self action:@selector(InputAction) forControlEvents:UIControlEventTouchUpInside];
@@ -146,17 +146,17 @@
 - (void)updateMuteState
 {
     if(self.isAllMuted) {
-        [self.inputButton setTitle:[@"fcr_hyphenate_im_all_mute" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal];
+        [self.inputButton setTitle:[@"fcr_hyphenate_im_all_mute" widget_localized] forState:UIControlStateNormal];
         [self.inputButton setEnabled:NO];
         self.emojiButton.enabled = NO;
         
     }else{
         if(self.isMuted){
-            [self.inputButton setTitle:[@"fcr_hyphenate_im_mute" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal];
+            [self.inputButton setTitle:[@"fcr_hyphenate_im_mute" widget_localized] forState:UIControlStateNormal];
             [self.inputButton setEnabled:NO];
             self.emojiButton.enabled = NO;
         }else{
-            [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal];
+            [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" widget_localized] forState:UIControlStateNormal];
             [self.inputButton setEnabled:YES];
             self.emojiButton.enabled = YES;
         }
@@ -176,7 +176,7 @@
             [self.inputButton setTitle:aText forState:UIControlStateNormal];
         }else{
             if(!self.isMuted && !self.isAllMuted)
-                [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" ag_localizedIn:@"AgoraWidgets"] forState:UIControlStateNormal];
+                [self.inputButton setTitle:[@"fcr_hyphenate_im_input_placeholder" widget_localized] forState:UIControlStateNormal];
         }
     });
     
@@ -199,7 +199,7 @@
         }else{
             PHFetchResult *result = [PHAsset fetchAssetsWithALAssetURLs:@[url] options:nil];
             if(result.count == 0){
-                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_photo_permission_disabled" ag_localizedIn:@"AgoraWidgets"] duration:2 finishHandler:nil];
+                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_photo_permission_disabled" widget_localized] duration:2 finishHandler:nil];
             }else{
                 [result enumerateObjectsUsingBlock:^(PHAsset *asset , NSUInteger idx, BOOL *stop){
                     if (asset) {
@@ -207,7 +207,7 @@
                             if (data != nil) {
                                 [self.delegate imageDataWillSend:data];
                             } else {
-                                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_image_too_large" ag_localizedIn:@"AgoraWidgets"] duration:2 finishHandler:nil];
+                                [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_image_too_large" widget_localized] duration:2 finishHandler:nil];
                             }
                         }];
                     }
@@ -273,7 +273,7 @@
                     break;
                 case PHAuthorizationStatusDenied: //用户已经明确否认了这一照片数据的应用程序访问
                 case PHAuthorizationStatusRestricted://此应用程序没有被授权访问的照片数据。可能是家长控制权限
-                    [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_photo_permission_disabled" ag_localizedIn:@"AgoraWidgets"] duration:2 finishHandler:^{
+                    [WHToast showErrorWithMessage:[@"fcr_hyphenate_im_photo_permission_disabled" widget_localized] duration:2 finishHandler:^{
                             
                     }];
                     break;

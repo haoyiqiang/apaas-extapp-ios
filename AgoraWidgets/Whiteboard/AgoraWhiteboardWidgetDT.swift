@@ -39,10 +39,13 @@ class AgoraWhiteboardWidgetDT {
     
     var coursewareList: Array<AgoraBoardCoursewareInfo>?
     
-    @available(iOS 11.0, *)
-    lazy var schemeHandler: AgoraWhiteURLSchemeHandler? = {
-        return AgoraWhiteURLSchemeHandler(scheme: scheme,
-                                          directory: configExtra.coursewareDirectory)
+    lazy var schemeHandler: Any? = {
+        if #available(iOS 11.0, *) {
+            return AgoraWhiteURLSchemeHandler(scheme: scheme,
+                                              directory: configExtra.coursewareDirectory)
+        } else {
+            return nil
+        }
     }()
 
     var scenePath = "" {
@@ -212,7 +215,7 @@ class AgoraWhiteboardWidgetDT {
         wkConfig.setValue("\(1)", forKey: "allowUniversalAccessFromFileURLs")
     #endif
         if #available(iOS 11.0, *),
-           let handler = self.schemeHandler {
+           let handler = self.schemeHandler as? AgoraWhiteURLSchemeHandler {
             wkConfig.setURLSchemeHandler(handler,
                                          forURLScheme: scheme)
         }
