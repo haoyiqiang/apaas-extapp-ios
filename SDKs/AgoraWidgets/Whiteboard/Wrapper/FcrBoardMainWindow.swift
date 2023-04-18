@@ -172,9 +172,9 @@ extension FcrBoardMainWindow {
         
         whiteSDK.registerApp(with: appParams,
                              completionHandler: { [weak self] error in
-            if let e = error {
+            if let `error` = error {
                 self?.log(content: "register H5 subWindow error",
-                          extra: error.debugDescription,
+                          extra: error.localizedDescription,
                           type: .error)
                 return
             }
@@ -243,8 +243,6 @@ extension FcrBoardMainWindow {
                                         imageFolder: String,
                                         imageListPath: @escaping (([String]) -> Void)) {
         let combined = (Int(combinedCount) > 0) ? Int(combinedCount) : 1
-        
-        var combinedImageList = [String]()
         
         let extra = ["combinedCount": "\(combinedCount)",
                      "imageFolder": imageFolder]
@@ -449,7 +447,7 @@ extension FcrBoardMainWindow {
                 text = content + " failure"
             }
             
-            self?.log(content: content,
+            self?.log(content: text,
                       extra: extra.agDescription,
                       type: logType)
         }

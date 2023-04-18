@@ -1,0 +1,17 @@
+  # third libs
+  pod 'Armin', '1.1.0'
+  pod 'SwifterSwift', '5.2.0'
+  pod 'Masonry', '1.1.0'
+  pod 'SDWebImage', '<=5.12.0'
+  pod 'AgoraLog', '1.0.2'
+
+  # agora libs
+  pod 'Whiteboard', '2.16.45'
+  pod 'Agora_Chat_iOS', '1.0.6'
+  
+  # close source libs
+  pod 'AgoraUIBaseViews/Source', :path => '../../../../apaas-common-libs-ios/AgoraUIBaseViews_Local.podspec'
+  pod 'AgoraWidget/Source',      :path => '../../../../apaas-common-libs-ios/AgoraWidget_Local.podspec'
+  
+  # open source libs
+  pod 'AgoraWidgets/Build', :path => '../../../AgoraWidgets_Local.podspec'
