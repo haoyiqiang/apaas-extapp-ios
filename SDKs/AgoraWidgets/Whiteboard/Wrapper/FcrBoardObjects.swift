@@ -121,9 +121,7 @@ struct FcrBoardH5RegisterWindowConfig: AgoraWidgetDescription {
 }
 
 struct FcrBoardH5SubWindowConfig: AgoraWidgetDescription {
-    /// H5 课件的 url
     var resourceUrl: String
-    /// 窗口名
     var title: String
     
     var agDescription: String {
@@ -225,12 +223,6 @@ extension WKWebViewConfiguration {
 #else
         wkConfig.setValue("\(1)", forKey: "allowUniversalAccessFromFileURLs")
 #endif
-        // TODO: schemeHandler
-//        if #available(iOS 11.0, *),
-//           let handler = self.schemeHandler {
-//            wkConfig.setURLSchemeHandler(handler,
-//                                         forURLScheme: scheme)
-//        }
         
         let ucc = WKUserContentController()
         
