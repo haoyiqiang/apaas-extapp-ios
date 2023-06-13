@@ -406,16 +406,16 @@ extension FcrBoardMainWindow {
         }
     }
     
-    func addPage() -> FcrBoardError? {
-        self.log(content: "add page",
-                 type: .info)
+    func addPage(completion: ((Bool) -> ())? = nil) -> FcrBoardError? {
+        log(content: "add page",
+            type: .info)
         
-        self.log(content: "add page",
-                 type: .info,
-                 fromClass: WhiteRoom.self,
-                 funcName: "addPage")
+        log(content: "add page",
+            type: .info,
+            fromClass: WhiteRoom.self,
+            funcName: "addPage")
 
-        whiteRoom.addPage()
+        whiteRoom.addPage(completion)
         
         return nil
     }

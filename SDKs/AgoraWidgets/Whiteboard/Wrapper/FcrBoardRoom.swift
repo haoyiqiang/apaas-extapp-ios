@@ -270,10 +270,10 @@ private extension FcrBoardRoom {
             type: .info)
         
         log(content: joinText,
-                    extra: roomConfig.agDescription,
-                    type: .info,
-                    fromClass: WhiteSDK.self,
-                    funcName: "joinRoom")
+            extra: roomConfig.agDescription,
+            type: .info,
+            fromClass: WhiteSDK.self,
+            funcName: "joinRoom")
         
         whiteSDK.joinRoom(with: roomConfig,
                           callbacks: listener) { [weak self] (isSuccess,
