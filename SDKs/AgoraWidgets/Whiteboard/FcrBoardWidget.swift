@@ -621,7 +621,16 @@ extension FcrBoardWidget {
         guard let `mainWindow` = mainWindow else {
             return
         }
-        mainWindow.addPage()
+        
+        mainWindow.addPage { [weak mainWindow] finished in
+            guard let window = mainWindow else {
+                return
+            }
+            
+            let info = window.getPageInfo()
+            let index = (info.count)
+            window.setPageIndex(index: index)
+        }
     }
     
     @objc func onClickPrePage(_ sender: UIButton) {
