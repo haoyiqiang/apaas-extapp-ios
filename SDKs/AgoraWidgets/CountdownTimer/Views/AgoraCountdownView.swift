@@ -1,6 +1,6 @@
 //
 //  AgoraCountdownView.swift
-//  AgoraEducation
+//  AgoraWidgets
 //
 //  Created by LYY on 2021/5/8.
 //  Copyright © 2021 Agora. All rights reserved.
