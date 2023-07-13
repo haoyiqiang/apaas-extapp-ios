@@ -109,6 +109,8 @@ public class AgoraNativeWidget: AgoraBaseWidget, AgoraWidgetLogTube {
             self.log(content: "update widget room properties successfully",
                      type: .info,
                      fromClass: self.classForCoder)
+            
+            success?()
         } failure: { [weak self] (error) in
             guard let `self` = self else {
                 return
@@ -117,9 +119,8 @@ public class AgoraNativeWidget: AgoraBaseWidget, AgoraWidgetLogTube {
             self.log(content: "update widget room properties unsuccessfully",
                       type: .error,
                       fromClass: self.classForCoder)
+            
+            failure?(error)
         }
-
-        super.updateRoomProperties(properties,
-                                   cause: cause, success: success, failure: failure)
     }
 }

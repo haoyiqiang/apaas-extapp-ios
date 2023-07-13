@@ -1,6 +1,6 @@
 //
 //  SingleTimeGroup.swift
-//  AgoraEducation
+//  AgoraWidgets
 //
 //  Created by LYY on 2021/5/11.
 //  Copyright © 2021 Agora. All rights reserved.
