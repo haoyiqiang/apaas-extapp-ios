@@ -170,10 +170,10 @@ struct FcrWidgetUIItemPollOption: FcrWidgetUIItemProtocol {
     var font: UIFont                        = FcrWidgetUIFontGroup.font9
     var textColor: UIColor                  = FcrWidgetUIColorGroup.textLevel1Color
     
-    var selectedSingleModeImage: UIImage    = UIImage.widgets_image("poll_sin_checked")!
-    var selectedMultiModeImage: UIImage     = UIImage.widgets_image("poll_mul_checked")!
-    var unselectedSingleModeImage: UIImage  = UIImage.widgets_image("poll_sin_unchecked")!
-    var unselectedMultiModeImage: UIImage   = UIImage.widgets_image("poll_mul_unchecked")!
+    var selectedSingleModeImage: UIImage?   = UIImage.widgets_image("poll_sin_checked")
+    var selectedMultiModeImage: UIImage?    = UIImage.widgets_image("poll_mul_checked")
+    var unselectedSingleModeImage: UIImage? = UIImage.widgets_image("poll_sin_unchecked")
+    var unselectedMultiModeImage: UIImage?  = UIImage.widgets_image("poll_mul_unchecked")
     
     var labelVerticalSpace: CGFloat         = 5
     var labelLeftSpace: CGFloat             = 37
@@ -221,19 +221,19 @@ struct FcrWidgetUIItemWebViewName: FcrWidgetUIItemProtocol {
 struct FcrWidgetUIItemWebViewRefresh: FcrWidgetUIItemProtocol {
     var visible: Bool                        = true
     var enable: Bool                         = true
-    var image: UIImage                       = UIImage.widgets_image("web_refresh")!
+    var image: UIImage?                      = UIImage.widgets_image("web_refresh")
 }
 
 struct FcrWidgetUIItemWebViewScale: FcrWidgetUIItemProtocol {
     var visible: Bool                        = true
     var enable: Bool                         = true
-    var image: UIImage                       = UIImage.widgets_image("web_scale")!
+    var image: UIImage?                      = UIImage.widgets_image("web_scale")
 }
 
 struct FcrWidgetUIItemWebViewClose: FcrWidgetUIItemProtocol {
     var visible: Bool                        = true
     var enable: Bool                         = true
-    var image: UIImage                       = UIImage.widgets_image("web_close")!
+    var image: UIImage?                      = UIImage.widgets_image("web_close")
 }
 
 // MARK: - cloud
