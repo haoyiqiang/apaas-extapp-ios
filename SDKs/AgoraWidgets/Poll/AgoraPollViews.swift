@@ -138,7 +138,7 @@ class AgoraPollOptionCell: UITableViewCell, AgoraUIContentContainer {
     private func setOptionImage() {
         let itemOption = UIConfig.poll.option
         
-        var image: UIImage
+        var image: UIImage?
         
         switch selectedMode {
         case .single:

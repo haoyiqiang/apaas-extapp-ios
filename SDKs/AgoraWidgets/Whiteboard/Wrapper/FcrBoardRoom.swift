@@ -333,15 +333,13 @@ extension FcrBoardRoom: FcrBoardRoomNeedObserve {
             funcName: "firePhaseChanged")
         
         let state = phase.fcrType
-            
-        callConnectionStateUpdatedCallback(state: state)
         
-        guard state == .disconnected,
-           hasLeft == false else {
-            return
+        if state == .disconnected,
+            hasLeft == false {
+            reJoin()
+        } else {
+            callConnectionStateUpdatedCallback(state: state)
         }
-        
-        reJoin()
     }
     
     func onLogger(_ dict: [AnyHashable : Any]) {
