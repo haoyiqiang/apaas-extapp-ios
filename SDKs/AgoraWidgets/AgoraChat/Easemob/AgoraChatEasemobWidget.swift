@@ -101,11 +101,11 @@ import AgoraChat
         
         if let keys = message.toRequestKeys() {
             let serverAPI = AgoraChatServerAPI(host: keys.host,
-                                           appId: keys.agoraAppId,
-                                           token: keys.token,
-                                           roomId: info.roomInfo.roomUuid,
-                                           userId: info.localUserInfo.userUuid,
-                                           logTube: logger)
+                                               appId: keys.agoraAppId,
+                                               token: keys.token,
+                                               roomId: info.roomInfo.roomUuid,
+                                               userId: info.localUserInfo.userUuid,
+                                               logTube: logger)
             launchCondition.serverAPI = serverAPI
         }
     }
@@ -333,35 +333,28 @@ private extension AgoraChatEasemobWidget {
     }
 }
 
-
 // MARK: - ChatManagerDelegate
 extension AgoraChatEasemobWidget: AgoraChatEasemobDelegate {
     func didReceiveMessages(list: [AgoraChatMessage]) {
-        var viewModelList = [AgoraChatMessageViewType]()
         let localUserId = easemob?.userConfig.userName ?? info.localUserInfo.userUuid
         for message in list {
             guard let viewModel = message.toViewModel(localUserId: localUserId) else {
                 continue
             }
-            viewModelList.append(viewModel)
+            
+            mainView.appendMessages([viewModel])
         }
-        guard viewModelList.count > 0 else {
-            return
-        }
-        sendSignal(.messageReceived)
-        mainView.appendMessages(viewModelList)
     }
     
     func didSendMessages(list: [AgoraChatMessage]) {
-        var viewModelList = [AgoraChatMessageViewType]()
         let localUserId = easemob?.userConfig.userName ?? info.localUserInfo.userUuid
         for message in list {
             guard let viewModel = message.toViewModel(localUserId: localUserId) else {
                 continue
             }
-            viewModelList.append(viewModel)
+            
+            mainView.appendMessages([viewModel])
         }
-        mainView.appendMessages(viewModelList)
     }
     
     func didLocalMuteStateChanged(_ muted: Bool) {

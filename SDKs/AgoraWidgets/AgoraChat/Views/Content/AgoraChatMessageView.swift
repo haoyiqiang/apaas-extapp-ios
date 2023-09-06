@@ -244,16 +244,23 @@ private extension AgoraChatMessageView {
             messageDataSource.removeSubrange(0..<50)
         }
         
-        DispatchQueue.main.async { [weak self] in
+        self.messageListView.reloadData { [weak self] in
             guard let `self` = self else {
                 return
             }
-            self.messageListView.reloadData {
-                let index = IndexPath(row: self.messageDataSource.count - 1, section: 0)
-                self.messageListView.scrollToRow(at: index,
-                                                             at: .bottom,
-                                                             animated: true)
+            
+            let contentHeight = self.messageListView.contentSize.height
+            let height = self.messageListView.bounds.size.height
+            let y = contentHeight - height
+            
+            guard y > 0 else {
+                return
             }
+             
+            let bottomOffset = CGPoint(x: 0,
+                                       y: y)
+            self.messageListView.setContentOffset(bottomOffset,
+                                                  animated: true)
         }
     }
 
