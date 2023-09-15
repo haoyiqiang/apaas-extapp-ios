@@ -315,12 +315,16 @@ class AgoraChatEasemob: NSObject {
     }
     
     func getLocalMutedState(success: EasemobMuteStateCompletion?,
-                          failure: EasemobFailureCompletion?) {
+                            failure: EasemobFailureCompletion?) {
         let extra = ["chatRoomId": chatRoomId]
+        
         delegate?.onEasemobLog(content: "get local mute state",
                                extra: extra.agDescription,
                                type: .info)
-        AgoraChatClient.shared().roomManager.isMemberInWhiteListFromServer(withChatroomId: chatRoomId) { [weak self] (inWhiteList,chatError)  in
+        
+        AgoraChatClient.shared().roomManager.getChatroomMuteListFromServer(withId: chatRoomId,
+                                                                           pageNumber: 0,
+                                                                           pageSize: 100) { [weak self] (muteList, chatError)  in
             guard let `self` = self else {
                 return
             }
@@ -333,7 +337,13 @@ class AgoraChatEasemob: NSObject {
                 failure?(.fetchError(chatError!.code.rawValue))
                 return
             }
-            let localMuted = inWhiteList
+            
+            var localMuted: Bool = false
+            
+            if let list = muteList {
+                localMuted = list.contains([self.userConfig.userName])
+            }
+            
             let extra = ["localMuted": localMuted ? 1 : 0]
             self.delegate?.onEasemobLog(content: "local mute state",
                                         extra: extra.agDescription,
@@ -646,36 +656,37 @@ extension AgoraChatEasemob: AgoraChatClientDelegate,
     }
 
     // MARK: AgoraChatroomManagerDelegate
-    func chatroomWhiteListDidUpdate(_ aChatroom: AgoraChatroom,
-                                    addedWhiteListMembers aMembers: [String]) {
-        let extra = ["aMembers": aMembers.agDescription]
+    func chatroomMuteListDidUpdate(_ aChatroom: AgoraChatroom,
+                                   addedMutedMembers aMutes: [String],
+                                   muteExpire aMuteExpire: Int) {
+        let extra = ["aMutes": aMutes.agDescription]
         delegate?.onEasemobLog(content: "users muted",
                                extra: extra.agDescription,
                                type: .info)
         
         guard aChatroom.chatroomId == chatRoomId,
-              aMembers.count > 0,
-              aMembers.contains(userConfig.userName) else {
+              aMutes.count > 0,
+              aMutes.contains(userConfig.userName) else {
             return
         }
         delegate?.didLocalMuteStateChanged(true)
     }
     
-    func chatroomWhiteListDidUpdate(_ aChatroom: AgoraChatroom,
-                                    removedWhiteListMembers aMembers: [String]) {
-        let extra = ["aMembers": aMembers.agDescription]
+    func chatroomMuteListDidUpdate(_ aChatroom: AgoraChatroom,
+                                   removedMutedMembers aMutes: [String]) {
+        let extra = ["aMutes": aMutes.agDescription]
         delegate?.onEasemobLog(content: "users unmuted",
                                extra: extra.agDescription,
                                type: .info)
         
         guard aChatroom.chatroomId == chatRoomId,
-              aMembers.count > 0,
-              aMembers.contains(userConfig.userName) else {
+              aMutes.count > 0,
+              aMutes.contains(userConfig.userName) else {
             return
         }
         delegate?.didLocalMuteStateChanged(false)
     }
-    
+        
     func chatroomAllMemberMuteChanged(_ aChatroom: AgoraChatroom,
                                       isAllMemberMuted aMuted: Bool) {
         let extra = ["muted": "\(aMuted)"]
