@@ -344,6 +344,8 @@ extension AgoraChatEasemobWidget: AgoraChatEasemobDelegate {
             
             mainView.appendMessages([viewModel])
         }
+        
+        sendSignal(.messageReceived)
     }
     
     func didSendMessages(list: [AgoraChatMessage]) {
