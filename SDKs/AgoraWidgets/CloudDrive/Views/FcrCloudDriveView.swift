@@ -10,6 +10,7 @@ import AgoraUIBaseViews
 class FcrCloudDriveView: UIView {
     private(set) var topView = FcrCloudDriveTopView(frame: .zero)
     private(set) var listView = UITableView(frame: .zero)
+    private(set) var bottomView = FcrCloudDriveBottomView(frame: .zero)
         
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -35,6 +36,11 @@ extension FcrCloudDriveView: AgoraUIContentContainer {
                           forCellReuseIdentifier: FcrCloudDriveCell.cellId)
         addSubview(topView)
         addSubview(listView)
+        addSubview(bottomView)
+        
+        bottomView.isHidden = true
+        
+        layer.masksToBounds = true
     }
     
     func initViewFrame() {
@@ -47,6 +53,11 @@ extension FcrCloudDriveView: AgoraUIContentContainer {
             make?.left.and().right().and().bottom().equalTo()(self)
             make?.top.equalTo()(self.topView.mas_bottom)
         }
+        
+        bottomView.mas_makeConstraints { make in
+            make?.left.right().bottom().equalTo()(0)
+            make?.height.equalTo()(38)
+        }
     }
     
     func updateViewProperties() {
@@ -55,5 +66,7 @@ extension FcrCloudDriveView: AgoraUIContentContainer {
         listView.backgroundColor = config.cell.backgroundColor
         layer.cornerRadius = config.cornerRadius
         layer.masksToBounds = true
+        
+        bottomView.backgroundColor = FcrWidgetUIColorGroup.systemForegroundColor
     }
 }

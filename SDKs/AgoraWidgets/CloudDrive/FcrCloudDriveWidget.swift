@@ -5,9 +5,11 @@
 //  Created by ZYP on 2021/10/20.
 //
 
+import MobileCoreServices
 import AgoraWidget
 import AgoraLog
 import Masonry
+import Photos
 import Darwin
 
 @objcMembers public class FcrCloudDriveWidget: AgoraNativeWidget,
@@ -61,6 +63,14 @@ import Darwin
         contentView.listView.delegate = self
         
         contentView.topView.updateFileCount(dataSource.filteredFileList.count)
+        
+        contentView.bottomView.uploadFileButton.addTarget(self,
+                                                          action: #selector(onUploadFileButtonPressed),
+                                                          for: .touchUpInside)
+        
+        contentView.bottomView.uploadImageButton.addTarget(self,
+                                                           action: #selector(onUploadImageButtonPressed),
+                                                           for: .touchUpInside)
     }
     
     public func initViewFrame() {
@@ -133,6 +143,8 @@ extension FcrCloudDriveWidget: FcrCloudDriveTopViewDelegate {
         contentView.topView.updateFileCount(dataSource.filteredFileList.count)
         
         contentView.listView.reloadData()
+        
+        contentView.bottomView.isHidden = (type == .uiPublic)
     }
     
     func onCloseButtonPressed() {
@@ -184,6 +196,57 @@ extension FcrCloudDriveWidget: UITableViewDataSource, UITableViewDelegate {
         let data = dataSource.filteredFileList[indexPath.row].originalData
         
         sendSelectedFileMessage(data: data)
+    }
+}
+
+private extension FcrCloudDriveWidget {
+    @objc func onUploadFileButtonPressed() {
+        let documentPicker = UIDocumentPickerViewController(documentTypes: ["public.content"],
+                                                            in: .import)
+        documentPicker.delegate = self
+        
+        let vc = UIViewController.agora_top_view_controller()
+        
+        vc.present(documentPicker,
+                   animated: true)
+    }
+    
+    @objc func onUploadImageButtonPressed() {
+        let vc = UIViewController.agora_top_view_controller()
+        
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.sourceType = .photoLibrary
+        imagePicker.mediaTypes = [String(kUTTypeImage)]
+        
+        vc.present(imagePicker,
+                   animated: true)
+    }
+}
+
+extension FcrCloudDriveWidget: UIDocumentPickerDelegate,
+                               UIImagePickerControllerDelegate,
+                               UINavigationControllerDelegate {
+    public func documentPicker(_ controller: UIDocumentPickerViewController,
+                               didPickDocumentsAt urls: [URL]) {
+        
+    }
+    
+    public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        
+    }
+    
+    public func imagePickerController(_ picker: UIImagePickerController,
+                               didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard let image = info[.originalImage] as? UIImage else {
+            picker.dismiss(animated: true)
+            return
+        }
+        picker.dismiss(animated: true)
+    }
+    
+    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
     }
 }
 

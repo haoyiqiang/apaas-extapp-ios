@@ -53,12 +53,41 @@ fcr_hyphenate_im_photo_permission_disabled = "Album permission not enabled";
 fcr_hyphenate_im_photo_permission_request = "Please turn on all photos access in system settings";
 fcr_hyphenate_im_image_too_large = "The picture is too large, please choose another";
 
-// Cloud
+//****************** 云盘Cloud ******************
 fcr_cloud_file_name = "File Name";
 fcr_cloud_search = "Search";
-fcr_cloud_public_resource = "Public coursewares";
-fcr_cloud_private_resource = "Private coursewares";
-fcr_cloud_total_item = "items";
+fcr_cloud_label_cloud = "Cloud";
+fcr_cloud_public_resource = "Public";
+fcr_cloud_private_resource = "Personal";
+
+//xxx为文件个数
+fcr_cloud_total_item = "{xxx} items";
+fcr_cloud_tips_input_link = "Please input link";
+fcr_cloud_tips_input_name = "Please input name";
+fcr_cloud_upload_at = "Updated at";
+fcr_cloud_size = "Size";
+fcr_cloud_button_tooltip_rename = "Rename";
+fcr_cloud_button_tooltip_delete = "Delete the file";
+fcr_cloud_button_label_converting = "Converting";
+fcr_cloud_button_delete = "Delete";
+fcr_cloud_tips_delete_confirm_title = "Delete";
+fcr_cloud_tips_delete_confirm_content = "Are you sure to delete this file?";
+fcr_cloud_tips_delete_confirm_ok_text = "Delete";
+fcr_cloud_button_retry = "Update Again";
+fcr_cloud_upload_status_failed = "Failed";
+fcr_cloud_upload_status_done = "Done";
+fcr_cloud_tips_close_during_uploading = "Please do not close the webpage during the uploading process.";
+fcr_cloud_tips_upload_private_disk = "You can upload document to private network disk.";
+fcr_cloud_tips_supported_formats = "Supported file formats in the room";
+fcr_cloud_label_format = "Format";
+fcr_cloud_tips_open_whiteboard_content = "This file requires opening the whiteboard to be used. Would you like to continue opening this file?";
+
+//xxx文件格式
+fcr_cloud_unsupported_file_type = "Unsupported file type {reason1}";
+fcr_cloud_fail_to_convert = "Fail to convert resource";
+fcr_cloud_upload_file = "Upload Files";
+fcr_cloud_upload_pictures = "Upload Pictures";
+fcr_cloud_uploading = "Uploading";
 
 // AnswerSelector
 fcr_popup_quiz = "Popup quiz answerer";

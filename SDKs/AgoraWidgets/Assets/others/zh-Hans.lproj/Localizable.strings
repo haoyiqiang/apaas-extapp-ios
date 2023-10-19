@@ -53,12 +53,41 @@ fcr_hyphenate_im_photo_permission_disabled = "获取相册图片权限失败";
 fcr_hyphenate_im_photo_permission_request = "请在系统设置中打开所有照片访问权限";
 fcr_hyphenate_im_image_too_large = "图片太大，请选择其他图片";
 
-// Cloud
+///****************** 云盘Cloud ******************
 fcr_cloud_file_name = "文件名";
 fcr_cloud_search = "搜索";
+fcr_cloud_label_cloud = "云盘";
 fcr_cloud_public_resource = "公共资源";
 fcr_cloud_private_resource = "我的云盘";
+
+//xxx为文件个数
 fcr_cloud_total_item = "共{xxx}项";
+fcr_cloud_tips_input_link = "请输入链接地址";
+fcr_cloud_tips_input_name = "请输入课件名";
+fcr_cloud_upload_at = "更新时间";
+fcr_cloud_size = "文件大小";
+fcr_cloud_button_tooltip_rename = "重命名";
+fcr_cloud_button_tooltip_delete = "删除文件";
+fcr_cloud_button_label_converting = "转换中";
+fcr_cloud_button_delete = "删除";
+fcr_cloud_tips_delete_confirm_title = "删除";
+fcr_cloud_tips_delete_confirm_content = "确认要删除文件吗？";
+fcr_cloud_tips_delete_confirm_ok_text = "删除";
+fcr_cloud_button_retry = "再次上传";
+fcr_cloud_upload_status_failed = "上传错误";
+fcr_cloud_upload_status_done = "已完成";
+fcr_cloud_tips_close_during_uploading = "正在上传文件，请不要关闭页面。";
+fcr_cloud_tips_upload_private_disk = "你可以上传文件到个人资源。";
+fcr_cloud_tips_supported_formats = "支持格式";
+fcr_cloud_label_format = "支持格式";
+fcr_cloud_tips_open_whiteboard_content = "该文件需要打开白板才能使用，是否继续打开？";
+
+//xxx文件格式
+fcr_cloud_unsupported_file_type = "不支持文件格式{xxx}";
+fcr_cloud_fail_to_convert = "转换失败";
+fcr_cloud_upload_file = "上传文件";
+fcr_cloud_upload_pictures = "上传图片";
+fcr_cloud_uploading = "上传中";
 
 // AnswerSelector
 fcr_popup_quiz = "答题器";
