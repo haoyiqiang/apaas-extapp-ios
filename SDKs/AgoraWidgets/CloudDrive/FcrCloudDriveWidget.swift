@@ -18,6 +18,8 @@ import Darwin
     private var dataSource = FcrCloudDriveDataSource()
     private var serverAPI: FcrCloudDriveServerAPI?
     
+    private var selectedIndex: IndexPath?
+    
     public override func onLoad() {
         super.onLoad()
         initViews()
@@ -71,6 +73,10 @@ import Darwin
         contentView.bottomView.uploadImageButton.addTarget(self,
                                                            action: #selector(onUploadImageButtonPressed),
                                                            for: .touchUpInside)
+        
+        contentView.bottomView.deleteButton.addTarget(self,
+                                                      action: #selector(onDeleteButtonPressed),
+                                                      for: .touchUpInside)
     }
     
     public func initViewFrame() {
@@ -152,6 +158,8 @@ extension FcrCloudDriveWidget: FcrCloudDriveTopViewDelegate {
     }
     
     func onRefreshButtonPressed() {
+        contentView.listView.reloadData()
+        
         guard contentView.topView.selectedType == .uiPrivate else {
             return
         }
@@ -170,20 +178,25 @@ extension FcrCloudDriveWidget: FcrCloudDriveTopViewDelegate {
 }
 
 // MARK: - UITableViewDataSource, UITableViewDelegate
-extension FcrCloudDriveWidget: UITableViewDataSource, UITableViewDelegate {
+extension FcrCloudDriveWidget: UITableViewDataSource,
+                               UITableViewDelegate,
+                               FcrCloudDriveCellDelegate {
     public func tableView(_ tableView: UITableView,
                           numberOfRowsInSection section: Int) -> Int {
         return dataSource.filteredFileList.count
     }
     
     public func tableView(_ tableView: UITableView,
-                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+                          cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: FcrCloudDriveCell.cellId,
                                                  for: indexPath) as! FcrCloudDriveCell
         
         let data = dataSource.filteredFileList[indexPath.row].viewData
         cell.iconImageView.image = data.image
         cell.nameLabel.text = data.name
+        cell.index = indexPath
+        cell.delegate = self
+//        cell.uploadProcessView.rotateView()
         
         return cell
     }
@@ -196,6 +209,18 @@ extension FcrCloudDriveWidget: UITableViewDataSource, UITableViewDelegate {
         let data = dataSource.filteredFileList[indexPath.row].originalData
         
         sendSelectedFileMessage(data: data)
+    }
+    
+    // Cell
+    func onSelected(_ index: IndexPath) {
+        if let last = selectedIndex,
+            last == index {
+            contentView.bottomView.state = .upload
+            selectedIndex = nil
+        } else {
+            contentView.bottomView.state = .delete
+            selectedIndex = index
+        }
     }
 }
 
@@ -222,6 +247,22 @@ private extension FcrCloudDriveWidget {
         vc.present(imagePicker,
                    animated: true)
     }
+    
+    @objc func onDeleteButtonPressed() {
+        guard let index = selectedIndex else {
+            return
+        }
+        
+        let cancel = AgoraAlertAction(title: "fcr_cloud_tips_delete_confirm_cancel_text".widgets_localized())
+        let delete = AgoraAlertAction(title: "fcr_cloud_tips_delete_confirm_ok_text".widgets_localized()) { [weak self] _ in
+            self?.deleteFile(index)
+        }
+        
+        showAlert(title: "fcr_cloud_tips_delete_confirm_title".widgets_localized(),
+                  contentList: ["fcr_cloud_tips_delete_confirm_content".widgets_localized()],
+                  actions: [cancel,
+                            delete])
+    }
 }
 
 extension FcrCloudDriveWidget: UIDocumentPickerDelegate,
@@ -247,6 +288,27 @@ extension FcrCloudDriveWidget: UIDocumentPickerDelegate,
     
     public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
+    }
+    
+    func deleteFile(_ index: IndexPath) {
+        let item = dataSource.privateFileList[index.row]
+        
+        let uuid = item.originalData.resourceUuid
+        
+        serverAPI?.requestDeleteResourceInUser(resourceUuid: uuid,
+                                               success: { [weak self] _ in
+            self?.contentView.listView.deleteRows(at: [index],
+                                                 with: .left)
+            
+            self?.dataSource.remove(type: .uiPrivate,
+                                    index: index.row)
+            
+            self?.selectedIndex = nil
+        }, failure: { [weak self] error in
+            // TODO: 删除失败的文案
+            self?.showToast(error.localizedDescription,
+                            type: .error)
+        })
     }
 }
 

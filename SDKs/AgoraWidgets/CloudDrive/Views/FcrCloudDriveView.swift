@@ -11,6 +11,7 @@ class FcrCloudDriveView: UIView {
     private(set) var topView = FcrCloudDriveTopView(frame: .zero)
     private(set) var listView = UITableView(frame: .zero)
     private(set) var bottomView = FcrCloudDriveBottomView(frame: .zero)
+    private let formatView = FcrCloudDriveFileFormatView(frame: .zero)
         
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -37,10 +38,19 @@ extension FcrCloudDriveView: AgoraUIContentContainer {
         addSubview(topView)
         addSubview(listView)
         addSubview(bottomView)
-        
+                
         bottomView.isHidden = true
+        formatView.isHidden = true
         
         layer.masksToBounds = true
+        
+        bottomView.questionButton.addTarget(self,
+                                            action: #selector(showFormatView),
+                                            for: .touchUpInside)
+        
+        formatView.closeButton.addTarget(self,
+                                         action: #selector(hideFormatView),
+                                         for: .touchUpInside)
     }
     
     func initViewFrame() {
@@ -68,5 +78,23 @@ extension FcrCloudDriveView: AgoraUIContentContainer {
         layer.masksToBounds = true
         
         bottomView.backgroundColor = FcrWidgetUIColorGroup.systemForegroundColor
+        
+        formatView.updateViewProperties()
+        formatView.backgroundColor = UIColor(red: 0,
+                                             green: 0,
+                                             blue: 0,
+                                             alpha: 0.5)
+    }
+    
+    @objc func showFormatView() {
+        let window = UIWindow.agora_top_window()
+        formatView.frame = window.bounds
+        window.addSubview(formatView)
+        formatView.isHidden = false
+    }
+    
+    @objc func hideFormatView() {
+        formatView.removeFromSuperview()
+        formatView.isHidden = true
     }
 }

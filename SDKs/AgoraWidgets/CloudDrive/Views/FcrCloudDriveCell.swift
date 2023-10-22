@@ -8,16 +8,109 @@
 import AgoraUIBaseViews
 import Masonry
 
+class FcrCloudDriveFileUploadProcessView: UIView,
+                                          AgoraUIContentContainer {
+    private let imageView = UIImageView(frame: .zero)
+    let label = UILabel(frame: .zero)
+    
+    private var isRotated = false
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        initViews()
+        initViewFrame()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func initViews() {
+        addSubview(imageView)
+        addSubview(label)
+        
+        label.font = FcrWidgetUIFontGroup.font10
+        
+        update(process: 0)
+    }
+    
+    func initViewFrame() {
+        imageView.mas_makeConstraints { make in
+            make?.left.centerY().equalTo()(0)
+            make?.width.height().equalTo()(12)
+        }
+        
+        label.mas_makeConstraints { make in
+            make?.left.equalTo()(imageView.mas_right)?.offset()(3)
+            make?.top.bottom().right().equalTo()(0)
+        }
+    }
+    
+    func updateViewProperties() {
+        label.textColor = FcrWidgetUIColorGroup.textLevel3Color
+        
+        imageView.image = UIImage.widgets_image("fcr_cloud_process")
+    }
+    
+    func update(process: Int) {
+        label.text = "\(process)%"
+    }
+    
+    func start() {
+        guard isRotated != true else {
+            return
+        }
+        
+        isRotated = true
+        
+        rotateView()
+    }
+    
+    func stop() {
+        isRotated = false
+    }
+    
+    private func rotateView() {
+        guard isRotated else {
+            return
+        }
+        
+        UIView.animate(withDuration: 1,
+                       delay: 0,
+                       options: .curveLinear) {
+            self.imageView.transform = self.imageView.transform.rotated(by: CGFloat(Double.pi))
+        } completion: { isFinish in
+            self.rotateView()
+        }
+    }
+}
+
+protocol FcrCloudDriveCellDelegate: NSObjectProtocol {
+    func onSelected(_ index: IndexPath)
+}
+
 class FcrCloudDriveCell: UITableViewCell {
-    static let cellId = "AgoraCloudCell"
+    static let cellId = "FcrCloudDriveCell"
+    
     let iconImageView = UIImageView(frame: .zero)
     let nameLabel = UILabel()
 
+    let uploadProcessView = FcrCloudDriveFileUploadProcessView(frame: .zero)
+    let selectedButton = UIButton(frame: .zero)
+    var index = IndexPath()
+    
+    var showType: FcrCloudDriveFileStateType = .notSelectable {
+        didSet {
+            updateView(with: showType)
+        }
+    }
+    
+    weak var delegate: FcrCloudDriveCellDelegate?
+    
     override init(style: UITableViewCell.CellStyle,
                   reuseIdentifier: String?) {
         super.init(style: style,
                    reuseIdentifier: reuseIdentifier)
-
         initViews()
         initViewFrame()
         updateViewProperties()
@@ -33,6 +126,12 @@ extension FcrCloudDriveCell: AgoraUIContentContainer {
     func initViews() {
         contentView.addSubview(nameLabel)
         contentView.addSubview(iconImageView)
+        contentView.addSubview(selectedButton)
+        contentView.addSubview(uploadProcessView)
+        
+        selectedButton.addTarget(self,
+                                 action: #selector(onSeletedButtonPressed(_:)),
+                                 for: .touchUpInside)
     }
     
     func initViewFrame() {
@@ -47,6 +146,17 @@ extension FcrCloudDriveCell: AgoraUIContentContainer {
             make?.top.bottom().equalTo()(self.contentView)
             make?.right.equalTo()(self.contentView)?.offset()(-10)
         }
+        
+        selectedButton.mas_makeConstraints { make in
+            make?.width.equalTo()(50)
+            make?.top.bottom().right().equalTo()(0)
+        }
+        
+        uploadProcessView.mas_makeConstraints { make in
+            make?.right.equalTo()(selectedButton.mas_right)
+            make?.bottom.top().equalTo()(0)
+            make?.width.equalTo()(12 + 57)
+        }
     }
     
     func updateViewProperties() {
@@ -55,5 +165,45 @@ extension FcrCloudDriveCell: AgoraUIContentContainer {
         
         nameLabel.textColor = config.label.color
         nameLabel.font = config.label.font
+        
+        uploadProcessView.updateViewProperties()
+        
+        updateView(with: showType)
+    }
+    
+    private func updateView(with showType: FcrCloudDriveFileStateType) {
+        switch showType {
+        case .notSelectable:
+            selectedButton.isHidden = true
+            uploadProcessView.isHidden = true
+            uploadProcessView.stop()
+            
+        case .selectable:
+            uploadProcessView.isHidden = true
+            uploadProcessView.stop()
+            
+            selectedButton.setImage(UIImage.widgets_image("fcr_cloud_selectable"),
+                                    for: .normal)
+            
+        case .isSelected(let isSelected):
+            uploadProcessView.isHidden = true
+            uploadProcessView.stop()
+            
+            selectedButton.isHidden = false
+            
+            let imageName = (isSelected ? "fcr_choosed" : "fcr_cloud_unselected")
+            
+            selectedButton.setImage(UIImage.widgets_image(imageName),
+                                    for: .normal)
+        case .uploading(let process):
+            selectedButton.isHidden = true
+            uploadProcessView.isHidden = false
+            uploadProcessView.start()
+            uploadProcessView.update(process: process)
+        }
+    }
+    
+    @objc func onSeletedButtonPressed(_ sender: UIButton) {
+        delegate?.onSelected(index)
     }
 }

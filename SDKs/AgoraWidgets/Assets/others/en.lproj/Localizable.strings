@@ -73,6 +73,7 @@ fcr_cloud_button_delete = "Delete";
 fcr_cloud_tips_delete_confirm_title = "Delete";
 fcr_cloud_tips_delete_confirm_content = "Are you sure to delete this file?";
 fcr_cloud_tips_delete_confirm_ok_text = "Delete";
+fcr_cloud_tips_delete_confirm_cancel_text = "Cancel";
 fcr_cloud_button_retry = "Update Again";
 fcr_cloud_upload_status_failed = "Failed";
 fcr_cloud_upload_status_done = "Done";

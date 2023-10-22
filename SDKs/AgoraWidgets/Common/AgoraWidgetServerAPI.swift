@@ -9,6 +9,7 @@ import Foundation
 import Armin
 
 public typealias SuccessCompletion = () -> ()
+public typealias StringCompletion = (String) -> ()
 public typealias JsonCompletion = ([String: Any]) -> ()
 public typealias JsonListCompletion = ([Dictionary<String, Any>]) -> ()
 public typealias FailureCompletion = (Error) -> ()

@@ -19,12 +19,18 @@ enum FcrCloudDriveFileViewType {
     }
 }
 
+enum FcrCloudDriveFileStateType {
+    case notSelectable, selectable, isSelected(Bool), uploading(Int)
+}
+
 struct FcrCloudDriveFileViewData {
     let image: UIImage?
     let name: String
+    var state: FcrCloudDriveFileStateType
     
     init(name: String,
-         ext: String) {
+         ext: String,
+         state: FcrCloudDriveFileStateType) {
         func getImage(with ext: String) -> UIImage? {
             let config = UIConfig.cloudStorage.cell.image
             
@@ -53,6 +59,7 @@ struct FcrCloudDriveFileViewData {
         
         self.name = name
         self.image = getImage(with: ext)
+        self.state = state
     }
 }
 

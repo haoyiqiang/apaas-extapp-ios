@@ -123,4 +123,31 @@ public class AgoraNativeWidget: AgoraBaseWidget, AgoraWidgetLogTube {
             failure?(error)
         }
     }
+    
+    public func showToast(_ message: String,
+                          type: AgoraToastType = .notice) {
+        AgoraToast.toast(message: message,
+                         type: type)
+    }
+    
+    public func showAlert(title: String = "",
+                          contentList: [String],
+                          actions: [AgoraAlertAction]) {
+        let vc = UIViewController.agora_top_view_controller()
+        
+        let alertController = AgoraAlert()
+        
+        alertController.backgroundColor = FcrWidgetUIColorGroup.systemComponentColor
+        alertController.lineColor = FcrWidgetUIColorGroup.systemDividerColor
+        alertController.shadowColor = FcrWidgetUIColorGroup.containerShadowColor.cgColor
+        alertController.titleColor = FcrWidgetUIColorGroup.textLevel1Color
+        alertController.buttonColor = FcrWidgetUIColorGroup.textEnabledColor
+        alertController.normalContentColor = FcrWidgetUIColorGroup.textLevel2Color
+        alertController.selectedContentColor = FcrWidgetUIColorGroup.textLevel1Color
+        
+        alertController.show(title: title,
+                             contentList: contentList,
+                             actions: actions,
+                             in: vc)
+    }
 }

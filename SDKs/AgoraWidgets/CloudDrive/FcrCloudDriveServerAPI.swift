@@ -40,4 +40,22 @@ class FcrCloudDriveServerAPI: AgoraWidgetServerAPI {
             failure(error)
         }
     }
+    
+    func requestDeleteResourceInUser(resourceUuid: String,
+                                     success: @escaping StringCompletion,
+                                     failure: @escaping FailureCompletion) {
+        let path = "/edu/apps/\(appId)/v3/users/\(userId)/resources"
+        let urlString = host + path
+        
+        var parameters: [String : Any] = ["resourceUuid" : resourceUuid]
+        
+        request(event: "cloud-drive-delete-file",
+                url: urlString,
+                method: .get,
+                parameters: parameters) { json in
+            success(resourceUuid)
+        } failure: { error in
+            failure(error)
+        }
+    }
 }

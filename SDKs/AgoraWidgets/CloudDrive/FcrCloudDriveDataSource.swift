@@ -28,7 +28,8 @@ class FcrCloudDriveDataSource: NSObject {
             }
             
             let viewData = FcrCloudDriveFileViewData(name: originalData.resourceName,
-                                                     ext: originalData.ext)
+                                                     ext: originalData.ext,
+                                                     state: .notSelectable)
             
             let file = FcrCloudDriveFileUnionData(viewData: viewData,
                                                   originalData: originalData)
@@ -44,7 +45,8 @@ class FcrCloudDriveDataSource: NSObject {
         
         for data in originalDataList {
             let viewData = FcrCloudDriveFileViewData(name: data.resourceName,
-                                                     ext: data.ext)
+                                                     ext: data.ext,
+                                                     state: .selectable)
             
             let file = FcrCloudDriveFileUnionData(viewData: viewData,
                                                   originalData: data)
@@ -53,6 +55,20 @@ class FcrCloudDriveDataSource: NSObject {
         }
         
         privateFileList = fileList
+    }
+    
+    func remove(type: FcrCloudDriveFileViewType,
+                index: Int) {
+        switch type {
+        case .uiPublic:
+            var list = privateFileList
+            list.remove(at: index)
+            self.privateFileList = list
+        case .uiPrivate:
+            var list = publicFileList
+            list.remove(at: index)
+            self.publicFileList = list
+        }
     }
     
     func filterFileList(with type: FcrCloudDriveFileViewType,

@@ -73,6 +73,7 @@ fcr_cloud_button_delete = "删除";
 fcr_cloud_tips_delete_confirm_title = "删除";
 fcr_cloud_tips_delete_confirm_content = "确认要删除文件吗？";
 fcr_cloud_tips_delete_confirm_ok_text = "删除";
+fcr_cloud_tips_delete_confirm_cancel_text = "取消";
 fcr_cloud_button_retry = "再次上传";
 fcr_cloud_upload_status_failed = "上传错误";
 fcr_cloud_upload_status_done = "已完成";
