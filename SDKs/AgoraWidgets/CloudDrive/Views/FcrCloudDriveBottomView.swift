@@ -8,6 +8,10 @@
 import AgoraUIBaseViews
 
 class FcrCloudDriveBottomButton: UIButton {
+    enum State {
+        case normal, uploading
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         
@@ -39,7 +43,6 @@ class FcrCloudDriveBottomButton: UIButton {
         
         imageView.frame = imageFrame
         
-        
         let textX = imageFrame.maxX + horizontalSpace
         let textY: CGFloat = 0
         
@@ -49,6 +52,10 @@ class FcrCloudDriveBottomButton: UIButton {
                                height: textHeight)
         
         label.frame = textFrame
+    }
+    
+    private func layout(with state: State) {
+        
     }
 }
 

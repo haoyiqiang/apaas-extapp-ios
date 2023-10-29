@@ -20,7 +20,22 @@ enum FcrCloudDriveFileViewType {
 }
 
 enum FcrCloudDriveFileStateType {
-    case notSelectable, selectable, isSelected(Bool), uploading(Int)
+    case notSelectable, selectable(convertUnsuccessfully: Bool), isSelected(isSelected: Bool, convertUnsuccessfully: Bool), converting(Int)
+    
+    var isConverting: Bool {
+        switch self {
+        case .converting: return true
+        default:          return false
+        }
+    }
+    
+    var hasConvertUnsuccessfully: Bool {
+        switch self {
+        case .isSelected(let _, let convertUnsuccessfully): return convertUnsuccessfully
+        case .selectable(let convertUnsuccessfully):        return convertUnsuccessfully
+        default:                                            return false
+        }
+    }
 }
 
 struct FcrCloudDriveFileViewData {

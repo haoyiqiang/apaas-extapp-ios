@@ -14,7 +14,9 @@ struct FcrCloudDriveFileUnionData {
 
 class FcrCloudDriveDataSource: NSObject {
     private(set) var publicFileList = [FcrCloudDriveFileUnionData]()
+    
     private(set) var privateFileList = [FcrCloudDriveFileUnionData]()
+    
     private(set) var filteredFileList = [FcrCloudDriveFileUnionData]()
     
     func createPublicFileList(with jsonStringList: [String]) {
@@ -40,13 +42,27 @@ class FcrCloudDriveDataSource: NSObject {
         publicFileList = fileList
     }
     
-    func createPrivateFileList(with originalDataList: [FcrCloudDriveFile]) {
+    func createPrivateFileList(with originalDataList: [FcrCloudDriveFile]) -> Bool {
         var fileList = [FcrCloudDriveFileUnionData]()
         
+        var hasConvertingFile = false
+        
         for data in originalDataList {
+            var state = FcrCloudDriveFileStateType.selectable(convertUnsuccessfully: false)
+            
+            if let progress = data.taskProgress {
+                
+                if let _ = progress.errorCode {
+                    state = .selectable(convertUnsuccessfully: true)
+                } else if progress.convertedPercentage != 100 {
+                    state = .converting(progress.convertedPercentage)
+                    hasConvertingFile = true
+                }
+            }
+            
             let viewData = FcrCloudDriveFileViewData(name: data.resourceName,
                                                      ext: data.ext,
-                                                     state: .selectable)
+                                                     state: state)
             
             let file = FcrCloudDriveFileUnionData(viewData: viewData,
                                                   originalData: data)
@@ -55,16 +71,61 @@ class FcrCloudDriveDataSource: NSObject {
         }
         
         privateFileList = fileList
+        
+        return hasConvertingFile
     }
     
-    func remove(type: FcrCloudDriveFileViewType,
-                index: Int) {
+    func updatePrivateFileListToSelectableState() {
+        var new = privateFileList
+        
+        for i in 0..<privateFileList.count {
+            var item = privateFileList[i]
+            
+            guard !item.viewData.state.isConverting else {
+                continue
+            }
+            
+            let unsuccessfully = item.viewData.state.hasConvertUnsuccessfully
+            
+            item.viewData.state = .selectable(convertUnsuccessfully: unsuccessfully)
+            
+            new[i] = item
+        }
+        
+        privateFileList = new
+    }
+    
+    func updateItemOfPrivateFileList(selectedState index: Int) {
+        var new = privateFileList
+        
+        for i in 0..<privateFileList.count {
+            var item = privateFileList[i]
+            
+            guard !item.viewData.state.isConverting else {
+                continue
+            }
+            
+            let isSelected = (i == index)
+            
+            let unsuccessfully = item.viewData.state.hasConvertUnsuccessfully
+            
+            item.viewData.state = .isSelected(isSelected: isSelected,
+                                              convertUnsuccessfully: unsuccessfully)
+            
+            new[i] = item
+        }
+        
+        privateFileList = new
+    }
+    
+    func removeItemOfFileList(type: FcrCloudDriveFileViewType,
+                              index: Int) {
         switch type {
-        case .uiPublic:
+        case .uiPrivate:
             var list = privateFileList
             list.remove(at: index)
             self.privateFileList = list
-        case .uiPrivate:
+        case .uiPublic:
             var list = publicFileList
             list.remove(at: index)
             self.publicFileList = list

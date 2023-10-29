@@ -15,7 +15,7 @@ struct FcrCloudDriveFile: Convertable {
     // 文件/文件夹 (如果是文件则为1，如果是文件夹则为0)
     let type: Int = 1
     // 文件大小
-    let size: Double
+    let size: Int64
     // 文件路径
     let url: String
     // 更新时间
@@ -42,27 +42,27 @@ struct FcrCloudDriveFile: Convertable {
 extension FcrCloudDriveFile {
     struct TaskProgress: Convertable {
         // task 状态，枚举：Waiting, Converting, Finished, Fail （v3/v4）
-        let status: String?
+        // let status: String?
         // 转换文档总页数（v3）
-        let totalPageSize: Int?
+        // let totalPageSize: Int?
         // 已经转换完成的页数（v3）
-        let convertedPageSize: Int?
+        // let convertedPageSize: Int?
         // 转换进度百分比（v3/v4）
         let convertedPercentage: Int
         // 当前转换任务步骤，只有 type == dynamic 时才有该字段（v3）
-        let currentStep: String?
+        // let currentStep: String?
         // 转换结果文件地址前缀路径（v3/v4）
         let prefix: String?
         // 文档页数，当文件转换失败时没有该字段（v3/v4）
-        let pageCount: Int?
+        // let pageCount: Int?
         // 转换文档详情（key：索引,value：url）（v4）
-        let previews: [String: String]?
+        // let previews: [String: String]?
         // 文档提取出的备注内容，只包含有备注的页面（v4）
-        let note: String?
+        // let note: String?
         // 错误码，当任务转换失败时会存在（v4）
         let errorCode: String?
         // 错误，当任务转换失败时会存在（v4）
-        let errorMessage: String?
+        // let errorMessage: String?
 
         // 转换结果列表（v3）
         let convertedFileList: [TaskProgressConvertedFile]?
@@ -75,7 +75,7 @@ extension FcrCloudDriveFile {
         let type: String
         let preview: Bool
         // 图片缩放比例
-        let scale: Float
+//        let scale: Float
         let canvasVersion: Bool?
         // 输出图片格式
         let outputFormat: String

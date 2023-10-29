@@ -95,6 +95,8 @@ class FcrCloudDriveCell: UITableViewCell {
     let iconImageView = UIImageView(frame: .zero)
     let nameLabel = UILabel()
 
+    let convertUnsuccessfullyLabel = UILabel()
+    
     let uploadProcessView = FcrCloudDriveFileUploadProcessView(frame: .zero)
     let selectedButton = UIButton(frame: .zero)
     var index = IndexPath()
@@ -127,6 +129,7 @@ extension FcrCloudDriveCell: AgoraUIContentContainer {
         contentView.addSubview(nameLabel)
         contentView.addSubview(iconImageView)
         contentView.addSubview(selectedButton)
+        contentView.addSubview(convertUnsuccessfullyLabel)
         contentView.addSubview(uploadProcessView)
         
         selectedButton.addTarget(self,
@@ -144,7 +147,7 @@ extension FcrCloudDriveCell: AgoraUIContentContainer {
         nameLabel.mas_makeConstraints { make in
             make?.left.equalTo()(self.iconImageView.mas_right)?.offset()(9)
             make?.top.bottom().equalTo()(self.contentView)
-            make?.right.equalTo()(self.contentView)?.offset()(-10)
+            make?.right.equalTo()(self.uploadProcessView.mas_left)?.offset()(-10)
         }
         
         selectedButton.mas_makeConstraints { make in
@@ -153,9 +156,15 @@ extension FcrCloudDriveCell: AgoraUIContentContainer {
         }
         
         uploadProcessView.mas_makeConstraints { make in
-            make?.right.equalTo()(selectedButton.mas_right)
+            make?.right.equalTo()(selectedButton.mas_right)?.offset()(-52)
             make?.bottom.top().equalTo()(0)
-            make?.width.equalTo()(12 + 57)
+            make?.width.equalTo()(12 + 30)
+        }
+        
+        convertUnsuccessfullyLabel.mas_makeConstraints { make in
+            make?.left.equalTo()(uploadProcessView.mas_left)
+            make?.top.bottom().equalTo()(0)
+            make?.right.equalTo()(selectedButton.mas_left)
         }
     }
     
@@ -168,6 +177,12 @@ extension FcrCloudDriveCell: AgoraUIContentContainer {
         
         uploadProcessView.updateViewProperties()
         
+        convertUnsuccessfullyLabel.text = "fcr_cloud_upload_status_failed".widgets_localized()
+        
+        convertUnsuccessfullyLabel.textColor = UIColor.create(hexString: "#F04C36")
+        
+        convertUnsuccessfullyLabel.font = FcrWidgetUIFontGroup.font10
+        
         updateView(with: showType)
     }
     
@@ -177,15 +192,14 @@ extension FcrCloudDriveCell: AgoraUIContentContainer {
             selectedButton.isHidden = true
             uploadProcessView.isHidden = true
             uploadProcessView.stop()
-            
-        case .selectable:
+        case .selectable(let convertUnsuccessfully):
+            selectedButton.isHidden = false
             uploadProcessView.isHidden = true
             uploadProcessView.stop()
             
             selectedButton.setImage(UIImage.widgets_image("fcr_cloud_selectable"),
                                     for: .normal)
-            
-        case .isSelected(let isSelected):
+        case .isSelected(let isSelected, let convertUnsuccessfully):
             uploadProcessView.isHidden = true
             uploadProcessView.stop()
             
@@ -195,12 +209,15 @@ extension FcrCloudDriveCell: AgoraUIContentContainer {
             
             selectedButton.setImage(UIImage.widgets_image(imageName),
                                     for: .normal)
-        case .uploading(let process):
+        case .converting(let process):
             selectedButton.isHidden = true
             uploadProcessView.isHidden = false
             uploadProcessView.start()
             uploadProcessView.update(process: process)
         }
+        
+        convertUnsuccessfullyLabel.isHidden = !showType.hasConvertUnsuccessfully
+        nameLabel.textColor = (showType.hasConvertUnsuccessfully ? FcrWidgetUIColorGroup.textDisabledColor : FcrWidgetUIColorGroup.textLevel1Color)
     }
     
     @objc func onSeletedButtonPressed(_ sender: UIButton) {

@@ -1,6 +1,6 @@
 //
-//  AgoraCloudWidget.swift
-//  AFNetworking
+//  FcrCloudDriveWidget.swift
+//  AgoraWidgets
 //
 //  Created by ZYP on 2021/10/20.
 //
@@ -19,6 +19,7 @@ import Darwin
     private var serverAPI: FcrCloudDriveServerAPI?
     
     private var selectedIndex: IndexPath?
+    private var isUpdatingConverting = false
     
     public override func onLoad() {
         super.onLoad()
@@ -43,7 +44,7 @@ import Darwin
                                            userId: info.localUserInfo.userUuid,
                                            logTube: self.logger)
         
-        createPrivateDataSource { [weak self] in
+        createPrivateDataSource { [weak self] _ in
             guard let contentView = self?.contentView else {
                 return
             }
@@ -109,15 +110,15 @@ private extension FcrCloudDriveWidget {
         dataSource.createPublicFileList(with: jsonArray)
     }
     
-    func createPrivateDataSource(success: (() -> ())? = nil,
+    func createPrivateDataSource(success: ((Bool) -> ())? = nil,
                                  failure: ((Error) -> ())? = nil) {
         fetchPrivateFileList { [weak self] object in
             guard let `self` = self else {
                 return
             }
             
-            self.dataSource.createPrivateFileList(with: object.list)
-            success?()
+            let hasConvertingFiles = self.dataSource.createPrivateFileList(with: object.list)
+            success?(hasConvertingFiles)
         } failure: { error in
             failure?(error)
         }
@@ -131,11 +132,35 @@ private extension FcrCloudDriveWidget {
         }
         
         serverApi.requestResourceInUser(pageNo: 1,
-                                        pageSize: 20,
+                                        pageSize: 100,
                                         resourceName: resourceName) { [weak self] (object) in
             success?(object)
         } failure: { [weak self](error) in
             failure?(error)
+        }
+    }
+    
+    func updateConvertingOfFileList() {
+        isUpdatingConverting = true
+        
+        createPrivateDataSource { [weak self] hasConvertingFiles in
+            guard let `self` = self else {
+                return
+            }
+            
+            if hasConvertingFiles {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+                    self?.updateConvertingOfFileList()
+                }
+            } else {
+                self.isUpdatingConverting = false
+            }
+            
+            self.dataSource.filterFileList(with: .uiPrivate)
+            self.contentView.topView.updateFileCount(self.dataSource.filteredFileList.count)
+            self.contentView.listView.reloadData()
+        } failure: { [weak self] _ in
+            self?.updateConvertingOfFileList()
         }
     }
 }
@@ -150,7 +175,7 @@ extension FcrCloudDriveWidget: FcrCloudDriveTopViewDelegate {
         
         contentView.listView.reloadData()
         
-        contentView.bottomView.isHidden = (type == .uiPublic)
+        contentView.hideBottomView((type == .uiPublic))
     }
     
     func onCloseButtonPressed() {
@@ -158,13 +183,14 @@ extension FcrCloudDriveWidget: FcrCloudDriveTopViewDelegate {
     }
     
     func onRefreshButtonPressed() {
+        contentView.bottomView.state = .upload
         contentView.listView.reloadData()
         
         guard contentView.topView.selectedType == .uiPrivate else {
             return
         }
         
-        createPrivateDataSource { [weak self] in
+        createPrivateDataSource { [weak self] _ in
             self?.contentView.listView.reloadData()
         }
     }
@@ -172,6 +198,8 @@ extension FcrCloudDriveWidget: FcrCloudDriveTopViewDelegate {
     func onSearched(content: String) {
         dataSource.filterFileList(with: contentView.topView.selectedType,
                                   keyWords: content)
+        
+        contentView.topView.updateFileCount(dataSource.filteredFileList.count)
         
         contentView.listView.reloadData()
     }
@@ -195,8 +223,8 @@ extension FcrCloudDriveWidget: UITableViewDataSource,
         cell.iconImageView.image = data.image
         cell.nameLabel.text = data.name
         cell.index = indexPath
+        cell.showType = data.state
         cell.delegate = self
-//        cell.uploadProcessView.rotateView()
         
         return cell
     }
@@ -217,9 +245,19 @@ extension FcrCloudDriveWidget: UITableViewDataSource,
             last == index {
             contentView.bottomView.state = .upload
             selectedIndex = nil
+            
+            dataSource.updatePrivateFileListToSelectableState()
+            dataSource.filterFileList(with: .uiPrivate)
+            contentView.topView.updateFileCount(dataSource.filteredFileList.count)
+            contentView.listView.reloadData()
         } else {
             contentView.bottomView.state = .delete
             selectedIndex = index
+            
+            dataSource.updateItemOfPrivateFileList(selectedState: index.row)
+            dataSource.filterFileList(with: .uiPrivate)
+            contentView.topView.updateFileCount(dataSource.filteredFileList.count)
+            contentView.listView.reloadData()
         }
     }
 }
@@ -270,24 +308,54 @@ extension FcrCloudDriveWidget: UIDocumentPickerDelegate,
                                UINavigationControllerDelegate {
     public func documentPicker(_ controller: UIDocumentPickerViewController,
                                didPickDocumentsAt urls: [URL]) {
+        guard let url = urls.first else {
+            return
+        }
         
-    }
-    
-    public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        controller.dismiss(animated: true)
         
+        uploadFile(url: url)
     }
     
     public func imagePickerController(_ picker: UIImagePickerController,
-                               didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        guard let image = info[.originalImage] as? UIImage else {
+                                      didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard #available(iOS 11.0, *) else {
             picker.dismiss(animated: true)
+            showToast("os version is too low")
             return
         }
+        
+        guard let url = info[.imageURL] as? URL else {
+            return
+        }
+        
         picker.dismiss(animated: true)
+        
+        uploadFile(url: url)
     }
     
-    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        picker.dismiss(animated: true)
+    func uploadFile(url: URL) {
+        AgoraLoading.loading(in: contentView)
+        
+        serverAPI?.uploadResourceInUser(fileURL: url,
+                                        success: { [weak self] in
+            guard let `self` = self else {
+                return
+            }
+            
+            AgoraLoading.hide()
+            
+            guard !self.isUpdatingConverting else {
+                return
+            }
+            
+            self.updateConvertingOfFileList()
+        }, failure: { [weak self] error in
+            AgoraLoading.hide()
+            
+            self?.log(content: "upload file unsuccessfully",
+                      type: .error)
+        })
     }
     
     func deleteFile(_ index: IndexPath) {
@@ -295,20 +363,35 @@ extension FcrCloudDriveWidget: UIDocumentPickerDelegate,
         
         let uuid = item.originalData.resourceUuid
         
-        serverAPI?.requestDeleteResourceInUser(resourceUuid: uuid,
-                                               success: { [weak self] _ in
-            self?.contentView.listView.deleteRows(at: [index],
-                                                 with: .left)
-            
-            self?.dataSource.remove(type: .uiPrivate,
-                                    index: index.row)
-            
-            self?.selectedIndex = nil
+        serverAPI?.deleteResourceInUser(resourceUuid: uuid,
+                                        success: { [weak self] _ in
+            self?.removeFile(type: .uiPrivate,
+                             index: index)
         }, failure: { [weak self] error in
+            self?.removeFile(type: .uiPrivate,
+                             index: index)
+            
             // TODO: 删除失败的文案
             self?.showToast(error.localizedDescription,
                             type: .error)
         })
+    }
+    
+    func removeFile(type: FcrCloudDriveFileViewType,
+                    index: IndexPath) {
+        dataSource.removeItemOfFileList(type: type,
+                                        index: index.row)
+        dataSource.updatePrivateFileListToSelectableState()
+        
+        dataSource.filterFileList(with: type)
+        
+        contentView.topView.updateFileCount(dataSource.filteredFileList.count)
+        
+        contentView.bottomView.state = .upload
+        
+        contentView.listView.reloadData()
+        
+        selectedIndex = nil
     }
 }
 

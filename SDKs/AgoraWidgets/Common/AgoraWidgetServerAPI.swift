@@ -80,4 +80,193 @@ public class AgoraWidgetServerAPI: NSObject {
                       success: response,
                       failRetry: failureRetry)
     }
+    
+    func request(event: String,
+                 url: String,
+                 method: ArHttpMethod,
+                 header: [String: String]? = nil,
+                 parameters: Any? = nil,
+                 success: JsonCompletion? = nil,
+                 failure: FailureCompletion? = nil) {
+        var extra: [String: Any] = ["event": event]
+        
+        if let `header` = header {
+            extra["header"] = header.description
+        }
+        
+        if let `parameters` = parameters  {
+            extra["parameters"] = parameters
+        }
+        
+        self.armin.logTube?.log(info: "http request",
+                                extra: extra.description)
+        
+        // 创建一个 URL 对象
+        let urlObj = URL(string: url)!
+
+        // 创建一个 URLRequest 对象
+        var request = URLRequest(url: urlObj)
+        
+        switch method {
+        case .post:   request.httpMethod = "POST"
+        case .delete: request.httpMethod = "DELETE"
+        default:      fatalError()
+        }
+        
+        // Parameters
+        if let params = parameters {
+            let jsonData = try? JSONSerialization.data(withJSONObject: params)
+            request.httpBody = jsonData
+        }
+        
+        request.allHTTPHeaderFields = ["x-agora-token": token,
+                                       "x-agora-uid": userId,
+                                       "Authorization": "agora token=\"\(token)\"",
+                                       "Content-Type": "application/json"]
+        
+        // 创建一个 URLsession 对象
+        let session = URLSession.shared
+
+        // 发送请求（异步）
+        let task = session.dataTask(with: request) { [weak self] (data, response, error) in
+            if let error = error {
+                let nsError = error as NSError
+                let arError = ArError.fail("response code error",
+                                           code: nsError.code)
+                
+                self?.armin.logTube?.log(error: arError,
+                                         extra: "event: \(event), message: \(error.localizedDescription)")
+                
+                
+                DispatchQueue.main.async {
+                    failure?(error)
+                }
+                
+                return
+            }
+            
+            guard let data = data else {
+                let error = NSError(domain: "http request",
+                                    code: -1,
+                                    userInfo: ["message": "http data is nil"])
+                
+                let arError = ArError.fail("http request error",
+                                           code: error.code)
+                
+                self?.armin.logTube?.log(error: arError,
+                                         extra: "event: \(event), message: \(error.localizedDescription)")
+                
+                DispatchQueue.main.async {
+                    failure?(error)
+                }
+                
+                return
+            }
+            
+            do {
+                let responseData = try JSONSerialization.jsonObject(with: data,
+                                                                    options: [])
+                
+                let json = responseData as! [String: Any]
+                
+                self?.armin.logTube?.log(info: "request success",
+                                         extra: "event: \(event), message: \(json)")
+                
+                DispatchQueue.main.async {
+                    success?(json)
+                }
+            } catch let error {
+                let error = NSError(domain: "http request",
+                                    code: -1,
+                                    userInfo: ["message": "invalid json"])
+                
+                let arError = ArError.fail("http request error",
+                                           code: error.code)
+                
+                self?.armin.logTube?.log(error: arError,
+                                         extra: "event: \(event), message: \(error.localizedDescription)")
+                
+                DispatchQueue.main.async {
+                    failure?(error)
+                }
+            }
+        }
+
+        // 启动任务
+        task.resume()
+    }
+    
+    func uploadFileStream(to url: String,
+                          fileUrl: URL,
+                          event: String,
+                          success: SuccessCompletion? = nil,
+                          failure: FailureCompletion? = nil) {
+        let urlObj = URL(string: url)!
+        
+        var request = URLRequest(url: urlObj)
+        request.httpMethod = "PUT"
+//        request.value(forHTTPHeaderField: "Content-Type") = "application/octet-stream"
+        
+        let session = URLSession.shared
+        
+        let task = session.uploadTask(with: request,
+                                      fromFile: fileUrl) { [weak self] (data, response, error) in
+            if let error = error {
+                let nsError = error as NSError
+                let arError = ArError.fail("response code error",
+                                           code: nsError.code)
+                
+                self?.armin.logTube?.log(error: arError,
+                                         extra: "event: \(event), message: \(error.localizedDescription)")
+                
+                DispatchQueue.main.async {
+                    failure?(error)
+                }
+                
+                return
+            }
+            
+            guard let response = response as? HTTPURLResponse else {
+                let error = NSError(domain: "Invalid response",
+                                    code: -1)
+                
+                let arError = ArError.fail("Invalid response",
+                                           code: -1)
+                
+                self?.armin.logTube?.log(error: arError,
+                                         extra: "event: \(event)")
+                
+                DispatchQueue.main.async {
+                    failure?(error)
+                }
+                
+                return
+            }
+            
+            if response.statusCode == 200 {
+                self?.armin.logTube?.log(info: "request success",
+                                         extra: "event: \(event)")
+                
+                DispatchQueue.main.async {
+                    success?()
+                }
+            } else {
+                let error = NSError(domain: "http request",
+                                    code: -1,
+                                    userInfo: ["message": "upload stream file failled with code: \(response.statusCode)"])
+                
+                let arError = ArError.fail("http request",
+                                           code: -1)
+                
+                self?.armin.logTube?.log(error: arError,
+                                         extra: "event: \(event), message: upload stream file failled with code: \(response.statusCode)")
+                
+                DispatchQueue.main.async {
+                    failure?(error)
+                }
+            }
+        }
+
+        task.resume()
+    }
 }
