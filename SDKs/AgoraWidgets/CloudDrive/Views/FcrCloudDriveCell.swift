@@ -53,7 +53,8 @@ class FcrCloudDriveFileUploadProcessView: UIView,
     }
     
     func update(process: Int) {
-        label.text = "\(process)%"
+        let convert = "fcr_cloud_button_label_converting".widgets_localized()
+        label.text = "\(convert) \(process)%"
     }
     
     func start() {
@@ -156,9 +157,9 @@ extension FcrCloudDriveCell: AgoraUIContentContainer {
         }
         
         uploadProcessView.mas_makeConstraints { make in
-            make?.right.equalTo()(selectedButton.mas_right)?.offset()(-52)
+            make?.left.equalTo()(contentView.mas_right)?.offset()(-120)
             make?.bottom.top().equalTo()(0)
-            make?.width.equalTo()(12 + 30)
+            make?.width.equalTo()(12 + 100)
         }
         
         convertUnsuccessfullyLabel.mas_makeConstraints { make in

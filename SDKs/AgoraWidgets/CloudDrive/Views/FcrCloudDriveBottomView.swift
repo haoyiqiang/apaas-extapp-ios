@@ -7,9 +7,31 @@
 
 import AgoraUIBaseViews
 
-class FcrCloudDriveBottomButton: UIButton {
+class FcrCloudDriveBottomButton: UIButton,
+                                 AgoraUIContentContainer {
     enum State {
         case normal, uploading
+    }
+    
+    var cusState: State = .normal {
+        didSet {
+            layoutSubviews()
+        }
+    }
+    
+    private let uploadingImageView = UIImageView(frame: .zero)
+    
+    private var isRotated = false
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        initViews()
+        initViewFrame()
+        updateViewProperties()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     override func layoutSubviews() {
@@ -22,13 +44,103 @@ class FcrCloudDriveBottomButton: UIButton {
             return
         }
         
+        layout(with: cusState,
+               imageView: imageView,
+               titleLabel: label,
+               text: text)
+    }
+    
+    func initViews() {
+        addSubview(uploadingImageView)
+    }
+    
+    func initViewFrame() {
+        
+    }
+    
+    func updateViewProperties() {
+        uploadingImageView.image = UIImage.widgets_image("fcr_cloud_process")
+    }
+    
+    private func layout(with state: State,
+                        imageView: UIImageView,
+                        titleLabel: UILabel,
+                        text: String) {
+        switch state {
+        case .normal:
+            stop()
+            layoutWithoutUploading(imageView: imageView,
+                                   titleLabel: titleLabel,
+                                   text: text)
+        case .uploading:
+            start()
+            layoutWithUploading(imageView: imageView,
+                                titleLabel: titleLabel,
+                                text: text)
+        }
+    }
+    
+    private func layoutWithUploading(imageView: UIImageView,
+                                     titleLabel: UILabel,
+                                     text: String) {
+        let imageWidth: CGFloat = 20
+        let imageHeight: CGFloat = 20
+        
+        let horizontalSpace: CGFloat = 6
+        
+        let uploadingWidth: CGFloat = 12
+        let uploadingHeight: CGFloat = 12
+        
+        let textHeight = bounds.height
+        let textWidth = text.agora_size(font: titleLabel.font,
+                                        height: textHeight).width
+        
+        let contentWidth = (imageWidth + horizontalSpace + textWidth + uploadingWidth)
+        
+        // ImageView
+        let imageX = (bounds.width - contentWidth) * 0.5
+        let imageY = (bounds.height - imageHeight) * 0.5
+        
+        let imageFrame = CGRect(x: imageX,
+                                y: imageY,
+                                width: imageWidth,
+                                height: imageHeight)
+        
+        imageView.frame = imageFrame
+        
+        // Title Label
+        let textX = imageFrame.maxX + horizontalSpace
+        let textY: CGFloat = 0
+        
+        let textFrame = CGRect(x: textX,
+                               y: textY,
+                               width: textWidth,
+                               height: textHeight)
+        
+        titleLabel.frame = textFrame
+        
+        // Uploading
+        let uploadingX = textFrame.maxX + horizontalSpace
+        let uploadingY = (bounds.height - uploadingHeight) * 0.5
+        
+        let uploadingFrame = CGRect(x: uploadingX,
+                                    y: uploadingY,
+                                    width: uploadingWidth,
+                                    height: uploadingHeight)
+        
+        uploadingImageView.frame = uploadingFrame
+    }
+    
+    private func layoutWithoutUploading(imageView: UIImageView,
+                                        titleLabel: UILabel,
+                                        text: String) {
         let imageWidth: CGFloat = 20
         let imageHeight: CGFloat = 20
         
         let horizontalSpace: CGFloat = 6
         
         let textHeight = bounds.height
-        let textWidth = text.agora_size(font: label.font,
+        let textWidth = text.agora_size(font: titleLabel.font,
                                         height: textHeight).width
         
         let contentWidth = (imageWidth + horizontalSpace + textWidth)
@@ -51,11 +163,39 @@ class FcrCloudDriveBottomButton: UIButton {
                                width: textWidth,
                                height: textHeight)
         
-        label.frame = textFrame
+        titleLabel.frame = textFrame
     }
     
-    private func layout(with state: State) {
+    func start() {
+        guard isRotated != true else {
+            return
+        }
         
+        isRotated = true
+        
+        uploadingImageView.isHidden = false
+        
+        rotateView()
+    }
+    
+    func stop() {
+        isRotated = false
+        
+        uploadingImageView.isHidden = true
+    }
+    
+    private func rotateView() {
+        guard isRotated else {
+            return
+        }
+        
+        UIView.animate(withDuration: 1,
+                       delay: 0,
+                       options: .curveLinear) {
+            self.uploadingImageView.transform = self.uploadingImageView.transform.rotated(by: CGFloat(Double.pi))
+        } completion: { isFinish in
+            self.rotateView()
+        }
     }
 }
 

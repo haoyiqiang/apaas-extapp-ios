@@ -21,6 +21,18 @@ import Darwin
     private var selectedIndex: IndexPath?
     private var isUpdatingConverting = false
     
+    private var uploadFileCount = 0 {
+        didSet {
+            contentView.bottomView.uploadFileButton.cusState = ((uploadFileCount == 0) ? .normal : .uploading)
+        }
+    }
+    
+    private var uploadImageCount = 0 {
+        didSet {
+            contentView.bottomView.uploadImageButton.cusState = ((uploadFileCount == 0) ? .normal : .uploading)
+        }
+    }
+    
     public override func onLoad() {
         super.onLoad()
         initViews()
@@ -314,7 +326,13 @@ extension FcrCloudDriveWidget: UIDocumentPickerDelegate,
         
         controller.dismiss(animated: true)
         
-        uploadFile(url: url)
+        uploadFileCount += 1
+        
+        uploadFile(url: url) { [weak self] in
+            self?.uploadFileCount -= 1
+        } failure: { [weak self] _ in
+            self?.uploadFileCount -= 1
+        }
     }
     
     public func imagePickerController(_ picker: UIImagePickerController,
@@ -331,30 +349,36 @@ extension FcrCloudDriveWidget: UIDocumentPickerDelegate,
         
         picker.dismiss(animated: true)
         
-        uploadFile(url: url)
+        uploadImageCount += 1
+        
+        uploadFile(url: url) { [weak self] in
+            self?.uploadImageCount -= 1
+        } failure: { [weak self] _ in
+            self?.uploadImageCount -= 1
+        }
     }
     
-    func uploadFile(url: URL) {
-        AgoraLoading.loading(in: contentView)
-        
+    func uploadFile(url: URL,
+                    success: @escaping SuccessCompletion,
+                    failure: @escaping FailureCompletion) {
         serverAPI?.uploadResourceInUser(fileURL: url,
                                         success: { [weak self] in
             guard let `self` = self else {
                 return
             }
             
-            AgoraLoading.hide()
-            
             guard !self.isUpdatingConverting else {
                 return
             }
             
+            success()
+            
             self.updateConvertingOfFileList()
         }, failure: { [weak self] error in
-            AgoraLoading.hide()
-            
             self?.log(content: "upload file unsuccessfully",
                       type: .error)
+            
+            failure(error)
         })
     }
     
