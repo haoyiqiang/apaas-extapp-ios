@@ -150,7 +150,7 @@ class FcrCloudDriveServerAPI: AgoraWidgetServerAPI {
                                          "parentResourceUuid": "root",
                                          "type": "\(fileType)"]
         
-        if needTranslation(ext: ext) {
+        if ifNeedConverting(ext: ext) {
             let conversion: [String: Any] = ["type": "dynamic",
                                              "preview": true,
                                              "scale": 1.2,
@@ -169,9 +169,9 @@ class FcrCloudDriveServerAPI: AgoraWidgetServerAPI {
         }, failure: failure)
     }
     
-    private func needTranslation(ext: String) -> Bool {
+    private func ifNeedConverting(ext: String) -> Bool {
         switch ext {
-        case "ppt", "pptx", "doc":
+        case "ppt", "pptx", "doc", "docx":
             return true
         default:
             return false
