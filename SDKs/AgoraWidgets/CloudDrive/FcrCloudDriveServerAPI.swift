@@ -70,11 +70,11 @@ class FcrCloudDriveServerAPI: AgoraWidgetServerAPI {
         
         let fileURLString = fileURL.absoluteString
         
-        guard let ext = fileURLString.split(separator: ".").last else {
+        guard let name = fileURLString.split(separator: "/").last?.removingPercentEncoding?.lowercased() else {
             return
         }
         
-        guard let name = fileURLString.split(separator: "/").last else {
+        guard let ext = name.split(separator: ".").last else {
             return
         }
         
@@ -151,7 +151,9 @@ class FcrCloudDriveServerAPI: AgoraWidgetServerAPI {
                                          "type": "\(fileType)"]
         
         if ifNeedConverting(ext: ext) {
-            let conversion: [String: Any] = ["type": "dynamic",
+            let type = (ifSupportDynamicConverting(ext: ext) ? "dynamic" : "static")
+            
+            let conversion: [String: Any] = ["type": type,
                                              "preview": true,
                                              "scale": 1.2,
                                              "outputFormat": "png"]
@@ -171,7 +173,16 @@ class FcrCloudDriveServerAPI: AgoraWidgetServerAPI {
     
     private func ifNeedConverting(ext: String) -> Bool {
         switch ext {
-        case "ppt", "pptx", "doc", "docx":
+        case "ppt", "pptx", "doc", "docx", "pdf":
+            return true
+        default:
+            return false
+        }
+    }
+    
+    private func ifSupportDynamicConverting(ext: String) -> Bool {
+        switch ext {
+        case "pptx":
             return true
         default:
             return false

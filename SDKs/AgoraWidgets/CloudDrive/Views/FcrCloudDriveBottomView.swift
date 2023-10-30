@@ -312,7 +312,7 @@ class FcrCloudDriveBottomView: UIView, AgoraUIContentContainer {
         deleteButton.setImage(UIImage.widgets_image("cloud_delete"),
                               for: .normal)
         
-        deleteButton.setTitle("delete",
+        deleteButton.setTitle("fcr_cloud_button_delete".widgets_localized(),
                               for: .normal)
         
         deleteButton.setTitleColor(FcrWidgetUIColorGroup.textLevel1Color,
