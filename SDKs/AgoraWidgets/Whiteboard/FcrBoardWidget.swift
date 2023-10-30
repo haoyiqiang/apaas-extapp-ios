@@ -133,7 +133,7 @@ private extension FcrBoardWidget {
             let mediaConfig = FcrBoardMediaSubWindowConfig(resourceUrl: file.url,
                                                            title: file.resourceName)
             mainWindow?.createMediaSubWindow(config: mediaConfig)
-        case "png", "jpg":
+        case "png", "jpg", "jpeg":
             getImageFrame(url: file.url) { [weak self] (frame) in
                 guard let `self` = self else {
                     return
