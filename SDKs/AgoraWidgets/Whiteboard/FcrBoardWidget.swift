@@ -140,7 +140,7 @@ private extension FcrBoardWidget {
                 }
                 
                 self.mainWindow?.insertImage(resourceUrl: file.url,
-                                              frame: frame)
+                                             frame: frame)
             }
         default:
             if let config = file.createSubWindowConfig() {
