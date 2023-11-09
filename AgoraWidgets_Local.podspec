@@ -24,9 +24,10 @@ Pod::Spec.new do |spec|
 
   spec.dependency "SwifterSwift"
   spec.dependency "Masonry"
+  spec.dependency "AgoraRtcEngine_Special_iOS", '>=3.7.2.129'
   
   # Netless
-  spec.dependency "Whiteboard"
+  spec.dependency "Whiteboard", "2.16.78"
   
   # Hyphenate
   spec.dependency "Agora_Chat_iOS", "1.0.6"

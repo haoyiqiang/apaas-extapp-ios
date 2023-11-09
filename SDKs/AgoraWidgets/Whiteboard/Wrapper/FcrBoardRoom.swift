@@ -42,7 +42,7 @@ class FcrBoardRoom: NSObject {
         let whiteSDK = WhiteSDK(whiteBoardView: whiteView,
                                 config: sdkConfig,
                                 commonCallbackDelegate: listener,
-                                audioMixerBridgeDelegate: listener)
+                                effectMixerBridgeDelegate: listener)
         
         self.whiteView = whiteView
         self.whiteSDK = whiteSDK
