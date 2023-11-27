@@ -13,6 +13,7 @@ class FcrBoardListener: NSObject {
     weak var roomNeedObserve: FcrBoardRoomNeedObserve?
     weak var mainWindowNeedObserve: FcrBoardMainWindowNeedObserve?
     weak var rtc: AgoraRtcEngineKit!
+    weak var effectMixer: WhiteAudioEffectMixerBridge?
     
     override init() {
         super.init()
@@ -21,6 +22,20 @@ class FcrBoardListener: NSObject {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(getRtcObject(_:)),
                                                name: getRtc,
+                                               object: nil)
+        
+        let audioFileInfo = Notification.Name(rawValue: "rtc.engine.audio.file.info")
+
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(rtcAudioFileInfo(_:)),
+                                               name: audioFileInfo,
+                                               object: nil)
+
+        let audioEffectState = Notification.Name(rawValue: "rtc.engine.audio.effect.state")
+
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(rtcAudioEffectStateChanged(_:)),
+                                               name: audioEffectState,
                                                object: nil)
         
         let needRtc = Notification(name: Notification.Name(rawValue: "need.rtc.engine.object"))
@@ -34,6 +49,27 @@ class FcrBoardListener: NSObject {
     
     @objc func getRtcObject(_ notification: Notification) {
         rtc = notification.object as? AgoraRtcEngineKit
+    }
+    
+    @objc func rtcAudioFileInfo(_ notification: Notification) {
+        guard let object = notification.object as? [String: Any],
+              let info = object["info"] as? AgoraRtcAudioFileInfo else {
+            return
+        }
+        
+        effectMixer?.setEffectDurationUpdate(info.filePath,
+                                             duration: Int(info.durationMs))
+    }
+    
+    @objc func rtcAudioEffectStateChanged(_ notification: Notification) {
+        guard let object = notification.object as? [String: Any],
+              let soundId = object["soundId"] as? Int,
+              let state = object["state"] as? Int else {
+            return
+        }
+        
+        effectMixer?.setEffectSoundId(soundId,
+                                      stateChanged: state)
     }
 }
 
@@ -169,5 +205,9 @@ extension FcrBoardListener: WhiteAudioEffectMixerBridgeDelegate {
 
     func getEffectCurrentPosition(_ soundId: Int32) -> Int32 {
         return rtc.getEffectCurrentPosition(soundId)
+    }
+    
+    func getEffectDuration(_ filePath: String) -> Int32 {
+        return rtc.getEffectDuration(filePath)
     }
 }

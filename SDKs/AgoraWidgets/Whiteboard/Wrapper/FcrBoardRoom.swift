@@ -52,6 +52,7 @@ class FcrBoardRoom: NSObject {
         super.init()
         
         listener.roomNeedObserve = self
+        listener.effectMixer = whiteSDK.effectMixer
         
         registerH5App()
         
