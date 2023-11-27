@@ -8,6 +8,7 @@
   # agora libs
   pod 'Whiteboard', '2.16.45'
   pod 'Agora_Chat_iOS', '1.0.6'
+  pod 'AgoraRtcEngine_Special_iOS', '3.7.2.129'
   
   # close source libs
   pod 'AgoraUIBaseViews/Source', :path => '../../../../apaas-common-libs-ios/AgoraUIBaseViews_Local.podspec'
