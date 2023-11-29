@@ -20,7 +20,11 @@ class FcrBoardRoom: NSObject {
     private var mainWindow: FcrBoardMainWindow?
     
     weak var delegate: FcrBoardRoomDelegate?
-    weak var logTube: FcrBoardLogTube?
+    weak var logTube: FcrBoardLogTube? {
+        didSet {
+            listener.logTube = logTube
+        }
+    }
     
     init(appId: String,
          region: FcrBoardRegion,
@@ -38,6 +42,7 @@ class FcrBoardRoom: NSObject {
         sdkConfig.region = region.netlessValue
         sdkConfig.useMultiViews = true
         sdkConfig.userCursor = true
+        sdkConfig.log = true
         
         let whiteSDK = WhiteSDK(whiteBoardView: whiteView,
                                 config: sdkConfig,

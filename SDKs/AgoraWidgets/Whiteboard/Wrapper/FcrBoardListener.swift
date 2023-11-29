@@ -14,6 +14,7 @@ class FcrBoardListener: NSObject {
     weak var mainWindowNeedObserve: FcrBoardMainWindowNeedObserve?
     weak var rtc: AgoraRtcEngineKit!
     weak var effectMixer: WhiteAudioEffectMixerBridge?
+    weak var logTube: FcrBoardLogTube?
     
     override init() {
         super.init()
@@ -57,6 +58,10 @@ class FcrBoardListener: NSObject {
             return
         }
         
+        log(content: #function,
+            extra: "filePath: \(info.filePath), durationMs: \(info.durationMs)",
+            type: .info)
+        
         effectMixer?.setEffectDurationUpdate(info.filePath,
                                              duration: Int(info.durationMs))
     }
@@ -68,8 +73,34 @@ class FcrBoardListener: NSObject {
             return
         }
         
+        log(content: #function,
+            extra: "soundId: \(soundId), state: \(state)",
+            type: .info)
+        
         effectMixer?.setEffectSoundId(soundId,
                                       stateChanged: state)
+    }
+    
+    func log(content: String,
+             extra: String? = nil,
+             type: FcrBoardLogType,
+             fromClass: AnyClass? = nil,
+             funcName: String = #function,
+             line: Int = #line) {
+        var classType: AnyClass
+        
+        if let `fromClass` = fromClass {
+            classType = fromClass
+        } else {
+            classType = self.classForCoder
+        }
+        
+        logTube?.onBoardLog(content: content,
+                            extra: extra,
+                            type: type,
+                            fromClass: classType,
+                            funcName: funcName,
+                            line: line)
     }
 }
 
@@ -135,14 +166,29 @@ extension FcrBoardListener: WhiteAudioMixerBridgeDelegate {
 
 extension FcrBoardListener: WhiteAudioEffectMixerBridgeDelegate {
     func getEffectsVolume() -> Double {
+        log(content: #function,
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
         return rtc.getEffectsVolume();
     }
     
     func setEffectsVolume(_ volume: Double) -> Int32 {
+        log(content: #function,
+            extra: "volume: \(volume)",
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
         return rtc.setEffectsVolume(volume)
     }
    
-    func setVolumeOfEffect(_ soundId: Int32, withVolume volume: Double) -> Int32 {
+    func setVolumeOfEffect(_ soundId: Int32,
+                           withVolume volume: Double) -> Int32 {
+        log(content: #function,
+            extra: "soundId: \(soundId), volume: \(volume)",
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
         return rtc.setVolumeOfEffect(soundId,
                                      withVolume: volume)
     }
@@ -155,6 +201,13 @@ extension FcrBoardListener: WhiteAudioEffectMixerBridgeDelegate {
                     gain: Double,
                     publish: Bool,
                     startPos: Int32) -> Int32 {
+        let extra = "soundId: \(soundId), filePath: \(filePath), loopCount: \(loopCount), pitch: \(pitch), pan: \(pan), gain: \(gain), publish: \(publish), startPos: \(startPos)"
+        
+        log(content: #function,
+            extra: extra,
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
         return rtc.playEffect(soundId,
                               filePath: filePath,
                               loopCount: loopCount,
@@ -166,48 +219,101 @@ extension FcrBoardListener: WhiteAudioEffectMixerBridgeDelegate {
     }
 
     func stopEffect(_ soundId: Int32) -> Int32 {
+        log(content: #function,
+            extra: "soundId: \(soundId)",
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
         return rtc.stopEffect(soundId);
     }
     
     func stopAllEffects() -> Int32 {
+        log(content: #function,
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
         return rtc.stopAllEffects()
     }
     
-    func preloadEffect(_ soundId: Int32, filePath: String?) -> Int32 {
-        return rtc.preloadEffect(soundId, filePath: filePath)
+    func preloadEffect(_ soundId: Int32,
+                       filePath: String?) -> Int32 {
+        log(content: #function,
+            extra: "soundId: \(soundId), filePath: \(filePath ?? "")",
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
+        return rtc.preloadEffect(soundId,
+                                 filePath: filePath)
     }
 
     func unloadEffect(_ soundId: Int32) -> Int32 {
+        log(content: #function,
+            extra: "soundId: \(soundId)",
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
         return rtc.unloadEffect(soundId)
     }
     
     func pauseEffect(_ soundId: Int32) -> Int32 {
+        log(content: #function,
+            extra: "soundId: \(soundId)",
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
         return rtc.pauseEffect(soundId)
     }
         
     func pauseAllEffects() -> Int32 {
+        log(content: #function,
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
         return rtc.pauseAllEffects()
     }
 
     func resumeEffect(_ soundId: Int32) -> Int32 {
+        log(content: #function,
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
         return rtc.resumeEffect(soundId)
     }
 
     func resumeAllEffects() -> Int32 {
+        log(content: #function,
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
         return rtc.resumeAllEffects()
     }
     
     func setEffectPosition(_ soundId: Int32,
                            pos: Int) -> Int32 {
+        log(content: #function,
+            extra: "soundId: \(soundId), pos: \(pos)",
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
         return rtc.setEffectPosition(soundId,
                                      pos: pos)
     }
 
     func getEffectCurrentPosition(_ soundId: Int32) -> Int32 {
+//        log(content: #function,
+//            extra: "soundId: \(soundId)",
+//            type: .info,
+//            fromClass: WhiteSDK.self)
+        
         return rtc.getEffectCurrentPosition(soundId)
     }
     
     func getEffectDuration(_ filePath: String) -> Int32 {
+        log(content: #function,
+            extra: "filePath: \(filePath)",
+            type: .info,
+            fromClass: WhiteSDK.self)
+        
         return rtc.getEffectDuration(filePath)
     }
 }
