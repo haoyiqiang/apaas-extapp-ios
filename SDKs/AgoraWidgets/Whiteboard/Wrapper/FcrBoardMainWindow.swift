@@ -706,7 +706,7 @@ extension FcrBoardMainWindow {
         
         memberState.currentApplianceName = .ApplianceText
         memberState.strokeColor = color.toNetlessValue
-        memberState.strokeWidth = NSNumber.init(value: fontSize)
+        memberState.textSize = NSNumber.init(value: fontSize)
         whiteRoom.setMemberState(memberState)
         
         extra = ["memberState": memberState.agDescription]
