@@ -56,7 +56,6 @@ class AgoraChatAnnouncementView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 }
 
 // MARK: - AgoraUIContentContainer
@@ -129,6 +128,7 @@ extension AgoraChatAnnouncementView: AgoraUIContentContainer {
             make?.left.equalTo()(13)
             make?.top.equalTo()(13)
             make?.width.height().lessThanOrEqualTo()(self)?.offset()(-14)
+            make?.bottom.lessThanOrEqualTo()(self)?.offset()(-34)
         }
         
         deleteButton.mas_makeConstraints { make in
