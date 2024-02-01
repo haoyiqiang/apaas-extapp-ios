@@ -257,6 +257,11 @@ extension AgoraChatAnnouncementView: UITextViewDelegate {
         return false
     }
     
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
     func textViewDidEndEditing(_ textView: UITextView) {
         inputTextView.resignFirstResponder()
     }
