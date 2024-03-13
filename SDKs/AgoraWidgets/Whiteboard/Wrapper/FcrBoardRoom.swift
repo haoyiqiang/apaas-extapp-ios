@@ -24,7 +24,8 @@ class FcrBoardRoom: NSObject {
     
     init(appId: String,
          region: FcrBoardRegion,
-         backgroundColor: UIColor?) {
+         backgroundColor: UIColor?,
+         logTube: FcrBoardLogTube?) {
         let listener = FcrBoardListener()
         
         let whiteView = WhiteBoardView(frame: .zero,
@@ -46,6 +47,7 @@ class FcrBoardRoom: NSObject {
         self.whiteView = whiteView
         self.whiteSDK = whiteSDK
         self.listener = listener
+        self.logTube = logTube
         
         super.init()
         

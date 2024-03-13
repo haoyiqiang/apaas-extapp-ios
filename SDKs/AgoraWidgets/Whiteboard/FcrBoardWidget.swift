@@ -331,10 +331,10 @@ extension FcrBoardWidget {
         let backgroundColor = UIConfig.netlessBoard.backgroundColor
         let room = FcrBoardRoom(appId: config.boardAppId,
                                 region: boardRegion,
-                                backgroundColor: backgroundColor)
-        room.delegate = self
+                                backgroundColor: backgroundColor,
+                                logTube: self)
         
-        room.logTube = self
+        room.delegate = self
         
         let ratio = view.ratio()
         
