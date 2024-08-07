@@ -31,6 +31,7 @@ class FcrBoardRoom: NSObject {
          backgroundColor: UIColor?,
          logTube: FcrBoardLogTube?) {
         let listener = FcrBoardListener()
+        listener.logTube = logTube
         
         let whiteView = WhiteBoardView(frame: .zero,
                                        configuration: WKWebViewConfiguration.defaultConfig())
