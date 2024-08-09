@@ -209,15 +209,24 @@ extension FcrBoardListener: WhiteAudioEffectMixerBridgeDelegate {
             type: .info,
             fromClass: WhiteSDK.self)
         
-        return rtc.playEffect(soundId,
-                              filePath: filePath,
-                              loopCount: loopCount,
-                              pitch: pitch,
-                              pan: pan,
-                              gain: gain,
-                              publish: publish,
-                              startPos: startPos,
-                              identifier: identifier)
+        if identifier == "mediaPlayer" {
+            return rtc.playEffect(soundId,
+                                  filePath: filePath,
+                                  loopCount: loopCount,
+                                  pitch: pitch,
+                                  pan: pan,
+                                  gain: gain,
+                                  publish: publish)
+        } else {
+            return rtc.playEffect(soundId,
+                                  filePath: filePath,
+                                  loopCount: loopCount,
+                                  pitch: pitch,
+                                  pan: pan,
+                                  gain: gain,
+                                  publish: publish,
+                                  startPos: startPos)
+        }
     }
 
     func stopEffect(_ soundId: Int32) -> Int32 {

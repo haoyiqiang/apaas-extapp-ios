@@ -50,6 +50,8 @@ class FcrBoardRoom: NSObject {
                                 commonCallbackDelegate: listener,
                                 effectMixerBridgeDelegate: listener)
         
+        whiteSDK.setParameters(["effectMixingForMediaPlayer": true])
+        
         self.whiteView = whiteView
         self.whiteSDK = whiteSDK
         self.listener = listener
