@@ -202,7 +202,9 @@ extension FcrBoardListener: WhiteAudioEffectMixerBridgeDelegate {
                     publish: Bool,
                     startPos: Int32,
                     identifier: String) -> Int32 {
-        let extra = "soundId: \(soundId), filePath: \(filePath ?? "nil"), loopCount: \(loopCount), pitch: \(pitch), pan: \(pan), gain: \(gain), publish: \(publish), startPos: \(startPos), identifier: \(identifier)"
+        let tGain: Double = 100
+        
+        let extra = "soundId: \(soundId), filePath: \(filePath ?? "nil"), loopCount: \(loopCount), pitch: \(pitch), pan: \(pan), gain: \(tGain), publish: \(publish), startPos: \(startPos), identifier: \(identifier)"
         
         log(content: #function,
             extra: extra,
@@ -215,7 +217,7 @@ extension FcrBoardListener: WhiteAudioEffectMixerBridgeDelegate {
                                   loopCount: loopCount,
                                   pitch: pitch,
                                   pan: pan,
-                                  gain: gain,
+                                  gain: tGain,
                                   publish: publish)
         } else {
             return rtc.playEffect(soundId,
@@ -223,7 +225,7 @@ extension FcrBoardListener: WhiteAudioEffectMixerBridgeDelegate {
                                   loopCount: loopCount,
                                   pitch: pitch,
                                   pan: pan,
-                                  gain: gain,
+                                  gain: tGain,
                                   publish: publish,
                                   startPos: startPos)
         }
