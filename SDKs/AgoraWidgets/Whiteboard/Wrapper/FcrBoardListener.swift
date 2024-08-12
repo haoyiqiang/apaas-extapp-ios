@@ -202,16 +202,18 @@ extension FcrBoardListener: WhiteAudioEffectMixerBridgeDelegate {
                     publish: Bool,
                     startPos: Int32,
                     identifier: String) -> Int32 {
-        let tGain: Double = 100
-        
-        let extra = "soundId: \(soundId), filePath: \(filePath ?? "nil"), loopCount: \(loopCount), pitch: \(pitch), pan: \(pan), gain: \(tGain), publish: \(publish), startPos: \(startPos), identifier: \(identifier)"
-        
-        log(content: #function,
-            extra: extra,
-            type: .info,
-            fromClass: WhiteSDK.self)
+        var extra = "soundId: \(soundId), filePath: \(filePath ?? "nil"), loopCount: \(loopCount), pitch: \(pitch), pan: \(pan), gain: \(gain) publish: \(publish), startPos: \(startPos), identifier: \(identifier)"
         
         if identifier == "mediaPlayer" {
+            let tGain: Double = 300
+            
+            extra += ", mediaPlayer final gain: \(tGain)"
+            
+            log(content: #function,
+                extra: extra,
+                type: .info,
+                fromClass: WhiteSDK.self)
+            
             return rtc.playEffect(soundId,
                                   filePath: filePath,
                                   loopCount: loopCount,
@@ -220,6 +222,15 @@ extension FcrBoardListener: WhiteAudioEffectMixerBridgeDelegate {
                                   gain: tGain,
                                   publish: publish)
         } else {
+            let tGain: Double = 300
+            
+            extra += ", ppt final gain: \(tGain)"
+            
+            log(content: #function,
+                extra: extra,
+                type: .info,
+                fromClass: WhiteSDK.self)
+            
             return rtc.playEffect(soundId,
                                   filePath: filePath,
                                   loopCount: loopCount,
