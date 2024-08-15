@@ -26,14 +26,14 @@ class FcrBoardListener: NSObject {
                                                object: nil)
         
         let audioFileInfo = Notification.Name(rawValue: "rtc.engine.audio.file.info")
-
+        
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(rtcAudioFileInfo(_:)),
                                                name: audioFileInfo,
                                                object: nil)
-
+        
         let audioEffectState = Notification.Name(rawValue: "rtc.engine.audio.effect.state")
-
+        
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(rtcAudioEffectStateChanged(_:)),
                                                name: audioEffectState,
@@ -166,31 +166,38 @@ extension FcrBoardListener: WhiteAudioMixerBridgeDelegate {
 
 extension FcrBoardListener: WhiteAudioEffectMixerBridgeDelegate {
     func getEffectsVolume() -> Double {
-        log(content: #function,
-            type: .info,
-            fromClass: WhiteSDK.self)
+        let result = rtc.getEffectsVolume()
         
-        return rtc.getEffectsVolume();
+        log(content: #function,
+            extra: "result: \(result)",
+            type: .info,
+            fromClass: FcrBoardListener.self)
+        
+        return result
     }
     
     func setEffectsVolume(_ volume: Double) -> Int32 {
-        log(content: #function,
-            extra: "volume: \(volume)",
-            type: .info,
-            fromClass: WhiteSDK.self)
+        let result = rtc.setEffectsVolume(volume)
         
-        return rtc.setEffectsVolume(volume)
+        log(content: #function,
+            extra: "volume: \(volume), result: \(result)",
+            type: .info,
+            fromClass: FcrBoardListener.self)
+        
+        return result
     }
-   
+    
     func setVolumeOfEffect(_ soundId: Int32,
                            withVolume volume: Double) -> Int32 {
+        let result = rtc.setVolumeOfEffect(soundId,
+                                           withVolume: volume)
+        
         log(content: #function,
-            extra: "soundId: \(soundId), volume: \(volume)",
+            extra: "soundId: \(soundId), volume: \(volume), result: \(result)",
             type: .info,
             fromClass: WhiteSDK.self)
         
-        return rtc.setVolumeOfEffect(soundId,
-                                     withVolume: volume)
+        return result
     }
     
     func playEffect(_ soundId: Int32,
@@ -209,135 +216,167 @@ extension FcrBoardListener: WhiteAudioEffectMixerBridgeDelegate {
             
             extra += ", mediaPlayer final gain: \(tGain)"
             
+            let result = rtc.playEffect(soundId,
+                                        filePath: filePath,
+                                        loopCount: loopCount,
+                                        pitch: pitch,
+                                        pan: pan,
+                                        gain: tGain,
+                                        publish: publish)
+            
+            extra += ", result: \(result)"
+            
             log(content: #function,
                 extra: extra,
                 type: .info,
-                fromClass: WhiteSDK.self)
+                fromClass: FcrBoardListener.self)
             
-            return rtc.playEffect(soundId,
-                                  filePath: filePath,
-                                  loopCount: loopCount,
-                                  pitch: pitch,
-                                  pan: pan,
-                                  gain: tGain,
-                                  publish: publish)
+            return result
         } else {
             let tGain: Double = 300
             
             extra += ", ppt final gain: \(tGain)"
             
+            let result = rtc.playEffect(soundId,
+                                        filePath: filePath,
+                                        loopCount: loopCount,
+                                        pitch: pitch,
+                                        pan: pan,
+                                        gain: tGain,
+                                        publish: publish,
+                                        startPos: startPos)
+            
+            extra += ", result: \(result)"
+            
             log(content: #function,
                 extra: extra,
                 type: .info,
-                fromClass: WhiteSDK.self)
+                fromClass: FcrBoardListener.self)
             
-            return rtc.playEffect(soundId,
-                                  filePath: filePath,
-                                  loopCount: loopCount,
-                                  pitch: pitch,
-                                  pan: pan,
-                                  gain: tGain,
-                                  publish: publish,
-                                  startPos: startPos)
+            return result
         }
     }
-
+    
     func stopEffect(_ soundId: Int32) -> Int32 {
-        log(content: #function,
-            extra: "soundId: \(soundId)",
-            type: .info,
-            fromClass: WhiteSDK.self)
+        let result = rtc.stopEffect(soundId)
         
-        return rtc.stopEffect(soundId);
+        log(content: #function,
+            extra: "soundId: \(soundId), result: \(result)",
+            type: .info,
+            fromClass: FcrBoardListener.self)
+        
+        return result
     }
     
     func stopAllEffects() -> Int32 {
+        let result = rtc.stopAllEffects()
+        
         log(content: #function,
+            extra: "result: \(result)",
             type: .info,
             fromClass: WhiteSDK.self)
         
-        return rtc.stopAllEffects()
+        return result
     }
     
     func preloadEffect(_ soundId: Int32,
                        filePath: String?) -> Int32 {
-        log(content: #function,
-            extra: "soundId: \(soundId), filePath: \(filePath ?? "")",
-            type: .info,
-            fromClass: WhiteSDK.self)
+        let result = rtc.preloadEffect(soundId,
+                                       filePath: filePath)
         
-        return rtc.preloadEffect(soundId,
-                                 filePath: filePath)
+        log(content: #function,
+            extra: "soundId: \(soundId), filePath: \(filePath ?? ""), result: \(result)",
+            type: .info,
+            fromClass: FcrBoardListener.self)
+        
+        return result
     }
-
+    
     func unloadEffect(_ soundId: Int32) -> Int32 {
-        log(content: #function,
-            extra: "soundId: \(soundId)",
-            type: .info,
-            fromClass: WhiteSDK.self)
+        let result = rtc.unloadEffect(soundId)
         
-        return rtc.unloadEffect(soundId)
+        log(content: #function,
+            extra: "soundId: \(soundId), result: \(result)",
+            type: .info,
+            fromClass: FcrBoardListener.self)
+        
+        return result
     }
     
     func pauseEffect(_ soundId: Int32) -> Int32 {
+        let result = rtc.pauseEffect(soundId)
+        
         log(content: #function,
-            extra: "soundId: \(soundId)",
+            extra: "soundId: \(soundId), result: \(result)",
             type: .info,
-            fromClass: WhiteSDK.self)
+            fromClass: FcrBoardListener.self)
         
-        return rtc.pauseEffect(soundId)
+        return result
     }
-        
+    
     func pauseAllEffects() -> Int32 {
-        log(content: #function,
-            type: .info,
-            fromClass: WhiteSDK.self)
+        let result = rtc.pauseAllEffects()
         
-        return rtc.pauseAllEffects()
+        log(content: #function,
+            extra: "result: \(result)",
+            type: .info,
+            fromClass: FcrBoardListener.self)
+        
+        return result
     }
-
+    
     func resumeEffect(_ soundId: Int32) -> Int32 {
-        log(content: #function,
-            type: .info,
-            fromClass: WhiteSDK.self)
+        let result = rtc.resumeEffect(soundId)
         
-        return rtc.resumeEffect(soundId)
+        log(content: #function,
+            extra: "result: \(result)",
+            type: .info,
+            fromClass: FcrBoardListener.self)
+        
+        return result
     }
-
+    
     func resumeAllEffects() -> Int32 {
-        log(content: #function,
-            type: .info,
-            fromClass: WhiteSDK.self)
+        let result = rtc.resumeAllEffects()
         
-        return rtc.resumeAllEffects()
+        log(content: #function,
+            extra: "result: \(result)",
+            type: .info,
+            fromClass: FcrBoardListener.self)
+        
+        return result
     }
     
     func setEffectPosition(_ soundId: Int32,
                            pos: Int) -> Int32 {
-        log(content: #function,
-            extra: "soundId: \(soundId), pos: \(pos)",
-            type: .info,
-            fromClass: WhiteSDK.self)
+        let result = rtc.setEffectPosition(soundId,
+                                           pos: pos)
         
-        return rtc.setEffectPosition(soundId,
-                                     pos: pos)
+        log(content: #function,
+            extra: "soundId: \(soundId), pos: \(pos), result: \(result)",
+            type: .info,
+            fromClass: FcrBoardListener.self)
+        
+        return result
     }
-
+    
     func getEffectCurrentPosition(_ soundId: Int32) -> Int32 {
-//        log(content: #function,
-//            extra: "soundId: \(soundId)",
-//            type: .info,
-//            fromClass: WhiteSDK.self)
+        //        log(content: #function,
+        //            extra: "soundId: \(soundId)",
+        //            type: .info,
+        //            fromClass: WhiteSDK.self)
         
         return rtc.getEffectCurrentPosition(soundId)
     }
     
     func getEffectDuration(_ filePath: String) -> Int32 {
-        log(content: #function,
-            extra: "filePath: \(filePath)",
-            type: .info,
-            fromClass: WhiteSDK.self)
+        let result = rtc.getEffectDuration(filePath)
         
-        return rtc.getEffectDuration(filePath)
+        log(content: #function,
+            extra: "filePath: \(filePath), result: \(result)",
+            type: .info,
+            fromClass: FcrBoardListener.self)
+        
+        return result
     }
 }
