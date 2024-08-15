@@ -45,6 +45,8 @@ class FcrBoardRoom: NSObject {
         sdkConfig.userCursor = true
         sdkConfig.log = true
         
+        sdkConfig.loggerOptions = ["printLevelMask": WhiteSDKLoggerOptionLevelKey.debug.rawValue]
+        
         let whiteSDK = WhiteSDK(whiteBoardView: whiteView,
                                 config: sdkConfig,
                                 commonCallbackDelegate: listener,
