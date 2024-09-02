@@ -32,6 +32,13 @@ class FcrBoardListener: NSObject {
                                                name: audioFileInfo,
                                                object: nil)
         
+        let audioEffectFinish = Notification.Name(rawValue: "rtc.engine.audio.effect.finish")
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(rtcAudioEffectFinish(_:)),
+                                               name: audioEffectFinish,
+                                               object: nil)
+        
         let audioEffectState = Notification.Name(rawValue: "rtc.engine.audio.effect.state")
         
         NotificationCenter.default.addObserver(self,
@@ -64,6 +71,19 @@ class FcrBoardListener: NSObject {
         
         effectMixer?.setEffectDurationUpdate(info.filePath,
                                              duration: Int(info.durationMs))
+    }
+    
+    @objc func rtcAudioEffectFinish(_ notification: Notification) {
+        guard let object = notification.object as? [String: Any],
+              let soundId = object["soundId"] as? Int else {
+            return
+        }
+        
+        log(content: #function,
+            extra: "soundId: \(soundId)",
+            type: .info)
+        
+        effectMixer?.setEffectFinished(soundId)
     }
     
     @objc func rtcAudioEffectStateChanged(_ notification: Notification) {
