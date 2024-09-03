@@ -53,6 +53,8 @@ class FcrBoardListener: NSObject {
     
     deinit {
         NotificationCenter.default.removeObserver(self)
+        
+        _ = stopAllEffects()
     }
     
     @objc func getRtcObject(_ notification: Notification) {
