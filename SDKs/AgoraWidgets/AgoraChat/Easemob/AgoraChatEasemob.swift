@@ -9,10 +9,14 @@ import Foundation
 import AgoraChat
 
 typealias EasemobSuccessCompletion = () -> ()
+typealias EasemobJoinSuccessCompletion = (_ room:AgoraChatroom?) -> ()
+typealias EasemobSendSuccessCompletion = (_ msg:[AgoraChatMessage]) -> ()
 typealias EasemobStringCompletion = (String?) -> ()
 typealias EasemobMuteStateCompletion = (_ muted: Bool) -> ()
 typealias EasemobMessageListCompletion = ([AgoraChatMessage]?) -> ()
 typealias EasemobFailureCompletion = (AgoraChatErrorType) -> ()
+typealias EasemobSendFailureCompletion = (AgoraChatErrorType) -> ()
+typealias EasemobJoinFailureCompletion = (_ roomId:String, _ errType:AgoraChatErrorType) -> ()
 
 protocol AgoraChatEasemobDelegate: NSObjectProtocol {
     func didReceiveMessages(list: [AgoraChatMessage])
@@ -32,14 +36,40 @@ class AgoraChatEasemob: NSObject {
     private(set) var userConfig: AgoraChatEasemobUserConfig
     private var chatRoomId: String
     
-    // set after joining successfully
-    private var chatRoom: AgoraChatroom?
-    
     private var latestMessageId = ""
-    
-    private var retryCount = 0
+    private var loginRetryCount = 0
+    private var joinRetryCountMap: [String: Int] = [:]
     private let maxRetryCount = 10
     private let muteMemberKey = "muteMember"
+    
+    var recvRoomIds:Array<String> {
+        get{
+            return self.userConfig.recvRoomIds
+        }
+    }
+    var sendRoomIds:Array<String> {
+        get{
+            return self.userConfig.recvRoomIds
+        }
+    }
+    
+    var joinRoomIds:Array<String> {
+        get {
+            var roomIds:Array<String> = []
+            roomIds.append(self.chatRoomId)
+            self.sendRoomIds.forEach { roomId in
+                if(!roomIds.contains(roomId)){
+                    roomIds.append(roomId)
+                }
+            }
+            self.recvRoomIds.forEach { roomId in
+                if(!roomIds.contains(roomId)){
+                    roomIds.append(roomId)
+                }
+            }
+            return roomIds
+        }
+    }
     
     init(appKey: String,
          chatRoomId: String,
@@ -87,14 +117,17 @@ class AgoraChatEasemob: NSObject {
                failure: failure)
     }
     
-    func join(success: EasemobSuccessCompletion?,
-              failure: EasemobFailureCompletion?) {
-        let extra = ["chatRoomId": chatRoomId]
-        delegate?.onEasemobLog(content: "start join",
-                               extra: extra.agDescription,
-                               type: .info)
-        _join(success: success,
-              failure: failure)
+    func join(success: EasemobJoinSuccessCompletion?,
+              failure: EasemobJoinFailureCompletion?) {
+        
+        self.joinRoomIds.forEach { roomId in
+            let extra = ["chatRoomId": roomId]
+            delegate?.onEasemobLog(content: "start join",
+                                   extra: extra.agDescription,
+                                   type: .info)
+            _join(roomId: roomId, success: success,
+                  failure: failure)
+        }
     }
     
     func logout() {
@@ -119,29 +152,53 @@ class AgoraChatEasemob: NSObject {
                                        to: chatRoomId,
                                        body: imageBody,
                                        ext: ext)
-        message.chatType = .chatRoom
         
-        let extra = ["chatRoomId": chatRoomId,
-                     "from": userConfig.userName,
-                     "to": chatRoomId,]
-        delegate?.onEasemobLog(content: "send image message",
-                               extra: extra.agDescription,
-                               type: .info)
-        AgoraChatClient.shared().chatManager.send(message,
-                                                  progress: nil) { [weak self] (chatMessage, chatError) in
-            guard let `self` = self else {
-                return
+        let success: EasemobSendSuccessCompletion = { msgs in
+            // 只需要取第一个发送成功的
+            self.delegate?.didSendMessages(list: [msgs[0]])
+        }
+        let failure: EasemobSendFailureCompletion = { type in
+            self.delegate?.didOccurError(type: type)
+        }
+        batchSendMsg(message: message, success: success, failure: failure)
+    }
+    
+  
+    func batchSendMsg(message: AgoraChatMessage, success: EasemobSendSuccessCompletion?, failure: EasemobSendFailureCompletion?) {
+        
+        var sendResult: [AgoraChatMessage] = []
+      
+        self.sendRoomIds.forEach { roomId in
+            let msg = AgoraChatMessage(conversationID: roomId, from: userConfig.userName, to: roomId, body: message.body, ext: message.ext)
+            msg.chatType = .chatRoom
+            
+            let extra = ["chatRoomId": roomId,
+                         "from": userConfig.userName,
+                         "to": roomId,
+                         "text":message.agDescription]
+            delegate?.onEasemobLog(content: "send message",
+                                   extra: extra.agDescription,
+                                   type: .info)
+            
+            AgoraChatClient.shared().chatManager.send(message,
+                                                      progress: nil){ [weak self] (chatMessage, chatError) in
+                guard let `self` = self else {
+                    return
+                }
+                
+                guard let message = chatMessage,
+                      chatError == nil else {
+                    failure?(.sendFailed(chatError!.code.rawValue))
+                    return
+                }
+                sendResult.append(chatMessage!)
+                if(self.sendRoomIds.count == sendResult.count){
+                    success?(sendResult)
+                }
             }
-            guard chatError == nil else {
-                self.delegate?.didOccurError(type: .sendFailed(chatError!.code.rawValue))
-                return
-            }
-            guard let message = chatMessage else {
-                return
-            }
-            self.delegate?.didSendMessages(list: [message])
         }
     }
+    
     
     func sendTextMessage(_ text: String) {
         guard text.count > 0 else {
@@ -154,40 +211,21 @@ class AgoraChatEasemob: NSObject {
                                        to: chatRoomId,
                                        body: textBody,
                                        ext: ext)
-        message.chatType = .chatRoom
-        let extra = ["chatRoomId": chatRoomId,
-                     "from": userConfig.userName,
-                     "to": chatRoomId,
-                     "text":text]
-        delegate?.onEasemobLog(content: "send text message",
-                               extra: extra.agDescription,
-                               type: .info)
         
-        AgoraChatClient.shared().chatManager.send(message,
-                                                  progress: nil) { [weak self] (chatMessage, chatError) in
-            guard let `self` = self else {
-                return
-            }
-            guard let message = chatMessage,
-                  chatError == nil else {
-                self.delegate?.didOccurError(type: .sendFailed(chatError!.code.rawValue))
-                    return
-            }
-            self.delegate?.didSendMessages(list: [message])
+        let success: EasemobSendSuccessCompletion = { msgs in
+            // 只需要取第一个发送成功的
+            self.delegate?.didSendMessages(list: [msgs[0]])
         }
+        let failure: EasemobSendFailureCompletion = { type in
+            self.delegate?.didOccurError(type: type)
+        }
+        batchSendMsg(message: message, success: success, failure: failure)
     }
     
     func sendCmdMessage(action: String) {
         guard action.count > 0 else {
             return
         }
-        let extra = ["chatRoomId": chatRoomId,
-                     "from": userConfig.userName,
-                     "to": chatRoomId,
-                     "action":action]
-        delegate?.onEasemobLog(content: "send cmd message",
-                               extra: extra.agDescription,
-                               type: .info)
         let textBody = AgoraChatCmdMessageBody(action: action)
         let ext = messageExt()
         let message = AgoraChatMessage(conversationID: chatRoomId,
@@ -195,19 +233,15 @@ class AgoraChatEasemob: NSObject {
                                        to: chatRoomId,
                                        body: textBody,
                                        ext: ext)
-        message.chatType = .chatRoom
-        AgoraChatClient.shared().chatManager.send(message,
-                                                  progress: nil) { [weak self] (chatMessage, chatError) in
-            guard let `self` = self else {
-                return
-            }
-            guard let message = chatMessage,
-                  chatError == nil else {
-                self.delegate?.didOccurError(type: .sendFailed(chatError!.code.rawValue))
-                    return
-            }
-            self.delegate?.didReceiveMessages(list: [message])
+        
+        let success: EasemobSendSuccessCompletion = { msgs in
+            // 只需要取第一个发送成功的
+            self.delegate?.didReceiveMessages(list: [msgs[0]])
         }
+        let failure: EasemobSendFailureCompletion = { type in
+            self.delegate?.didOccurError(type: type)
+        }
+        batchSendMsg(message: message, success: success, failure: failure)
     }
     
     func muteAll(mute: Bool) {
@@ -308,8 +342,7 @@ class AgoraChatEasemob: NSObject {
                                         extra: extra.agDescription,
                                         type: .info)
             
-            // MARK: 此处必须重新为chatRoom赋值,再获取isMuteAllMembers，否则聊天室内信息可能不对
-            self.chatRoom = room
+        
             success?(room.isMuteAllMembers)
         }
     }
@@ -380,41 +413,55 @@ class AgoraChatEasemob: NSObject {
         }
     }
     
+    
+    
     func getHistoryMessages(success: EasemobMessageListCompletion?,
                             failure: EasemobFailureCompletion?) {
-        var extra = ["chatRoomId": chatRoomId]
-        
-        self.delegate?.onEasemobLog(content: "get history messages",
-                                    extra: extra.agDescription,
-                                    type: .info)
-        AgoraChatClient.shared().chatManager.asyncFetchHistoryMessages(fromServer: chatRoomId,
-                                                                       conversationType: .chatRoom,
-                                                                       startMessageId: "",
-                                                                       pageSize: 50) { [weak self] (result,chatError) in
-            guard let `self` = self else {
-                return
+        var historyMsg:Array<AgoraChatMessage> = []
+        var taskResult: [[AgoraChatMessage]] = []
+        self.recvRoomIds.forEach { roomId in
+            var extra = ["chatRoomId": roomId]
+            
+            self.delegate?.onEasemobLog(content: "get history messages",
+                                        extra: extra.agDescription,
+                                        type: .info)
+            AgoraChatClient.shared().chatManager.asyncFetchHistoryMessages(fromServer: roomId,
+                                                                           conversationType: .chatRoom,
+                                                                           startMessageId: "",
+                                                                           pageSize: 50) { [weak self] (result,chatError) in
+                guard let `self` = self else {
+                    return
+                }
+                guard chatError == nil else {
+                    var extra = ["aError": "\(chatError!.code.rawValue)"]
+                    
+                    self.delegate?.onEasemobLog(content: "get history messages fail",
+                                                extra: extra.agDescription,
+                                                type: .error)
+                    failure?(.fetchError(chatError!.code.rawValue))
+                    return
+                }
+               
+                let list = result?.list as? [AgoraChatMessage] ?? []
+                let messageList = list.filter({return ($0.body.type == .text || $0.body.type == .image || $0.body.type == .cmd)})
+              
+                taskResult.append(messageList)
+                // 所有消息获取到再回掉回去
+                if(self.recvRoomIds.count == taskResult.count){
+                    taskResult.forEach { msgs in
+                        msgs.forEach { msg in
+                            historyMsg.append(msg)
+                        }
+                    }
+                    
+                    guard let last = historyMsg.last else {
+                        success?(nil)
+                        return
+                    }
+                    self.latestMessageId = last.messageId
+                    success?(historyMsg)
+                }
             }
-            guard chatError == nil else {
-                var extra = ["aError": "\(chatError!.code.rawValue)"]
-                
-                self.delegate?.onEasemobLog(content: "get history messages fail",
-                                            extra: extra.agDescription,
-                                            type: .error)
-                failure?(.fetchError(chatError!.code.rawValue))
-                return
-            }
-            guard let list = result?.list as? [AgoraChatMessage],
-                  list.count > 0 else {
-                success?(nil)
-                return
-            }
-            let messageList = list.filter({return ($0.body.type == .text || $0.body.type == .image || $0.body.type == .cmd)})
-            guard let last = messageList.last else {
-                success?(nil)
-                return
-            }
-            self.latestMessageId = last.messageId
-            success?(messageList)
         }
     }
 }
@@ -432,7 +479,8 @@ private extension AgoraChatEasemob {
             }
             guard let loginError = aLoginError,
                   loginError.code != .userAlreadyLoginSame else {
-                self.retryCount = 0
+                self.loginRetryCount = 0
+                self.joinRetryCountMap.removeAll()
                 self.delegate?.onEasemobLog(content: "login success",
                                             extra: nil,
                                             type: .info)
@@ -445,7 +493,8 @@ private extension AgoraChatEasemob {
                 AgoraChatClient.shared().register(withUsername: self.userConfig.userName,
                                                   password: self.userConfig.password) { (userName, chatError) in
                     if let chatError = chatError {
-                        self.retryCount = 0
+                        self.loginRetryCount = 0
+                        self.joinRetryCountMap.removeAll()
                         let extra = ["userId":self.userConfig.userName,
                                      "password":self.userConfig.password,
                                      "code": "\(chatError.code.rawValue)"]
@@ -464,12 +513,12 @@ private extension AgoraChatEasemob {
                                 failure: failure)
                 }
             default:
-                guard self.retryCount < self.maxRetryCount else {
-                    self.retryCount = 0
+                guard self.loginRetryCount < self.maxRetryCount else {
+                    self.loginRetryCount = 0
                     failure?(.loginFailed)
                     return
                 }
-                self.retryCount += 1
+                self.loginRetryCount += 1
                 self._login(token: token,
                             lowercaseName: lowercaseName,
                             success: success,
@@ -478,36 +527,39 @@ private extension AgoraChatEasemob {
         }
     }
     
-    func _join(success: EasemobSuccessCompletion?,
-               failure: EasemobFailureCompletion?) {
-        AgoraChatClient.shared().roomManager.joinChatroom(chatRoomId) { [weak self] (chatRoom, chatError) in
+    
+    
+    
+    func _join(roomId:String, success: EasemobJoinSuccessCompletion?,
+               failure: EasemobJoinFailureCompletion?) {
+        AgoraChatClient.shared().roomManager.joinChatroom(roomId) { [weak self] (chatRoom, chatError) in
             guard let `self` = self else {
                 return
             }
             guard let `chatError` = chatError else {
-                self.chatRoom = chatRoom
-                self.retryCount = 0
+//                self.chatRoom = chatRoom
+                self.joinRetryCountMap[roomId] = 0
+                let extra = ["chatRoomId":roomId]
                 self.delegate?.onEasemobLog(content: "join success",
-                                            extra: nil,
+                                            extra: extra.agDescription,
                                             type: .info)
-                success?()
+                success?(chatRoom)
                 return
             }
             
-            guard self.retryCount < self.maxRetryCount else {
-                self.retryCount = 0
-                
-                let extra = ["chatRoomId":self.chatRoomId,
-                             "code": "\(chatError.code.rawValue)"]
+            let retryCount = self.joinRetryCountMap[roomId] ?? 0
+            guard retryCount < self.maxRetryCount else {
+                self.joinRetryCountMap[roomId] = 0
+                let extra = ["chatRoomId":roomId]
                 self.delegate?.onEasemobLog(content: "join fail",
                                             extra: extra.agDescription,
                                             type: .error)
-                failure?(.joinFailed)
+                failure?(roomId, .joinFailed)
                 return
             }
             
-            self.retryCount += 1
-            self._join(success: success,
+            self.joinRetryCountMap[roomId] = retryCount + 1
+            self._join(roomId: roomId, success: success,
                        failure: failure)
         }
     }
@@ -598,10 +650,10 @@ extension AgoraChatEasemob: AgoraChatClientDelegate,
         delegate?.onEasemobLog(content: "receive messages",
                                extra: extra.agDescription,
                                type: .info)
-        
+        // 只接受接受组消息
         let list = aMessages.filter { message in
             guard message.chatType == .chatRoom,
-                  message.to == chatRoomId,
+                  recvRoomIds.contains(message.to),
                   (message.body.type == .text || message.body.type == .image) else {
                 return false
             }
@@ -623,7 +675,8 @@ extension AgoraChatEasemob: AgoraChatClientDelegate,
         
         var messageList = [AgoraChatMessage]()
         for cmdMessage in aCmdMessages {
-            guard let body = cmdMessage.body as? AgoraChatCmdMessageBody,
+            guard recvRoomIds.contains(cmdMessage.to),
+                  let body = cmdMessage.body as? AgoraChatCmdMessageBody,
                   let type = AgoraChatEasemobCmdMessageBodyActionType(rawValue: body.action) else {
                 continue
             }

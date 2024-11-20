@@ -35,13 +35,17 @@ struct AgoraChatEasemobUserConfig {
     var fcrRoomId: String
     var password: String
     var role: Int
+    var sendRoomIds: Array<String>
+    var recvRoomIds: Array<String>
     
     init(userName: String,
          nickName: String,
          avatarurl: String?,
          fcrRoomId: String,
          password: String? = "",
-         role: Int) {
+         role: Int,
+         sendRoomIds: Array<String>? = [],
+         recvRoomIds: Array<String>? = []) {
         var finalAvatarUrl = "https://download-sdk.oss-cn-beijing.aliyuncs.com/downloads/IMDemo/avatar/Image1.png"
         var finalPassword = userName
         if let avatarurl = avatarurl {
@@ -56,6 +60,8 @@ struct AgoraChatEasemobUserConfig {
         self.fcrRoomId = fcrRoomId
         self.password = finalPassword
         self.role = role
+        self.sendRoomIds = sendRoomIds ?? []
+        self.recvRoomIds = recvRoomIds ?? []
     }
 }
 

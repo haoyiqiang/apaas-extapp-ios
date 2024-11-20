@@ -122,6 +122,10 @@ import AgoraChat
         initData()
     }
     
+    public override func onWidgetUserPropertiesUpdated(_ properties: [String : Any], cause: [String : Any]?, keyPaths: [String], operatorUser: AgoraWidgetUserInfo?) {
+        super.onWidgetUserPropertiesUpdated(properties, cause: cause, keyPaths: keyPaths, operatorUser: operatorUser)
+    }
+    
     deinit {
         easemob?.logout()
     }
@@ -174,14 +178,20 @@ private extension AgoraChatEasemobWidget {
             avatarUrl = url
         }
         var userName = info.localUserInfo.userUuid
+        
         if let userId = info.localUserProperties?["userId"] as? String {
             userName = userId
         }
+        
+        let sendRoomIds = info.localUserProperties?["sendChatRoomIds"] as? Array<String>
+        let recvRoomIds = info.localUserProperties?["receiveChatRoomIds"] as? Array<String>
         let userConfig = AgoraChatEasemobUserConfig(userName: userName,
                                                     nickName: info.localUserInfo.userName,
                                                     avatarurl: avatarUrl,
                                                     fcrRoomId: info.roomInfo.roomUuid,
-                                                    role: info.localUserInfo.userRole.userRoleToInt())
+                                                    role: info.localUserInfo.userRole.userRoleToInt(),
+                                                    sendRoomIds: sendRoomIds,
+                                                    recvRoomIds: recvRoomIds)
         easemob = AgoraChatEasemob(appKey: extra.appKey,
                                    chatRoomId: extra.chatRoomId,
                                    userConfig: userConfig,
@@ -198,23 +208,29 @@ private extension AgoraChatEasemobWidget {
     
     func launchEsasemob(token: String) {
         // 3. join easemob
-        let failureBlock: ((AgoraChatErrorType) -> Void) = { [weak self] type in
+        let failureBlock: EasemobFailureCompletion = { [weak self] type in
             self?.handleError(type: type)
         }
         
-        let joinSuccessBlock: (() -> Void) = { [weak self] in
+        let joinSuccessBlock: EasemobJoinSuccessCompletion = { [weak self] room in
             guard let `self` = self else {
                 return
             }
             self.initEasemobState()
         }
         
-        let loginSuccessBlock: (() -> Void) = { [weak easemob] in
+        let joinFailureBlock: EasemobJoinFailureCompletion = { [weak self] (roomId, errType) in
+            guard let `self` = self else {
+                return
+            }
+            self.initEasemobState()
+        }
+        
+        let loginSuccessBlock: EasemobSuccessCompletion = { [weak easemob] in
             guard let `easemob` = easemob else {
                 return
             }
-            easemob.join(success: joinSuccessBlock,
-                         failure: failureBlock)
+            easemob.join(success: joinSuccessBlock, failure: joinFailureBlock)
         }
         
         // 2. login easemob
