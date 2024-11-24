@@ -49,7 +49,7 @@ class AgoraChatEasemob: NSObject {
     }
     var sendRoomIds:Array<String> {
         get{
-            return self.userConfig.recvRoomIds
+            return self.userConfig.sendRoomIds
         }
     }
     
@@ -117,16 +117,34 @@ class AgoraChatEasemob: NSObject {
                failure: failure)
     }
     
-    func join(success: EasemobJoinSuccessCompletion?,
-              failure: EasemobJoinFailureCompletion?) {
+    func join(success: EasemobSuccessCompletion?,
+              failure: EasemobFailureCompletion?) {
         
+        var joinRoomCount = 0
+        
+        let joinSuccessBlock: EasemobJoinSuccessCompletion = { [weak self] room in
+            guard let `self` = self else {
+                return
+            }
+            joinRoomCount += 1
+            if(joinRoomCount == self.joinRoomIds.count){
+                success?()
+            }
+        }
+        
+        let joinFailureBlock: EasemobJoinFailureCompletion = { [weak self] (roomId, errType) in
+            guard let `self` = self else {
+                return
+            }
+            failure?(errType)
+        }
         self.joinRoomIds.forEach { roomId in
             let extra = ["chatRoomId": roomId]
             delegate?.onEasemobLog(content: "start join",
                                    extra: extra.agDescription,
                                    type: .info)
-            _join(roomId: roomId, success: success,
-                  failure: failure)
+            _join(roomId: roomId, success: joinSuccessBlock,
+                  failure: joinFailureBlock)
         }
     }
     
@@ -180,7 +198,7 @@ class AgoraChatEasemob: NSObject {
                                    extra: extra.agDescription,
                                    type: .info)
             
-            AgoraChatClient.shared().chatManager.send(message,
+            AgoraChatClient.shared().chatManager.send(msg,
                                                       progress: nil){ [weak self] (chatMessage, chatError) in
                 guard let `self` = self else {
                     return
@@ -354,7 +372,6 @@ class AgoraChatEasemob: NSObject {
         delegate?.onEasemobLog(content: "get local mute state",
                                extra: extra.agDescription,
                                type: .info)
-        
         AgoraChatClient.shared().roomManager.getChatroomMuteListFromServer(withId: chatRoomId,
                                                                            pageNumber: 0,
                                                                            pageSize: 100) { [weak self] (muteList, chatError)  in
@@ -444,7 +461,7 @@ class AgoraChatEasemob: NSObject {
                
                 let list = result?.list as? [AgoraChatMessage] ?? []
                 let messageList = list.filter({return ($0.body.type == .text || $0.body.type == .image || $0.body.type == .cmd)})
-              
+                
                 taskResult.append(messageList)
                 // 所有消息获取到再回掉回去
                 if(self.recvRoomIds.count == taskResult.count){
@@ -453,13 +470,65 @@ class AgoraChatEasemob: NSObject {
                             historyMsg.append(msg)
                         }
                     }
-                    
+                  
                     guard let last = historyMsg.last else {
                         success?(nil)
                         return
                     }
+                    
+                    historyMsg.sort{(a,b) -> Bool in
+                        return a.timestamp < b.timestamp
+                    }
                     self.latestMessageId = last.messageId
                     success?(historyMsg)
+                    
+                    // 从消息中回溯出当前是否在禁言, 有bug
+                    let cmdMessageList:[AgoraChatMessage] = historyMsg.filter({
+                        if($0.body.type != .cmd){
+                            return false
+                        }
+                        
+                        return true
+                        
+                        let body = $0.body as? AgoraChatCmdMessageBody
+                        
+                        if(body?.action == "setAllMute" || body?.action == "removeAllMute" || body?.action == "mute" || body?.action == "unmute"){
+                            return true
+                        }
+                        return false
+                    })
+                    
+                    guard let cmdMessage = cmdMessageList.last else {
+                        return
+                    }
+                    
+                    
+                    let body = cmdMessage.body as? AgoraChatCmdMessageBody
+                    let type = AgoraChatEasemobCmdMessageBodyActionType(rawValue: body!.action)
+                    // 最后一条cmd消息是否是禁言
+                    switch type {
+                    case .delete:
+                        // recall消息暂不处理
+                        break
+                    case .setAllMute:
+                        self.delegate?.didAllMuteStateChanged(true)
+                    case .removeAllMute:
+                        self.delegate?.didAllMuteStateChanged(false)
+                    case .mute:
+                        guard let muteUserId = cmdMessage.ext?[muteMemberKey] as? String,
+                              muteUserId == userConfig.userName else {
+                            break
+                        }
+                        self.delegate?.didLocalMuteStateChanged(true)
+                    case .unmute:
+                        guard let muteUserId = cmdMessage.ext?[muteMemberKey] as? String,
+                              muteUserId == userConfig.userName else {
+                            break
+                        }
+                        self.delegate?.didLocalMuteStateChanged(false)
+                    case .none:
+                        break
+                    }
                 }
             }
         }
@@ -540,7 +609,7 @@ private extension AgoraChatEasemob {
 //                self.chatRoom = chatRoom
                 self.joinRetryCountMap[roomId] = 0
                 let extra = ["chatRoomId":roomId]
-                self.delegate?.onEasemobLog(content: "join success",
+                self.delegate?.onEasemobLog(content: "join chat success",
                                             extra: extra.agDescription,
                                             type: .info)
                 success?(chatRoom)
@@ -551,13 +620,16 @@ private extension AgoraChatEasemob {
             guard retryCount < self.maxRetryCount else {
                 self.joinRetryCountMap[roomId] = 0
                 let extra = ["chatRoomId":roomId]
-                self.delegate?.onEasemobLog(content: "join fail",
+                self.delegate?.onEasemobLog(content: "join chat fail",
                                             extra: extra.agDescription,
                                             type: .error)
                 failure?(roomId, .joinFailed)
                 return
             }
-            
+            let extra = ["chatRoomId":roomId]
+            self.delegate?.onEasemobLog(content: "retry join chat",
+                                        extra: extra.agDescription,
+                                        type: .error)
             self.joinRetryCountMap[roomId] = retryCount + 1
             self._join(roomId: roomId, success: success,
                        failure: failure)
@@ -567,7 +639,7 @@ private extension AgoraChatEasemob {
     func updateLocalUserInfo() {
         let userInfo = AgoraChatUserInfo()
         userInfo.nickname = userConfig.nickName
-        let extDic = ["role": userConfig.role]
+        let extDic = ["role": userConfig.role, "chatGroupUuids": self.userConfig.chatGroupUuids] as [String : Any]
         
         if let data = extDic.jsonData() {
             let extString = String(data: data,
@@ -686,20 +758,24 @@ extension AgoraChatEasemob: AgoraChatClientDelegate,
                 break
             case .setAllMute:
                 messageList.append(cmdMessage)
+                delegate?.didAllMuteStateChanged(true)
             case .removeAllMute:
                 messageList.append(cmdMessage)
+                delegate?.didAllMuteStateChanged(false)
             case .mute:
                 guard let muteUserId = cmdMessage.ext?[muteMemberKey] as? String,
                       muteUserId == userConfig.userName else {
                     continue
                 }
                 messageList.append(cmdMessage)
+                delegate?.didLocalMuteStateChanged(true)
             case .unmute:
                 guard let muteUserId = cmdMessage.ext?[muteMemberKey] as? String,
                       muteUserId == userConfig.userName else {
                     continue
                 }
                 messageList.append(cmdMessage)
+                delegate?.didLocalMuteStateChanged(false)
             }
         }
         guard messageList.count > 0 else {

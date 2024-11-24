@@ -55,6 +55,14 @@ import AgoraChat
     override init(widgetInfo: AgoraWidgetInfo) {
         super.init(widgetInfo: widgetInfo)
         
+        widgetInfo.localUserProperties = [:]
+        widgetInfo.localUserProperties?["role"] = 2
+        widgetInfo.localUserProperties?["isAdmin"] = 1
+        widgetInfo.localUserProperties?["userId"] = "e3ceb5881a0a1fdaad01296d7554868d"
+        widgetInfo.localUserProperties?["chatGroupUuids"] = ["a"]
+        widgetInfo.localUserProperties?["sendChatRoomIds"] = ["265222488129558", "265222491275285"]
+        widgetInfo.localUserProperties?["receiveChatRoomIds"] = ["265222488129548", "265222491275285"]
+
         initData()
     }
     
@@ -182,7 +190,7 @@ private extension AgoraChatEasemobWidget {
         if let userId = info.localUserProperties?["userId"] as? String {
             userName = userId
         }
-        
+        let chatGroupUuids = info.localUserProperties?["chatGroupUuids"] as? Array<String>
         let sendRoomIds = info.localUserProperties?["sendChatRoomIds"] as? Array<String>
         let recvRoomIds = info.localUserProperties?["receiveChatRoomIds"] as? Array<String>
         let userConfig = AgoraChatEasemobUserConfig(userName: userName,
@@ -191,7 +199,8 @@ private extension AgoraChatEasemobWidget {
                                                     fcrRoomId: info.roomInfo.roomUuid,
                                                     role: info.localUserInfo.userRole.userRoleToInt(),
                                                     sendRoomIds: sendRoomIds,
-                                                    recvRoomIds: recvRoomIds)
+                                                    recvRoomIds: recvRoomIds,
+                                                    chatGroupUuids: chatGroupUuids)
         easemob = AgoraChatEasemob(appKey: extra.appKey,
                                    chatRoomId: extra.chatRoomId,
                                    userConfig: userConfig,
@@ -212,25 +221,18 @@ private extension AgoraChatEasemobWidget {
             self?.handleError(type: type)
         }
         
-        let joinSuccessBlock: EasemobJoinSuccessCompletion = { [weak self] room in
-            guard let `self` = self else {
-                return
-            }
-            self.initEasemobState()
-        }
-        
-        let joinFailureBlock: EasemobJoinFailureCompletion = { [weak self] (roomId, errType) in
-            guard let `self` = self else {
-                return
-            }
-            self.initEasemobState()
+        let joinSuccessBlock: (() -> Void) = { [weak self] in
+           guard let `self` = self else {
+               return
+           }
+           self.initEasemobState()
         }
         
         let loginSuccessBlock: EasemobSuccessCompletion = { [weak easemob] in
             guard let `easemob` = easemob else {
                 return
             }
-            easemob.join(success: joinSuccessBlock, failure: joinFailureBlock)
+            easemob.join(success: joinSuccessBlock, failure: failureBlock)
         }
         
         // 2. login easemob
@@ -357,7 +359,6 @@ extension AgoraChatEasemobWidget: AgoraChatEasemobDelegate {
             guard let viewModel = message.toViewModel(localUserId: localUserId) else {
                 continue
             }
-            
             mainView.appendMessages([viewModel])
         }
         
