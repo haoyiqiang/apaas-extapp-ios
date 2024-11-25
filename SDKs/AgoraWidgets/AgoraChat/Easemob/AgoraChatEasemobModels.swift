@@ -9,6 +9,30 @@ import Foundation
 import AgoraChat
 import AgoraLog
 
+typealias EasemobSuccessCompletion = () -> ()
+typealias EasemobJoinSuccessCompletion = (_ room:AgoraChatroom?) -> ()
+typealias EasemobSendSuccessCompletion = (_ msg:[AgoraChatMessage]) -> ()
+typealias EasemobStringCompletion = (String?) -> ()
+typealias EasemobMuteStateCompletion = (_ muted: Bool) -> ()
+typealias EasemobMessageListCompletion = ([AgoraChatMessage]?) -> ()
+typealias EasemobFailureCompletion = (AgoraChatErrorType) -> ()
+typealias EasemobSendFailureCompletion = (AgoraChatErrorType) -> ()
+typealias EasemobJoinFailureCompletion = (_ roomId:String, _ errType:AgoraChatErrorType) -> ()
+
+protocol AgoraChatEasemobDelegate: NSObjectProtocol {
+    func didReceiveMessages(list: [AgoraChatMessage])
+    func didSendMessages(list: [AgoraChatMessage])
+    func didLocalMuteStateChanged(_ muted: Bool)
+    func didAllMuteStateChanged(_ muted: Bool)
+    func didReceiveAnnouncement(_ announcement: String?)
+    func didConnectionStateChaned(_ state: AgoraChatConnectionState)
+    func onEasemobLog(content: String,
+                      extra: String?,
+                      type: FcrEasemobLogType)
+    func didOccurError(type: AgoraChatErrorType)
+}
+
+
 struct AgoraChatEasemoExtraInfo: Convertable {
     var avatarurl: String?
 }
