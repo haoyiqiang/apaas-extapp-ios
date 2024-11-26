@@ -12,7 +12,7 @@ import AgoraChat
 @objcMembers public class AgoraChatEasemobWidgetGroup: AgoraNativeWidget {
     private lazy var mainView = AgoraChatMainView()
         
-    private var easemob: AgoraChatEasemob?
+    private var easemob: AgoraChatEasemobGroup?
     
     private var localMuted: Bool = false {
         didSet {
@@ -51,25 +51,16 @@ import AgoraChat
                                serverAPI: serverAPI)
         }
     }
-    
     override init(widgetInfo: AgoraWidgetInfo) {
         super.init(widgetInfo: widgetInfo)
         log(content: "AgoraWidgetGroup init >>>",
             type: .info )
-        widgetInfo.localUserProperties = [:]
-        widgetInfo.localUserProperties?["role"] = 2
-        widgetInfo.localUserProperties?["isAdmin"] = 1
-        widgetInfo.localUserProperties?["userId"] = "e3ceb5881a0a1fdaad01296d7554868d"
-        widgetInfo.localUserProperties?["chatGroupUuids"] = ["a"]
-        widgetInfo.localUserProperties?["sendChatRoomIds"] = ["265222488129558", "265222491275285"]
-        widgetInfo.localUserProperties?["receiveChatRoomIds"] = ["265222488129548", "265222491275285"]
-
         initData()
     }
     
     public override func onLoad() {
         super.onLoad()
-        
+      
         mainView.delegate = self
         mainView.editAnnouncementEnabled = isTeacher
         view.addSubview(mainView)
@@ -202,7 +193,7 @@ private extension AgoraChatEasemobWidgetGroup {
                                                     sendRoomIds: sendRoomIds,
                                                     recvRoomIds: recvRoomIds,
                                                     chatGroupUuids: chatGroupUuids)
-        easemob = AgoraChatEasemob(appKey: extra.appKey,
+        easemob = AgoraChatEasemobGroup(appKey: extra.appKey,
                                    chatRoomId: extra.chatRoomId,
                                    userConfig: userConfig,
                                    enableConsoleLog: enableConsoleLog,
