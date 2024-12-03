@@ -20,13 +20,18 @@ class FcrBoardRoom: NSObject, WhiteSlideDelegate {
     private var mainWindow: FcrBoardMainWindow?
     
     weak var delegate: FcrBoardRoomDelegate?
-    weak var logTube: FcrBoardLogTube?
+    weak var logTube: FcrBoardLogTube? {
+        didSet {
+            listener.logTube = logTube
+        }
+    }
     
     init(appId: String,
          region: FcrBoardRegion,
          backgroundColor: UIColor?,
          logTube: FcrBoardLogTube?) {
         let listener = FcrBoardListener()
+        listener.logTube = logTube
         
         let whiteView = WhiteBoardView(frame: .zero,
                                        configuration: WKWebViewConfiguration.defaultConfig())
@@ -39,11 +44,16 @@ class FcrBoardRoom: NSObject, WhiteSlideDelegate {
         sdkConfig.useMultiViews = true
         sdkConfig.userCursor = true
         sdkConfig.enableAppliancePlugin = true
+        sdkConfig.log = true
+        
+        sdkConfig.loggerOptions = ["printLevelMask": WhiteSDKLoggerOptionLevelKey.debug.rawValue]
         
         let whiteSDK = WhiteSDK(whiteBoardView: whiteView,
                                 config: sdkConfig,
                                 commonCallbackDelegate: listener,
-                                audioMixerBridgeDelegate: listener)
+                                effectMixerBridgeDelegate: listener)
+        
+        whiteSDK.setParameters(["effectMixingForMediaPlayer": true])
         
         self.whiteView = whiteView
         self.whiteSDK = whiteSDK
@@ -54,6 +64,7 @@ class FcrBoardRoom: NSObject, WhiteSlideDelegate {
         
         whiteSDK.setSlideDelegate(self)
         listener.roomNeedObserve = self
+        listener.effectMixer = whiteSDK.effectMixer
         
         registerH5App()
         
